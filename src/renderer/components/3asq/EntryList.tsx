@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Entry } from '../types';
-import { getEntries } from '../ext/3asq/index';
+import { Entry } from '../../types';
+import { getEntries } from '../../ext/3asq/index';
 
 function EntryList(): React.JSX.Element {
   const [entries, setEntries] = useState<Entry[]>([]);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Details, Chapter } from '../types'; // Adjust the import path if needed
-import { getDetails } from '../ext/3asq/index'; // Adjust the import path if needed
+import { Details, Chapter } from '../../types'; // Adjust the import path if needed
+import { getDetails } from '../../ext/3asq/index'; // Adjust the import path if needed
 
 function EntryDetails(): React.JSX.Element {
   const { title } = useParams<{ title: string }>(); // Extract the title from the URL

@@ -1,8 +1,8 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Library from './pages/library';
-import EntryDetails from './components/EntryDetails';
-import Reader from './components/Reader';
+import EntryDetails from './components/3asq/EntryDetails';
+import Reader from './components/3asq/Reader';
 
 export default function App() {
   return (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Chapter } from '../types'; // Adjust the import path if needed
-import { getChapter } from '../ext/3asq'; // Adjust the import path if needed
+import { Chapter } from '../../types'; // Adjust the import path if needed
+import { getChapter } from '../../ext/3asq'; // Adjust the import path if needed
 
 function Reader(): React.JSX.Element {
   const { chapterPath } = useParams<{ chapterPath: string }>(); // Extract chapterPath from the URL
