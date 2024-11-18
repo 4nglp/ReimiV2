@@ -4,6 +4,7 @@ import Library from './pages/library';
 import EntryDetails from './components/3asq/EntryDetails';
 import LekDetails from './components/lekmanga/LekDetails';
 import Reader from './components/3asq/Reader';
+import LekReader from './components/lekmanga/LekReader';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           path="/manga/:mangaTitle/chapter/:chapterPath"
           element={<Reader />}
         />
+        <Route path="/m/:mangaTitle/ch/:chapterPath" element={<LekReader />} />
       </Routes>
     </Router>
   );

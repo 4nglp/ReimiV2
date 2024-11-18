@@ -70,7 +70,7 @@ function EntryDetails(): React.JSX.Element {
             <li key={chapter.path}>
               {/* Link to the chapter using the formatted manga title */}
               <Link
-                to={`/manga/${encodeURIComponent(mangaTitle)}/chapter/${encodeURIComponent(chapter.path)}`}
+                to={`/m/${encodeURIComponent(mangaTitle)}/ch/${encodeURIComponent(chapter.path)}`}
               >
                 {chapter.title}
               </Link>
