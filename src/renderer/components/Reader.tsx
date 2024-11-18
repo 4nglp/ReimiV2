@@ -18,17 +18,12 @@ function Reader(): React.JSX.Element {
       }
 
       try {
-        const chapterContent = await getChapter(chapterPath); // Fetch chapter content
-        console.log('Fetched Chapter:', chapterContent); // Log the fetched data
-
-        // Handle empty chapter title or pages
+        const chapterContent = await getChapter(chapterPath);
         if (!chapterContent.title || chapterContent.pages.length === 0) {
           setError('No chapter content available');
           setLoading(false);
           return;
         }
-
-        // Ensure title is always a string
         setChapter({
           title: chapterContent.title || 'Untitled Chapter', // Default title if undefined
           path: chapterContent.path,
