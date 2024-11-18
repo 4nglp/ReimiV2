@@ -69,7 +69,7 @@ export async function getDetails(entryTitle: string): Promise<Details> {
     const chapterTitle = e.textContent?.trim() || '';
     const chapterPath = e.getAttribute('href') || '';
     if (chapterTitle && chapterPath) {
-      chapters.push({ title: chapterTitle, path: chapterPath });
+      chapters.push({ title: chapterTitle, path: chapterPath, pages: [] });
     }
   });
 
@@ -87,4 +87,22 @@ export async function getDetails(entryTitle: string): Promise<Details> {
   };
 
   return details;
+}
+
+export async function getChapter(chapterPath: string) {
+  const res = await fetch(chapterPath);
+  const doc = parseHTML(await res.text());
+  const title = doc.querySelector('ol.breadcrumb li.active')?.textContent || '';
+  const pages: string[] = [];
+  doc.querySelectorAll('.page-break img').forEach((img) => {
+    const pageURL = img.getAttribute('src');
+    if (pageURL) {
+      pages.push(pageURL);
+    }
+  });
+  return {
+    title,
+    path: chapterPath,
+    pages,
+  };
 }

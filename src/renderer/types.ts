@@ -7,6 +7,7 @@ export type Entry = {
 export type Chapter = {
   title: string;
   path: string;
+  pages: string[];
 };
 export type Details = {
   ext: string;
