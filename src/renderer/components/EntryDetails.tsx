@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Details } from '../types'; // Adjust the import path if needed
+import { useParams, Link } from 'react-router-dom';
+import { Details, Chapter } from '../types'; // Adjust the import path if needed
 import { getDetails } from '../ext/3asq/index'; // Adjust the import path if needed
 
 function EntryDetails(): React.JSX.Element {
@@ -42,6 +42,9 @@ function EntryDetails(): React.JSX.Element {
     return <p>No details available</p>;
   }
 
+  // Use the manga title from the URL (assuming it's the formatted title)
+  const mangaTitle = title || 'default-manga-title'; // Provide a fallback value
+
   return (
     <div>
       <h2>{entryDetails.title}</h2>
@@ -59,14 +62,18 @@ function EntryDetails(): React.JSX.Element {
         <p>Genres: {entryDetails.genres.join(', ')}</p>
       )}
       <p>Year of Release: {entryDetails.pubYear || 'Not specified'}</p>
+
       <h3>Chapters</h3>
       {entryDetails.chapters.length > 0 ? (
         <ul>
-          {entryDetails.chapters.map((chapter) => (
+          {entryDetails.chapters.map((chapter: Chapter) => (
             <li key={chapter.path}>
-              <a href={chapter.path} target="_blank" rel="noopener noreferrer">
+              {/* Link to the chapter using the formatted manga title */}
+              <Link
+                to={`/manga/${encodeURIComponent(mangaTitle)}/chapter/${encodeURIComponent(chapter.path)}`}
+              >
                 {chapter.title}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
