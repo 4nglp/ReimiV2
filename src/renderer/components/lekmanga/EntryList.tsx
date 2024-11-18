@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Entry } from '../../types';
-import getEntries from '../../ext/lekmanga/index';
+import { getEntries } from '../../ext/lekmanga/index';
 
 function EntryList(): React.JSX.Element {
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -42,7 +42,7 @@ function EntryList(): React.JSX.Element {
               {' '}
               {/* Use the unique `path` for the key */}
               <h3>{entry.title}</h3>
-              <Link to={`/entry/${entry.title}`}>
+              <Link to={`/e/${entry.title}`}>
                 <img src={entry.posterURL} alt={entry.title} width={200} />
               </Link>
             </li>

@@ -1,11 +1,10 @@
-import { Entry, Details, Chapter } from '../../types'; // Import your types
+import { Entry, Details, Chapter } from '../../types';
 
 const baseURL = 'https://3asq.org/';
 const ext = '3asq';
 const parser = new DOMParser();
 const parseHTML = (html: string) => parser.parseFromString(html, 'text/html');
 
-// Fetch the list of entries
 export async function getEntries() {
   const res = await fetch(`${baseURL}`);
   const doc = parseHTML(await res.text());
@@ -26,16 +25,13 @@ export async function getEntries() {
   return entries;
 }
 
-// Fetch the details of a specific entry
 export async function getDetails(entryTitle: string): Promise<Details> {
-  // Construct the full URL for the entry details page
   const formattedTitle = entryTitle.toLowerCase().replace(/\s+/g, '-'); // Format title (e.g., "Blooming Love" -> "blooming-love")
   const detailsURL = `${baseURL}manga/${formattedTitle}/`;
 
   const res = await fetch(detailsURL);
   const doc = parseHTML(await res.text());
 
-  // Extract the entry details from the page
   const mangaTitle =
     doc.querySelector('.post-title h1')?.textContent?.trim() || '';
   const posterURL =
@@ -92,6 +88,7 @@ export async function getDetails(entryTitle: string): Promise<Details> {
 
   return details;
 }
+
 export async function getChapter(chapterPath: string) {
   const res = await fetch(baseURL + chapterPath);
   const doc = parseHTML(await res.text());
