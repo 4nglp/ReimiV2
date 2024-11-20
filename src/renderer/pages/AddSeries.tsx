@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // Use Link for navigation
 import { Entry } from '../types'; // Assuming Entry type is defined
 import { getEntries3asq } from '../ext/3asq'; // Import entry fetching for 3asq
 import { getEntriesLekManga } from '../ext/lekmanga';
@@ -60,14 +61,21 @@ function AddSeries() {
         <ul>
           {entries.map((entry) => (
             <li key={entry.title}>
-              <h3>{entry.title}</h3>
-              <img src={entry.posterURL} alt={entry.title} width={200} />
+              {/* Dynamically generate the path based on the selected extension */}
+              <Link
+                to={
+                  selectedExtension === '3asq'
+                    ? `/entry/${entry.title}`
+                    : `/e/${entry.title}`
+                }
+              >
+                <h3>{entry.title}</h3>
+                <img src={entry.posterURL} alt={entry.title} width={200} />
+              </Link>
             </li>
           ))}
         </ul>
-      ) : (
-        <p>No entries found</p>
-      )}
+      ) : null}
     </div>
   );
 }
