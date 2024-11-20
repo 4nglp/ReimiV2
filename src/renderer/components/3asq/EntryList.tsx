@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Entry } from '../../types';
-import { getEntries } from '../../ext/3asq/index';
+import { getEntries3asq } from '../../ext/3asq/index';
 
 function EntryList(): React.JSX.Element {
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -11,7 +11,7 @@ function EntryList(): React.JSX.Element {
   useEffect(() => {
     const fetchEntries = async () => {
       try {
-        const data = await getEntries();
+        const data = await getEntries3asq();
         setEntries(data);
         setLoading(false);
       } catch (err) {

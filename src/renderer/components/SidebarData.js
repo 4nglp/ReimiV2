@@ -1,6 +1,6 @@
 import * as Io5Icons from 'react-icons/io5';
 import * as IoIcons from 'react-icons/io';
-import { LuDownload } from 'react-icons/lu';
+import { MdDownloadForOffline } from 'react-icons/md';
 
 const SidebarData = [
   {
@@ -18,7 +18,7 @@ const SidebarData = [
   {
     title: 'Downloads',
     path: '/downloads',
-    icon: <LuDownload />,
+    icon: <MdDownloadForOffline />,
     className: 'nav-text',
   },
   {

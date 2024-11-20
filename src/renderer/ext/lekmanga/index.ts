@@ -5,7 +5,7 @@ const ext = 'lekmanga';
 const parser = new DOMParser();
 const parseHTML = (html: string) => parser.parseFromString(html, 'text/html');
 
-export async function getEntries() {
+export async function getEntriesLekManga() {
   const res = await fetch(`${baseURL}`);
   const doc = parseHTML(await res.text());
   const entries: Entry[] = [];
