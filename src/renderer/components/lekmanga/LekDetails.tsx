@@ -42,7 +42,6 @@ function EntryDetails(): React.JSX.Element {
     return <p>No details available</p>;
   }
 
-  // Use the manga title from the URL (assuming it's the formatted title)
   const mangaTitle = title || 'default-manga-title'; // Provide a fallback value
 
   return (
