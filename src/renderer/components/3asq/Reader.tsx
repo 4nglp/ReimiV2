@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Chapter } from '../../types'; // Adjust the import path if needed
 import { getChapter } from '../../ext/3asq'; // Adjust the import path if needed
 
@@ -8,6 +8,20 @@ function Reader(): React.JSX.Element {
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.key === 'Escape') {
+        navigate(-1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [navigate]);
 
   useEffect(() => {
     const fetchChapter = async () => {
@@ -25,7 +39,7 @@ function Reader(): React.JSX.Element {
           return;
         }
         setChapter({
-          title: chapterContent.title || 'Untitled Chapter', // Default title if undefined
+          title: chapterContent.title || 'Untitled Chapter',
           path: chapterContent.path,
           pages: chapterContent.pages,
         });
@@ -58,7 +72,11 @@ function Reader(): React.JSX.Element {
         <div className="chapter-pages">
           {chapter.pages.map((page, index) => (
             <img
-              style={{ maxWidth: '100vw' }}
+              style={{
+                maxWidth: '100vw',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
               key={page}
               src={page}
               alt={`Page ${index + 1}`}

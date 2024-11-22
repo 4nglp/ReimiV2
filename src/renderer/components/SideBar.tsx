@@ -1,16 +1,28 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable react/jsx-no-constructed-context-values */
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IconContext } from 'react-icons';
 import SidebarData from './SidebarData';
 
 export default function SideBar() {
   const [sidebar, setSidebar] = useState(false);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.key === 'Escape') {
+        navigate(-1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [navigate]);
   const showSidebar = () => {
     setSidebar(!sidebar);
   };

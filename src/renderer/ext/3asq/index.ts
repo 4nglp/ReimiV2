@@ -15,8 +15,10 @@ export async function getEntries3asq() {
   elements.forEach((e) => {
     const title = e.querySelector('.item-thumb a')?.getAttribute('title') || '';
     const path = e.querySelector('.item-thumb a')?.getAttribute('href') || '';
-    const posterURL =
-      e.querySelector('.item-thumb img')?.getAttribute('src') || '';
+    const posterURLs =
+      e.querySelector('.item-thumb img')?.getAttribute('srcset') || '';
+    const posterURL = posterURLs.split(', ').at(-1)?.split(' ').at(0);
+    console.log(posterURLs);
 
     if (title && path && posterURL) {
       entries.push({ ext, title, path, posterURL });
