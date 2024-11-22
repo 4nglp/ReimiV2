@@ -104,13 +104,6 @@ export default class MenuBuilder {
       label: 'View',
       submenu: [
         {
-          label: 'Reload',
-          accelerator: 'Command+R',
-          click: () => {
-            this.mainWindow.webContents.reload();
-          },
-        },
-        {
           label: 'Toggle Full Screen',
           accelerator: 'Ctrl+Command+F',
           click: () => {
@@ -216,13 +209,6 @@ export default class MenuBuilder {
           process.env.NODE_ENV === 'development' ||
           process.env.DEBUG_PROD === 'true'
             ? [
-                {
-                  label: '&Reload',
-                  accelerator: 'Ctrl+R',
-                  click: () => {
-                    this.mainWindow.webContents.reload();
-                  },
-                },
                 {
                   label: 'Toggle &Full Screen',
                   accelerator: 'F11',

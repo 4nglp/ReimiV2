@@ -58,6 +58,7 @@ function Reader(): React.JSX.Element {
         <div className="chapter-pages">
           {chapter.pages.map((page, index) => (
             <img
+              style={{ maxWidth: '100vw' }}
               key={page}
               src={page}
               alt={`Page ${index + 1}`}
