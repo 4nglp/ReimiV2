@@ -1,5 +1,6 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
+import 'tailwindcss/tailwind.css';
 import SideBar from './components/SideBar';
 import Library from './pages/Library';
 import EntryDetails from './components/3asq/EntryDetails';

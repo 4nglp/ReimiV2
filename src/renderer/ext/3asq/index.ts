@@ -18,7 +18,6 @@ export async function getEntries3asq() {
     const posterURLs =
       e.querySelector('.item-thumb img')?.getAttribute('srcset') || '';
     const posterURL = posterURLs.split(', ').at(-1)?.split(' ').at(0);
-    console.log(posterURLs);
 
     if (title && path && posterURL) {
       entries.push({ ext, title, path, posterURL });
@@ -41,6 +40,7 @@ export async function getDetails(entryTitle: string): Promise<Details> {
     '';
   const description =
     doc.querySelector('.manga-excerpt')?.textContent?.trim() || '';
+
   const author =
     doc
       .querySelector('.post-content_item .author-content a')
