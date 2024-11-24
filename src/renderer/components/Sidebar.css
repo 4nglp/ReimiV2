@@ -7,10 +7,12 @@
   padding-left: 0;
   margin-left: 0;
 }
+
 * {
   padding: 0;
   margin: 0;
 }
+
 .menu-bars {
   padding-top: 1rem;
   margin-left: 1rem;
@@ -32,6 +34,7 @@
   top: 0;
   left: -100%;
   transition: 850ms;
+  z-index: 1000; /* Added z-index to ensure the sidebar is above other elements */
 }
 
 .nav-menu.active {
