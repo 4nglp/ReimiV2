@@ -20,3 +20,8 @@ export type Details = {
   posterURL: string;
   chapters: Chapter[];
 };
+export type Results = {
+  title: string;
+  path: string;
+  posterURL: string;
+};

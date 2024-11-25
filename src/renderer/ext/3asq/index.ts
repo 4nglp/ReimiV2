@@ -5,8 +5,8 @@ const ext = '3asq';
 const parser = new DOMParser();
 const parseHTML = (html: string) => parser.parseFromString(html, 'text/html');
 
-export async function getEntries3asq() {
-  const res = await fetch(`${baseURL}`);
+export async function getEntries3asq(page = 1) {
+  const res = await fetch(`${baseURL}page/${page}`);
   const doc = parseHTML(await res.text());
   const entries: Entry[] = [];
 
