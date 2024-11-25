@@ -34,23 +34,36 @@ function EntryList(): React.JSX.Element {
 
   return (
     <div>
-      <h2>Entries</h2>
-      {entries.length > 0 ? (
-        <ul>
-          {entries.map((entry) => (
-            <li key={entry.path}>
-              {' '}
-              {/* Use the unique `path` for the key */}
-              <h3>{entry.title}</h3>
-              <Link to={`/e/${entry.title}`}>
-                <img src={entry.posterURL} alt={entry.title} width={200} />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No entries found</p>
-      )}
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold ">Lek Manga</h1>
+        {entries.length > 0 ? (
+          <div className="grid grid-cols-5 gap-2 ml-10">
+            {entries.map((entry) => (
+              <div
+                key={entry.title}
+                className="relative flex flex-col mb-1 mt-4"
+              >
+                <Link to={`/e/${entry.path}`} className="block">
+                  <div className="relative w-48 h-72 bg-gray-200 overflow-hidden flex-shrink-0">
+                    {entry.posterURL && (
+                      <img
+                        src={entry.posterURL}
+                        alt={entry.title}
+                        className="object-cover w-full h-full"
+                      />
+                    )}
+                    <div className="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2">
+                      {entry.title}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No entries found</p>
+        )}
+      </div>
     </div>
   );
 }

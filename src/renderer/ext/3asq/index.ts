@@ -14,7 +14,12 @@ export async function getEntries3asq() {
 
   elements.forEach((e) => {
     const title = e.querySelector('.item-thumb a')?.getAttribute('title') || '';
-    const path = e.querySelector('.item-thumb a')?.getAttribute('href') || '';
+    const path =
+      e
+        .querySelector('.item-thumb a')
+        ?.getAttribute('href')
+        ?.split('/')
+        .at(-2) || '';
     const posterURLs =
       e.querySelector('.item-thumb img')?.getAttribute('srcset') || '';
     const posterURL = posterURLs.split(', ').at(-1)?.split(' ').at(0);

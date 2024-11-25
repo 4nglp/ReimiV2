@@ -13,17 +13,21 @@ export async function getEntriesLekManga() {
   const elements = doc.querySelectorAll('.page-item-detail.manga');
 
   elements.forEach((e) => {
-    const linkEl = e.querySelector('.item-thumb.c-image-hover a');
-    const imgEl = e.querySelector('.item-thumb.c-image-hover img');
+    const title =
+      e.querySelector('.item-thumb.c-image-hover a')?.getAttribute('title') ||
+      '';
+    const path =
+      e
+        .querySelector('.item-thumb.c-image-hover a')
+        ?.getAttribute('href')
+        ?.split('/')
+        .at(-2) || '';
+    const posterURL =
+      e.querySelector('.item-thumb.c-image-hover img')?.getAttribute('src') ||
+      '';
 
-    if (linkEl && imgEl) {
-      const title = linkEl.getAttribute('title') || 'Untitled';
-      const path = new URL(linkEl.getAttribute('href') || '', baseURL).pathname; // Ensure path is relative
-      const posterURL = imgEl.getAttribute('src') || '';
-
-      if (title && path && posterURL) {
-        entries.push({ ext, title, path, posterURL });
-      }
+    if (title && path && posterURL) {
+      entries.push({ ext, title, path, posterURL });
     }
   });
 

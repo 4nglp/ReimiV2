@@ -52,7 +52,7 @@ function EntryDetails(): React.JSX.Element {
         <img
           src={entryDetails.posterURL}
           alt={entryDetails.title}
-          width={200}
+          width={250}
         />
       )}
       <p>{entryDetails.description || 'No description available'}</p>
