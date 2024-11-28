@@ -21,7 +21,6 @@ function AddSeries() {
     }
   };
 
-  // Handle pressing the Enter key
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       handleSearchSubmit(event as React.FormEvent);

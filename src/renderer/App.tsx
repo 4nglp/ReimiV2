@@ -20,10 +20,8 @@ export default function App() {
         <Route path="/" element={<Library />} />
         <Route path="/addSeries" element={<AddSeries />} />
         <Route path="/search-results" element={<SearchResults3asq />} />
-
         <Route path="/downloads" element={<Downloads />} />
         <Route path="/settings" element={<Settings />} />
-
         <Route path="/entry/:title" element={<EntryDetails />} />
         <Route path="/e/:title" element={<LekDetails />} />
         <Route

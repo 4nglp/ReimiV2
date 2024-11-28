@@ -107,7 +107,6 @@ export async function getChapter(chapterPath: string) {
   doc.querySelectorAll('.page-break img').forEach((img) => {
     const pageURL = img.getAttribute('src');
     if (pageURL) {
-      // Clean up the URL by trimming whitespace and newline characters
       pages.push(pageURL.trim());
     }
   });
