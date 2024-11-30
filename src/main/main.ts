@@ -84,7 +84,22 @@ const createWindow = async () => {
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+  mainWindow.setMenuBarVisibility(false);
 
+  ipcMain.handle('set-full-screen', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const window = BrowserWindow.getFocusedWindow();
+    if (window) {
+      window.setFullScreen(!window.isFullScreen()); // Toggle full-screen mode
+    }
+    return window?.isFullScreen(); // Return current full-screen state
+  });
+  ipcMain.handle('exit-full-screen', () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    if (focusedWindow) {
+      focusedWindow.setFullScreen(false); // Disable fullscreen
+    }
+  });
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
