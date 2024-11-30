@@ -17,7 +17,7 @@ function AddSeries() {
   const handleSearchSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (searchQuery) {
-      navigate(`/search-results?s=${searchQuery}`);
+      navigate(`/search-${selectedExtension}?s=${searchQuery}`);
     }
   };
 

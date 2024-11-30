@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Results } from '../types';
 
 function SearchResultsLekManga() {
   const [results, setResults] = useState<Results[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
-
+  const navigate = useNavigate();
   const location = useLocation();
+
   const queryParams = new URLSearchParams(location.search);
   const searchQueryParam = queryParams.get('s') || '';
 
@@ -56,7 +57,7 @@ function SearchResultsLekManga() {
 
   const handleSearchSubmit = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && searchQuery) {
-      window.location.href = `/search-results-lekmanga?s=${searchQuery}`;
+      navigate(`/search-results-lekmanga?s=${searchQuery}`);
     }
   };
 
@@ -70,7 +71,7 @@ function SearchResultsLekManga() {
     >
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold text-white mb-4">
-          Search Results - 3asq
+          Search Results - Lek Manga
         </h1>
         <div className="mb-6 flex justify-between items-center">
           <input

@@ -66,7 +66,7 @@ function Reader(): React.JSX.Element {
   }
 
   return (
-    <div className="flex justify-center items-center pl-11">
+    <div className="flex justify-center items-centersN">
       <h2>{chapter.title}</h2>
       {chapter.pages.length > 0 ? (
         <div>

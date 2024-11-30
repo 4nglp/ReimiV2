@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Results } from '../types';
 
 function SearchResults3asq() {
   const [results, setResults] = useState<Results[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
-
+  const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const searchQueryParam = queryParams.get('s') || '';
@@ -56,7 +56,7 @@ function SearchResults3asq() {
 
   const handleSearchSubmit = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && searchQuery) {
-      window.location.href = `/search-results-3asq?s=${searchQuery}`;
+      navigate(`/search-results-lekmanga?s=${searchQuery}`);
     }
   };
 

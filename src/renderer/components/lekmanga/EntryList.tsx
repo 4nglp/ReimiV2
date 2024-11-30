@@ -65,7 +65,7 @@ function EntryList(): React.JSX.Element {
             {entries.map((entry) => (
               <div key={entry.title} className="relative flex flex-col mb-2">
                 <Link to={`/e/${entry.path}`} className="block">
-                  <div className="relative w-48 h-72 bg-gray-200 overflow-hidden flex-shrink-0">
+                  <div className="relative w-48 h-72 bg-gray-200 overflow-hidden flex-shrink-0 transition-transform transform hover:scale-105">
                     {entry.posterURL && (
                       <img
                         src={entry.posterURL}

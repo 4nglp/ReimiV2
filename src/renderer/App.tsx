@@ -11,6 +11,7 @@ import AddSeries from './pages/AddSeries';
 import SearchResults3asq from './pages/Search3asq';
 import Downloads from './pages/Downloads';
 import Settings from './pages/Settings';
+import SearchResultsLekManga from './pages/SearchLek';
 
 export default function App() {
   return (
@@ -19,7 +20,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Library />} />
         <Route path="/addSeries" element={<AddSeries />} />
-        <Route path="/search-results" element={<SearchResults3asq />} />
+        <Route path="/search-3asq" element={<SearchResults3asq />} />
+        <Route path="/search-lekmanga" element={<SearchResultsLekManga />} />
         <Route path="/downloads" element={<Downloads />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/entry/:title" element={<EntryDetails />} />
