@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Entry } from '../../types';
 import { getEntriesLekManga } from '../../ext/lekmanga/index';
@@ -32,10 +32,26 @@ function EntryList(): React.JSX.Element {
     fetchEntries(1); // Fetch the first page on mount
   }, []);
 
-  const loadMoreEntries = () => {
-    setCurrentPage((prev) => prev + 1);
-    fetchEntries(currentPage + 1);
-  };
+  const handleScroll = useCallback(() => {
+    if (isFetchingMore || loading) return;
+
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop + windowHeight >= documentHeight - 100) {
+      setCurrentPage((prev) => prev + 1);
+      fetchEntries(currentPage + 1);
+    }
+  }, [isFetchingMore, loading, currentPage]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
 
   if (loading && currentPage === 1) {
     return <p>Loading...</p>;
@@ -84,20 +100,11 @@ function EntryList(): React.JSX.Element {
         ) : (
           <p>No entries found</p>
         )}
-        {/* Load More Button */}
-        <div className="flex justify-center mt-4">
-          {isFetchingMore ? (
+        {isFetchingMore && (
+          <div className="flex justify-center mt-4">
             <p>Loading more...</p>
-          ) : (
-            <button
-              type="button"
-              className="w-64 text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
-              onClick={loadMoreEntries}
-            >
-              Load more
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

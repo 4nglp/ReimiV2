@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Entry } from '../../types';
 import { getEntries3asq } from '../../ext/3asq/index';
@@ -15,11 +15,14 @@ function EntryList3asq(): React.JSX.Element {
       if (page === 1)
         setLoading(true); // Initial load
       else setIsFetchingMore(true); // Subsequent pages
+
       const data = await getEntries3asq(page);
       setEntries((prev) => [...prev, ...data]); // Append new entries to existing ones
+
       setLoading(false);
       setIsFetchingMore(false);
     } catch (err) {
+      console.error('Error fetching entries:', err);
       setError('Failed to fetch entries');
       setLoading(false);
       setIsFetchingMore(false);
@@ -30,17 +33,45 @@ function EntryList3asq(): React.JSX.Element {
     fetchEntries(1); // Fetch the first page on load
   }, []);
 
-  const loadMoreEntries = () => {
-    setCurrentPage((prev) => prev + 1); // Increment the current page
-    fetchEntries(currentPage + 1); // Fetch the next page
-  };
+  const handleScroll = useCallback(() => {
+    if (isFetchingMore || loading) return;
+
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    // Check if the user is near the bottom of the page
+    if (scrollTop + windowHeight >= documentHeight - 100) {
+      setCurrentPage((prev) => prev + 1); // Increment current page
+      fetchEntries(currentPage + 1); // Fetch the next page
+    }
+  }, [isFetchingMore, loading, currentPage]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
 
   if (loading && currentPage === 1) {
     return <p>Loading...</p>;
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <div>
+        <p>{error}</p>
+        <button
+          type="button"
+          onClick={() => fetchEntries(1)}
+          className="px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -71,20 +102,12 @@ function EntryList3asq(): React.JSX.Element {
         ) : (
           <p>No entries found</p>
         )}
-        {/* Load More Button */}
-        <div className="flex justify-center mt-4">
-          {isFetchingMore ? (
+        {/* Loading More Indicator */}
+        {isFetchingMore && (
+          <div className="flex justify-center mt-4">
             <p>Loading more...</p>
-          ) : (
-            <button
-              type="button"
-              className="w-64 text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
-              onClick={loadMoreEntries}
-            >
-              Load more
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
