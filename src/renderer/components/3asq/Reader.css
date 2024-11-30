@@ -1,6 +1,6 @@
-.sidebar {
+/* .sidebar {
   display: none;
-}
+} */
 
 .page-counter {
   position: fixed;
@@ -10,9 +10,9 @@
   color: white;
   z-index: 10;
 }
-.chapter-page {
+/* .chapter-page {
   max-height: 100vh;
   width: auto;
   display: block;
   margin: 0 auto;
-}
+} */

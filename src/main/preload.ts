@@ -2,7 +2,11 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 // Define the IPC channels as a type (you can expand this as needed)
-export type Channels = 'ipc-example' | 'set-full-screen' | 'get-data'; // Example of additional channels
+export type Channels =
+  | 'ipc-example'
+  | 'set-full-screen'
+  | 'exit-full-screen'
+  | 'get-data'; // Example of additional channels
 
 // Define the ElectronHandler type for better type safety
 const electronHandler = {
