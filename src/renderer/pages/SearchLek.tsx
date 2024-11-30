@@ -91,7 +91,7 @@ function SearchResultsLekManga() {
             {results.map((r) => (
               <div key={r.title} className="relative flex flex-col mb-1 mt-4">
                 <Link to={`/e/${r.path}`} className="block">
-                  <div className="relative w-48 h-72 bg-gray-200 overflow-hidden flex-shrink-0">
+                  <div className="relative w-48 h-72 bg-gray-200 overflow-hidden flex-shrink-0 transition-transform transform hover:scale-105">
                     {r.posterURL && (
                       <img
                         src={r.posterURL}
