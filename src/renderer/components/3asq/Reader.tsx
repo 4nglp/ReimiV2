@@ -1,122 +1,84 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  ReactNode,
+} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Chapter } from '../../types'; // Adjust the import path if needed
-import { getChapter } from '../../ext/3asq'; // Adjust the import path if needed
+import { Chapter } from '../../types';
+import { getChapter } from '../../ext/3asq';
+
+function Container({ children }: { children: ReactNode }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    document.onfullscreenchange = () => !document.fullscreenElement && nav(-1);
+    if (containerRef.current && !document.fullscreenElement) {
+      containerRef.current.requestFullscreen();
+    }
+  }, [nav]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="h-screen w-full overflow-hidden bg-black flex justify-center items-center"
+    >
+      {children}
+    </div>
+  );
+}
 
 function Reader(): React.JSX.Element {
-  const { chapterPath } = useParams<{ chapterPath: string }>(); // Extract chapterPath from the URL
+  const { chapterPath } = useParams<{ chapterPath: string }>();
   const [chapter, setChapter] = useState<Chapter | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(0); // Track the current page
-  const [zoomLevel, setZoomLevel] = useState<number>(1); // Track the zoom level
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Preload next and previous images
   const preloadImages = useCallback(
     (pages: string[], currentPageIndex: number) => {
       const preloadPage = (index: number) => {
         if (index >= 0 && index < pages.length) {
           const img = new Image();
-          img.src = pages[index]; // Load image in the background
+          img.src = pages[index];
         }
       };
-      preloadPage(currentPageIndex + 1); // Preload next page
-      preloadPage(currentPageIndex - 1); // Preload previous page
+      preloadPage(currentPageIndex + 1);
+      preloadPage(currentPageIndex - 1);
     },
     [],
   );
 
-  // Zoom functionality on scroll
   const handleWheel = useCallback((event: WheelEvent) => {
-    event.preventDefault(); // Disable vertical scrolling with the mouse wheel
+    event.preventDefault();
 
-    // Zoom in (scroll up) or zoom out (scroll down)
     if (event.deltaY < 0) {
-      setZoomLevel((prev) => Math.min(prev + 0.05, 3)); // Zoom in slower (max zoom level of 3x)
+      setZoomLevel((prev) => Math.min(prev + 0.1, 3));
     } else {
-      setZoomLevel((prev) => Math.max(prev - 0.05, 0.5)); // Zoom out slower (min zoom level of 0.5x)
+      setZoomLevel((prev) => Math.max(prev - 0.1, 1));
     }
   }, []);
 
-  // Scroll down/up with 'd' or 'right arrow' and 'a' or 'left arrow'
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        navigate(-1); // Go back to the previous page
+        navigate(-1);
       } else if (event.key === 'd' || event.key === 'ArrowRight') {
-        if (zoomLevel === 1) {
-          setCurrentPage((prev) => {
-            const nextPage = Math.min(
-              prev + 1,
-              (chapter?.pages.length ?? 1) - 1,
-            );
-            window.scrollTo(0, 0); // Scroll to the top when switching pages
-            return nextPage;
-          });
-        } else {
-          // Zoomed in, scroll down
-          window.scrollBy({
-            top: window.innerHeight * 0.2,
-            behavior: 'smooth',
-          });
-        }
+        setCurrentPage((prev) =>
+          Math.min(prev + 1, (chapter?.pages.length ?? 1) - 1),
+        );
+        window.scrollTo(0, 0);
       } else if (event.key === 'a' || event.key === 'ArrowLeft') {
-        const { scrollTop } = document.documentElement;
-
-        if (scrollTop === 0) {
-          // If at the top of the page, switch to the previous page
-          setCurrentPage((prev) => Math.max(prev - 1, 0));
-          window.scrollTo(0, 0); // Scroll to the top when switching pages
-        } else {
-          // Zoomed in, scroll up
-          window.scrollBy({
-            top: -window.innerHeight * 0.2,
-            behavior: 'smooth',
-          });
-        }
+        setCurrentPage((prev) => Math.max(prev - 1, 0));
+        window.scrollTo(0, 0);
       }
     },
-    [zoomLevel, chapter, navigate],
+    [chapter, navigate],
   );
-
-  // Automatically move to the next page if scrolled to the bottom
-  const handleScroll = useCallback(() => {
-    if (chapter) {
-      const { scrollHeight, scrollTop, clientHeight } =
-        document.documentElement;
-      const scrollPosition = scrollTop + clientHeight;
-
-      if (scrollPosition >= scrollHeight) {
-        setCurrentPage((prev) => Math.min(prev + 1, chapter.pages.length - 1));
-        window.scrollTo(0, 0); // Scroll to the top when moving to the next page
-      }
-    }
-  }, [chapter]);
-
-  useEffect(() => {
-    if (window.electron) {
-      window.electron.ipcRenderer.invoke('set-full-screen');
-    }
-
-    return () => {
-      if (window.electron) {
-        window.electron.ipcRenderer.invoke('exit-full-screen');
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('wheel', handleWheel, { passive: false }); // Disable default scroll behavior
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [handleKeyDown, handleScroll, handleWheel]);
 
   useEffect(() => {
     const fetchChapter = async () => {
@@ -128,23 +90,19 @@ function Reader(): React.JSX.Element {
 
       try {
         const chapterContent = await getChapter(chapterPath);
-        if (
-          !chapterContent.title ||
-          !chapterContent.pages ||
-          chapterContent.pages.length === 0
-        ) {
+        if (!chapterContent.pages || chapterContent.pages.length === 0) {
           setError('No chapter content available');
           setLoading(false);
           return;
         }
         setChapter({
-          title: chapterContent.title || 'Untitled Chapter',
+          title: chapterContent.title || 'Untitled Chapter', // Provide a default title
           path: chapterContent.path,
           pages: chapterContent.pages,
         });
+
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching chapter:', err);
         setError('Failed to fetch chapter content');
         setLoading(false);
       }
@@ -157,45 +115,43 @@ function Reader(): React.JSX.Element {
     if (chapter) {
       preloadImages(chapter.pages, currentPage);
     }
-  }, [currentPage, chapter, preloadImages]);
+  }, [chapter, currentPage, preloadImages]);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('wheel', handleWheel, { passive: false });
 
-  if (error) {
-    return <p>{error}</p>;
-  }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [handleKeyDown, handleWheel]);
 
-  if (!chapter) {
-    return <p>No chapter content available</p>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+  if (!chapter) return <p>No chapter content available</p>;
 
-  const { pages = [], title = 'Untitled Chapter' } = chapter;
+  const { pages, title } = chapter;
 
   return (
-    <div className="flex justify-center items-center flex-col relative">
-      {/* Display chapter pages */}
-      {pages.length > 0 && (
-        <img
-          src={pages[currentPage]} // Use the currentPage directly (no title page)
-          alt={`Page ${currentPage + 1} of ${title}`}
-          loading="lazy"
-          className="chapter-page"
-          style={{
-            transform: `scale(${zoomLevel})`,
-          }}
-        />
-      )}
-
-      {/* Page Counter */}
-      <div
-        className="page-counter"
-        style={{ position: 'absolute', bottom: 20, left: 20 }}
-      >
-        <p>{`Page ${currentPage + 1} of ${pages.length}`}</p>
+    <Container>
+      <div className="flex justify-center items-center flex-col relative">
+        {pages.length > 0 && (
+          <img
+            src={pages[currentPage]}
+            alt={`Page ${currentPage + 1} of ${title}`}
+            loading="lazy"
+            className="max-w-full max-h-screen object-contain"
+            style={{
+              transform: `scale(${zoomLevel})`,
+            }}
+          />
+        )}
+        <div className="absolute bottom-2 bg-black/70 text-white px-3 py-1 rounded">
+          <p>{`Page ${currentPage + 1} of ${pages.length}`}</p>
+        </div>
       </div>
-    </div>
+    </Container>
   );
 }
 
