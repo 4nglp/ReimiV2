@@ -1,0 +1,24 @@
+[33m52ef74d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m changed the full screen thingy to renderer
+[33m6d00729[m[33m ([m[1;31morigin/master[m[33m)[m bug fixed on the reader last page does not show up removed the title page
+[33mfdf80d9[m reader beta version
+[33m0c8c201[m styled the search results
+[33m40b7fbf[m changed the load more button can use now just the scroll to the bottom of the page
+[33m8bd2158[m styles the reader n added a hover effect for the entry lists
+[33m0743560[m entry list n reader styled
+[33m7fbacb1[m add series/3asq n lekmanga load more button + search functionality for 3asq
+[33me703bbe[m edited the getEnteries logic
+[33me258632[m add series/3asq styled
+[33mef1a686[m re-added tailwind css
+[33mdb5de46[m esc to go to the previous page
+[33maceae0b[m remove the reload usig windows + r, a lil bit of styling
+[33ma362adb[m add series: details and linked the reader
+[33m8e85bb5[m add series page
+[33m33d1ba9[m added a sidebar,n library add series downloads and settings pages
+[33m82850f5[m reader for lekmanga
+[33m0f43d68[m entry details for lekmanga
+[33mbb97449[m added lekmanga ext entry list
+[33m9f52b45[m removed tailwind css :sob:
+[33m7c7471c[m added tailwind css
+[33mc9ad949[m reader
+[33m6e3fbf3[m getChapter function
+[33m311770d[m init, 3asq entry list n details
