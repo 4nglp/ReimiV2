@@ -37,7 +37,7 @@ function Container({ children }: { children: ReactNode }) {
 function Reader(): React.JSX.Element {
   const { chapterPath } = useParams<{ chapterPath: string }>();
   const [chapter, setChapter] = useState<Chapter | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(-1); // -1 for title page
+  const [currentPage, setCurrentPage] = useState<number>(0); // Start with the title page
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [scrollOffset, setScrollOffset] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,26 +47,30 @@ function Reader(): React.JSX.Element {
 
   const handleZoom = useCallback(
     (event: WheelEvent) => {
-      if (currentPage === -1) return; // No zoom on title page
+      if (currentPage === 0) return; // No zoom on title page
       event.preventDefault();
       const contentHeight = contentRef.current?.scrollHeight || 0;
       const viewportHeight = window.innerHeight;
 
+      // Zooming in
       let newZoom = zoomLevel + (event.deltaY < 0 ? 0.1 : -0.1);
       newZoom = Math.max(1, Math.min(newZoom, 3));
 
       if (newZoom <= 1) {
         setScrollOffset(0); // Reset to top when fully zoomed out
-      } else if (event.deltaY > 0 && zoomLevel > 1) {
-        setScrollOffset(
-          (prev) => Math.max(prev - viewportHeight * 0.1, 0), // Smooth scroll to top
-        );
       }
 
       setZoomLevel(newZoom);
 
       if (contentHeight * newZoom < viewportHeight) {
         setScrollOffset(0); // Keep the top of the page visible
+      }
+
+      // Scroll when zoomed in (deltaY > 0)
+      if (event.deltaY > 0 && newZoom > 1) {
+        setScrollOffset(
+          (prev) => Math.max(prev - viewportHeight * 0.1, 0), // Smooth scroll to top
+        );
       }
     },
     [zoomLevel, currentPage],
@@ -85,10 +89,11 @@ function Reader(): React.JSX.Element {
         event.key === 'D' ||
         event.key === 'ي'
       ) {
+        // Navigate right on title page or regular pages
         if (currentPage < chapter.pages.length) {
           setScrollOffset(0);
-          setZoomLevel(1); // Reset zoom when navigating
-          setCurrentPage((prev) => prev + 1);
+          setZoomLevel(zoomLevel); // Keep the same zoom level when navigating
+          setCurrentPage((prev) => Math.min(prev + 1, chapter.pages.length)); // Ensure we don't go past the last content page
         }
       } else if (
         event.key === 'a' ||
@@ -96,14 +101,16 @@ function Reader(): React.JSX.Element {
         event.key === 'A' ||
         event.key === 'ش'
       ) {
-        if (currentPage > -1) {
+        // Navigate left on title page or regular pages
+        if (currentPage > 0) {
           setScrollOffset(0);
-          setZoomLevel(1); // Reset zoom when navigating
-          setCurrentPage((prev) => prev - 1);
+          setZoomLevel(zoomLevel); // Keep the same zoom level when navigating
+          setCurrentPage((prev) => Math.max(prev - 1, 0)); // Ensure we don't go before the title page
         }
-      } else if (currentPage !== -1) {
-        // Scroll navigation applies only to non-title pages
-        if (event.key === 's' || event.key === 'S' || event.key === 'س') {
+      } else if (event.key === 's' || event.key === 'S' || event.key === 'س') {
+        // Scroll down or go to next page
+        if (currentPage < chapter.pages.length - 1) {
+          // Don't scroll if we're on the last page
           if (scrollOffset + viewportHeight < contentHeight) {
             setScrollOffset((prev) =>
               Math.min(
@@ -111,14 +118,20 @@ function Reader(): React.JSX.Element {
                 contentHeight - viewportHeight,
               ),
             );
+          } else {
+            setScrollOffset(0);
+            setCurrentPage((prev) => prev + 1);
           }
-        } else if (
-          event.key === 'w' ||
-          event.key === 'W' ||
-          event.key === 'ص'
-        ) {
+        }
+      } else if (event.key === 'w' || event.key === 'W' || event.key === 'ص') {
+        // Scroll up or go to previous page
+        if (currentPage > 0) {
+          // Don't scroll if we're on the first page
           if (scrollOffset > 0) {
             setScrollOffset((prev) => Math.max(prev - viewportHeight * 0.1, 0));
+          } else {
+            setScrollOffset(0);
+            setCurrentPage((prev) => prev - 1);
           }
         }
       }
@@ -178,34 +191,39 @@ function Reader(): React.JSX.Element {
       <div
         ref={contentRef}
         className="flex justify-center items-center flex-col relative"
-        style={
-          currentPage === -1
-            ? {} // No zoom or scroll for title page
-            : {
-                transform: `translateY(-${scrollOffset}px) scale(${zoomLevel})`,
-                transformOrigin: 'top center',
-                transition: 'transform 0.1s ease-out',
-              }
-        }
+        style={{
+          transform: `translateY(-${scrollOffset}px) scale(${zoomLevel})`,
+          transformOrigin: 'top center',
+          transition: 'transform 0.1s ease-out',
+        }}
       >
-        {currentPage === -1 ? (
-          <div className="text-white text-3xl font-bold">{title}</div>
-        ) : (
-          pages.map((page, index) => (
+        {/* Title Page (Displayed once when currentPage is 0) */}
+        {currentPage === 0 && (
+          <div className="flex justify-center items-center text-white text-4xl">
+            <h1>{title}</h1>
+          </div>
+        )}
+
+        {/* Content Pages (Starts from the first page after title page) */}
+        {pages.map((page, index) => {
+          const adjustedIndex = index + 1; // Skip the title page, so start at 1 for content pages
+          return (
             <img
               key={page}
               src={page}
-              alt={`Page ${index + 1} of ${title}`}
+              alt={`Page ${adjustedIndex} of ${title}`}
               className={`max-w-full max-h-screen object-contain ${
-                index === currentPage ? 'block' : 'hidden'
+                adjustedIndex === currentPage ? 'block' : 'hidden'
               }`}
             />
-          ))
-        )}
+          );
+        })}
       </div>
-      {currentPage !== -1 && (
+
+      {/* Page Counter (Excludes title page from count) */}
+      {currentPage > 0 && (
         <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded">
-          <p>{`${currentPage + 1} / ${pages.length}`}</p>
+          <p>{`${currentPage} / ${pages.length}`}</p> {/* Fixed page number */}
         </div>
       )}
     </Container>
