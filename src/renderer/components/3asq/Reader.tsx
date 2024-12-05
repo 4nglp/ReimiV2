@@ -33,10 +33,11 @@ function Container({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
 function Reader(): React.JSX.Element {
   const { chapterPath } = useParams<{ chapterPath: string }>();
   const [chapter, setChapter] = useState<Chapter | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(-1); // -1 for title page
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [scrollOffset, setScrollOffset] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,6 +47,7 @@ function Reader(): React.JSX.Element {
 
   const handleZoom = useCallback(
     (event: WheelEvent) => {
+      if (currentPage === -1) return; // No zoom on title page
       event.preventDefault();
       const contentHeight = contentRef.current?.scrollHeight || 0;
       const viewportHeight = window.innerHeight;
@@ -55,19 +57,19 @@ function Reader(): React.JSX.Element {
 
       if (newZoom <= 1) {
         setScrollOffset(0); // Reset to top when fully zoomed out
+      } else if (event.deltaY > 0 && zoomLevel > 1) {
+        setScrollOffset(
+          (prev) => Math.max(prev - viewportHeight * 0.1, 0), // Smooth scroll to top
+        );
       }
 
       setZoomLevel(newZoom);
 
       if (contentHeight * newZoom < viewportHeight) {
         setScrollOffset(0); // Keep the top of the page visible
-      } else if (event.deltaY > 0 && zoomLevel > 1) {
-        setScrollOffset(
-          (prev) => Math.max(prev - viewportHeight * 0.1, 0), // Smooth scroll to top
-        );
       }
     },
-    [zoomLevel],
+    [zoomLevel, currentPage],
   );
 
   const handleKeyNavigation = useCallback(
@@ -77,33 +79,15 @@ function Reader(): React.JSX.Element {
       const contentHeight = contentRef.current.scrollHeight * zoomLevel;
       const viewportHeight = window.innerHeight;
 
-      if (event.key === 's' || event.key === 'S' || event.key === 'س') {
-        if (scrollOffset + viewportHeight < contentHeight) {
-          setScrollOffset((prev) =>
-            Math.min(
-              prev + viewportHeight * 0.1,
-              contentHeight - viewportHeight,
-            ),
-          );
-        } else if (currentPage < chapter.pages.length - 1) {
-          setScrollOffset(0);
-          setCurrentPage((prev) => prev + 1);
-        }
-      } else if (event.key === 'w' || event.key === 'W' || event.key === 'ص') {
-        if (scrollOffset > 0) {
-          setScrollOffset((prev) => Math.max(prev - viewportHeight * 0.1, 0));
-        } else if (currentPage > 0) {
-          setScrollOffset(0);
-          setCurrentPage((prev) => prev - 1);
-        }
-      } else if (
+      if (
         event.key === 'd' ||
         event.key === 'ArrowRight' ||
         event.key === 'D' ||
         event.key === 'ي'
       ) {
-        if (currentPage < chapter.pages.length - 1) {
+        if (currentPage < chapter.pages.length) {
           setScrollOffset(0);
+          setZoomLevel(1); // Reset zoom when navigating
           setCurrentPage((prev) => prev + 1);
         }
       } else if (
@@ -112,9 +96,30 @@ function Reader(): React.JSX.Element {
         event.key === 'A' ||
         event.key === 'ش'
       ) {
-        if (currentPage > 0) {
+        if (currentPage > -1) {
           setScrollOffset(0);
+          setZoomLevel(1); // Reset zoom when navigating
           setCurrentPage((prev) => prev - 1);
+        }
+      } else if (currentPage !== -1) {
+        // Scroll navigation applies only to non-title pages
+        if (event.key === 's' || event.key === 'S' || event.key === 'س') {
+          if (scrollOffset + viewportHeight < contentHeight) {
+            setScrollOffset((prev) =>
+              Math.min(
+                prev + viewportHeight * 0.1,
+                contentHeight - viewportHeight,
+              ),
+            );
+          }
+        } else if (
+          event.key === 'w' ||
+          event.key === 'W' ||
+          event.key === 'ص'
+        ) {
+          if (scrollOffset > 0) {
+            setScrollOffset((prev) => Math.max(prev - viewportHeight * 0.1, 0));
+          }
         }
       }
     },
@@ -173,26 +178,36 @@ function Reader(): React.JSX.Element {
       <div
         ref={contentRef}
         className="flex justify-center items-center flex-col relative"
-        style={{
-          transform: `translateY(-${scrollOffset}px) scale(${zoomLevel})`,
-          transformOrigin: 'top center',
-          transition: 'transform 0.1s ease-out',
-        }}
+        style={
+          currentPage === -1
+            ? {} // No zoom or scroll for title page
+            : {
+                transform: `translateY(-${scrollOffset}px) scale(${zoomLevel})`,
+                transformOrigin: 'top center',
+                transition: 'transform 0.1s ease-out',
+              }
+        }
       >
-        {pages.map((page, index) => (
-          <img
-            key={page}
-            src={page}
-            alt={`Page ${index + 1} of ${title}`}
-            className={`max-w-full max-h-screen object-contain ${
-              index === currentPage ? 'block' : 'hidden'
-            }`}
-          />
-        ))}
+        {currentPage === -1 ? (
+          <div className="text-white text-3xl font-bold">{title}</div>
+        ) : (
+          pages.map((page, index) => (
+            <img
+              key={page}
+              src={page}
+              alt={`Page ${index + 1} of ${title}`}
+              className={`max-w-full max-h-screen object-contain ${
+                index === currentPage ? 'block' : 'hidden'
+              }`}
+            />
+          ))
+        )}
       </div>
-      <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded">
-        <p>{`${currentPage + 1} / ${pages.length}`}</p>
-      </div>
+      {currentPage !== -1 && (
+        <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded">
+          <p>{`${currentPage + 1} / ${pages.length}`}</p>
+        </div>
+      )}
     </Container>
   );
 }
