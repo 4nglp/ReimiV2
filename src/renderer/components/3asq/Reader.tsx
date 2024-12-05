@@ -61,6 +61,10 @@ function Reader(): React.JSX.Element {
 
       if (contentHeight * newZoom < viewportHeight) {
         setScrollOffset(0); // Keep the top of the page visible
+      } else if (event.deltaY > 0 && zoomLevel > 1) {
+        setScrollOffset(
+          (prev) => Math.max(prev - viewportHeight * 0.1, 0), // Smooth scroll to top
+        );
       }
     },
     [zoomLevel],
