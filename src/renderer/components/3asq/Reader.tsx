@@ -94,7 +94,7 @@ function Reader(): React.JSX.Element {
       const viewportHeight = window.innerHeight;
 
       // Scroll down on 's' key press
-      if (event.key === 's') {
+      if (event.key === 's' || event.key === 'S' || event.key === 'س') {
         if (scrollOffset + viewportHeight < contentHeight) {
           setScrollOffset((prev) =>
             Math.min(prev + 69, contentHeight - viewportHeight),
@@ -105,7 +105,7 @@ function Reader(): React.JSX.Element {
         }
       }
       // Scroll up on 'w' key press
-      else if (event.key === 'w') {
+      else if (event.key === 'w' || event.key === 'W' || event.key === 'ص') {
         if (scrollOffset > 0) {
           setScrollOffset((prev) => Math.max(prev - 69, 0));
         } else if (currentPage > 0) {
@@ -114,12 +114,22 @@ function Reader(): React.JSX.Element {
         }
       }
       // Page navigation using 'a' and 'd'
-      else if (event.key === 'd' || event.key === 'ArrowRight') {
+      else if (
+        event.key === 'd' ||
+        event.key === 'ArrowRight' ||
+        event.key === 'D' ||
+        event.key === 'ي'
+      ) {
         if (currentPage < chapter.pages.length - 1) {
           setScrollOffset(0);
           setCurrentPage((prev) => prev + 1);
         }
-      } else if (event.key === 'a' || event.key === 'ArrowLeft') {
+      } else if (
+        event.key === 'a' ||
+        event.key === 'ArrowLeft' ||
+        event.key === 'A' ||
+        event.key === 'ش'
+      ) {
         if (currentPage > 0) {
           setScrollOffset(0);
           setCurrentPage((prev) => prev - 1);
