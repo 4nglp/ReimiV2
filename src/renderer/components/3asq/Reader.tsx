@@ -38,25 +38,11 @@ function Reader(): React.JSX.Element {
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [scrollOffset, setScrollOffset] = useState<number>(0); // Scroll position within the current page
+  const [scrollOffset, setScrollOffset] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const contentRef = useRef<HTMLDivElement>(null);
-
-  const preloadImages = useCallback(
-    (pages: string[], currentPageIndex: number) => {
-      const preloadPage = (index: number) => {
-        if (index >= 0 && index < pages.length) {
-          const img = new Image();
-          img.src = pages[index];
-        }
-      };
-      preloadPage(currentPageIndex + 1);
-      preloadPage(currentPageIndex - 1);
-    },
-    [],
-  );
 
   const handleZoom = useCallback(
     (event: WheelEvent) => {
@@ -67,20 +53,14 @@ function Reader(): React.JSX.Element {
       let newZoom = zoomLevel + (event.deltaY < 0 ? 0.1 : -0.1);
       newZoom = Math.max(1, Math.min(newZoom, 3));
 
-      // Ensure the page height remains fully visible when zooming out
       if (newZoom <= 1) {
         setScrollOffset(0); // Reset to top when fully zoomed out
       }
 
       setZoomLevel(newZoom);
 
-      // Adjust scrollOffset to smoothly scroll to the top when zooming out
       if (contentHeight * newZoom < viewportHeight) {
         setScrollOffset(0); // Keep the top of the page visible
-      } else if (event.deltaY > 0 && zoomLevel > 1) {
-        setScrollOffset(
-          (prev) => Math.max(prev - viewportHeight * 0.1, 0), // Smooth scroll to top
-        );
       }
     },
     [zoomLevel],
@@ -93,28 +73,26 @@ function Reader(): React.JSX.Element {
       const contentHeight = contentRef.current.scrollHeight * zoomLevel;
       const viewportHeight = window.innerHeight;
 
-      // Scroll down on 's' key press
       if (event.key === 's' || event.key === 'S' || event.key === 'س') {
         if (scrollOffset + viewportHeight < contentHeight) {
           setScrollOffset((prev) =>
-            Math.min(prev + 69, contentHeight - viewportHeight),
+            Math.min(
+              prev + viewportHeight * 0.1,
+              contentHeight - viewportHeight,
+            ),
           );
         } else if (currentPage < chapter.pages.length - 1) {
           setScrollOffset(0);
           setCurrentPage((prev) => prev + 1);
         }
-      }
-      // Scroll up on 'w' key press
-      else if (event.key === 'w' || event.key === 'W' || event.key === 'ص') {
+      } else if (event.key === 'w' || event.key === 'W' || event.key === 'ص') {
         if (scrollOffset > 0) {
-          setScrollOffset((prev) => Math.max(prev - 69, 0));
+          setScrollOffset((prev) => Math.max(prev - viewportHeight * 0.1, 0));
         } else if (currentPage > 0) {
           setScrollOffset(0);
           setCurrentPage((prev) => prev - 1);
         }
-      }
-      // Page navigation using 'a' and 'd'
-      else if (
+      } else if (
         event.key === 'd' ||
         event.key === 'ArrowRight' ||
         event.key === 'D' ||
@@ -171,12 +149,6 @@ function Reader(): React.JSX.Element {
   }, [chapterPath]);
 
   useEffect(() => {
-    if (chapter) {
-      preloadImages(chapter.pages, currentPage);
-    }
-  }, [chapter, currentPage, preloadImages]);
-
-  useEffect(() => {
     window.addEventListener('keydown', handleKeyNavigation);
     window.addEventListener('wheel', handleZoom, { passive: false });
 
@@ -203,11 +175,16 @@ function Reader(): React.JSX.Element {
           transition: 'transform 0.1s ease-out',
         }}
       >
-        <img
-          src={pages[currentPage]}
-          alt={`Page ${currentPage + 1} of ${title}`}
-          className="max-w-full max-h-screen object-contain"
-        />
+        {pages.map((page, index) => (
+          <img
+            key={page}
+            src={page}
+            alt={`Page ${index + 1} of ${title}`}
+            className={`max-w-full max-h-screen object-contain ${
+              index === currentPage ? 'block' : 'hidden'
+            }`}
+          />
+        ))}
       </div>
       <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded">
         <p>{`${currentPage + 1} / ${pages.length}`}</p>
