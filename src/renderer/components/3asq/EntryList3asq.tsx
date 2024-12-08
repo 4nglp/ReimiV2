@@ -39,7 +39,6 @@ function EntryList3asq(): React.JSX.Element {
     const scrollTop = window.scrollY;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
-
     // Check if the user is near the bottom of the page
     if (scrollTop + windowHeight >= documentHeight - 100) {
       setCurrentPage((prev) => prev + 1); // Increment current page

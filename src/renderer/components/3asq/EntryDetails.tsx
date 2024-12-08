@@ -71,6 +71,7 @@ function EntryDetails(): React.JSX.Element {
               {/* Link to the chapter using the formatted manga title */}
               <Link
                 to={`/manga/${encodeURIComponent(mangaTitle)}/chapter/${encodeURIComponent(chapter.path)}`}
+                state={{ chapters: entryDetails.chapters }} // Pass chapters as state
               >
                 {chapter.title}
               </Link>

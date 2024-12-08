@@ -109,30 +109,24 @@ function Reader(): React.JSX.Element {
         }
       } else if (event.key === 's' || event.key === 'S' || event.key === 'س') {
         // Scroll down or go to next page
-        if (currentPage < chapter.pages.length - 1) {
-          // Don't scroll if we're on the last page
-          if (scrollOffset + viewportHeight < contentHeight) {
-            setScrollOffset((prev) =>
-              Math.min(
-                prev + viewportHeight * 0.1,
-                contentHeight - viewportHeight,
-              ),
-            );
-          } else {
-            setScrollOffset(0);
-            setCurrentPage((prev) => prev + 1);
-          }
+        if (scrollOffset + viewportHeight < contentHeight) {
+          setScrollOffset((prev) =>
+            Math.min(
+              prev + viewportHeight * 0.1,
+              contentHeight - viewportHeight,
+            ),
+          );
+        } else if (currentPage < chapter.pages.length) {
+          setScrollOffset(0);
+          setCurrentPage((prev) => Math.min(prev + 1, chapter.pages.length));
         }
       } else if (event.key === 'w' || event.key === 'W' || event.key === 'ص') {
         // Scroll up or go to previous page
-        if (currentPage > 0) {
-          // Don't scroll if we're on the first page
-          if (scrollOffset > 0) {
-            setScrollOffset((prev) => Math.max(prev - viewportHeight * 0.1, 0));
-          } else {
-            setScrollOffset(0);
-            setCurrentPage((prev) => prev - 1);
-          }
+        if (scrollOffset > 0) {
+          setScrollOffset((prev) => Math.max(prev - viewportHeight * 0.1, 0));
+        } else if (currentPage > 0) {
+          setScrollOffset(0);
+          setCurrentPage((prev) => prev - 1);
         }
       }
     },
@@ -197,14 +191,11 @@ function Reader(): React.JSX.Element {
           transition: 'transform 0.1s ease-out',
         }}
       >
-        {/* Title Page (Displayed once when currentPage is 0) */}
         {currentPage === 0 && (
           <div className="flex justify-center items-center text-white text-4xl">
             <h1>{title}</h1>
           </div>
         )}
-
-        {/* Content Pages (Starts from the first page after title page) */}
         {pages.map((page, index) => {
           const adjustedIndex = index + 1; // Skip the title page, so start at 1 for content pages
           return (
@@ -219,8 +210,6 @@ function Reader(): React.JSX.Element {
           );
         })}
       </div>
-
-      {/* Page Counter (Excludes title page from count) */}
       {currentPage > 0 && (
         <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded">
           <p>{`${currentPage} / ${pages.length}`}</p> {/* Fixed page number */}
