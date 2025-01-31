@@ -8,6 +8,8 @@ export type Chapter = {
   title: string;
   path: string;
   pages: string[];
+  nextChapterPath?: string;
+  prevChapterPath?: string;
 };
 export type Details = {
   ext: string;

@@ -42,8 +42,11 @@ function Reader(): React.JSX.Element {
   const [scrollOffset, setScrollOffset] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [nextChapterPath, setNextChapterPath] = useState<string | null>(null);
+  const [prevChapterPath, setPrevChapterPath] = useState<string | null>(null);
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const handleZoom = useCallback(
     (event: WheelEvent) => {
@@ -55,6 +58,10 @@ function Reader(): React.JSX.Element {
       // Zooming in
       let newZoom = zoomLevel + (event.deltaY < 0 ? 0.1 : -0.1);
       newZoom = Math.max(1, Math.min(newZoom, 3));
+
+      console.log(
+        `Zoom level before: ${zoomLevel}, Zoom level after: ${newZoom}`,
+      );
 
       if (newZoom <= 1) {
         setScrollOffset(0); // Reset to top when fully zoomed out
@@ -83,6 +90,10 @@ function Reader(): React.JSX.Element {
       const contentHeight = contentRef.current.scrollHeight * zoomLevel;
       const viewportHeight = window.innerHeight;
 
+      console.log(
+        `Handling key: ${event.key}, Current Page: ${currentPage}, Scroll Offset: ${scrollOffset}`,
+      );
+
       if (
         event.key === 'd' ||
         event.key === 'ArrowRight' ||
@@ -90,10 +101,17 @@ function Reader(): React.JSX.Element {
         event.key === 'ي'
       ) {
         // Navigate right on title page or regular pages
-        if (currentPage < chapter.pages.length) {
+        if (currentPage < chapter.pages.length - 1) {
           setScrollOffset(0);
           setZoomLevel(zoomLevel); // Keep the same zoom level when navigating
-          setCurrentPage((prev) => Math.min(prev + 1, chapter.pages.length)); // Ensure we don't go past the last content page
+          setCurrentPage((prev) =>
+            Math.min(prev + 1, chapter.pages.length - 1),
+          ); // Ensure we don't go past the last content page
+          console.log(`Moving to next page: ${currentPage + 1}`);
+        } else if (nextChapterPath) {
+          // Go to the next chapter if we're on the last page
+          console.log(`Moving to next chapter: ${nextChapterPath}`);
+          navigate(nextChapterPath);
         }
       } else if (
         event.key === 'a' ||
@@ -106,6 +124,11 @@ function Reader(): React.JSX.Element {
           setScrollOffset(0);
           setZoomLevel(zoomLevel); // Keep the same zoom level when navigating
           setCurrentPage((prev) => Math.max(prev - 1, 0)); // Ensure we don't go before the title page
+          console.log(`Moving to previous page: ${currentPage - 1}`);
+        } else if (prevChapterPath) {
+          // Go to the previous chapter if we're on the first page
+          console.log(`Moving to previous chapter: ${prevChapterPath}`);
+          navigate(prevChapterPath);
         }
       } else if (event.key === 's' || event.key === 'S' || event.key === 'س') {
         // Scroll down or go to next page
@@ -116,25 +139,47 @@ function Reader(): React.JSX.Element {
               contentHeight - viewportHeight,
             ),
           );
-        } else if (currentPage < chapter.pages.length) {
+        } else if (currentPage < chapter.pages.length - 1) {
           setScrollOffset(0);
-          setCurrentPage((prev) => Math.min(prev + 1, chapter.pages.length));
+          setCurrentPage((prev) =>
+            Math.min(prev + 1, chapter.pages.length - 1),
+          );
+          console.log(`Moving to next page: ${currentPage + 1}`);
+        } else if (nextChapterPath) {
+          // Go to next chapter when we're on the last page
+          console.log(`Moving to next chapter: ${nextChapterPath}`);
+          navigate(nextChapterPath);
         }
       } else if (event.key === 'w' || event.key === 'W' || event.key === 'ص') {
         // Scroll up or go to previous page
         if (scrollOffset > 0) {
           setScrollOffset((prev) => Math.max(prev - viewportHeight * 0.1, 0));
+          console.log(`Scrolling up: ${scrollOffset}`);
         } else if (currentPage > 0) {
           setScrollOffset(0);
           setCurrentPage((prev) => prev - 1);
+          console.log(`Moving to previous page: ${currentPage - 1}`);
+        } else if (prevChapterPath) {
+          // Go to previous chapter when we're on the first page
+          console.log(`Moving to previous chapter: ${prevChapterPath}`);
+          navigate(prevChapterPath);
         }
       }
     },
-    [chapter, currentPage, scrollOffset, zoomLevel],
+    [
+      chapter,
+      currentPage,
+      scrollOffset,
+      zoomLevel,
+      prevChapterPath,
+      nextChapterPath,
+      navigate,
+    ],
   );
 
   useEffect(() => {
     const fetchChapter = async () => {
+      console.log(`Fetching chapter for path: ${chapterPath}`);
       if (!chapterPath) {
         setError('Chapter path not found');
         setLoading(false);
@@ -142,22 +187,27 @@ function Reader(): React.JSX.Element {
       }
 
       try {
-        const chapterContent = await getChapter(chapterPath);
+        const chapterContent = await getChapter(chapterPath, 'mangaTitle'); // Pass mangaTitle to the function
         if (!chapterContent.pages || chapterContent.pages.length === 0) {
           setError('No chapter content available');
           setLoading(false);
           return;
         }
+        console.log('Chapter fetched successfully:', chapterContent);
         setChapter({
           title: chapterContent.title || 'Untitled Chapter',
           path: chapterContent.path,
           pages: chapterContent.pages,
         });
 
+        setNextChapterPath(chapterContent.nextChapterPath);
+        setPrevChapterPath(chapterContent.prevChapterPath);
+
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch chapter content');
         setLoading(false);
+        console.error('Error fetching chapter:', err);
       }
     };
 
@@ -212,7 +262,8 @@ function Reader(): React.JSX.Element {
       </div>
       {currentPage > 0 && (
         <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded">
-          <p>{`${currentPage} / ${pages.length}`}</p> {/* Fixed page number */}
+          <p>{`${currentPage + 1} / ${pages.length}`}</p>{' '}
+          {/* Fixed page number */}
         </div>
       )}
     </Container>

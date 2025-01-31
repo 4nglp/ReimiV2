@@ -12,17 +12,15 @@ function EntryList3asq(): React.JSX.Element {
 
   const fetchEntries = async (page: number) => {
     try {
-      if (page === 1)
-        setLoading(true); // Initial load
-      else setIsFetchingMore(true); // Subsequent pages
+      if (page === 1) setLoading(true);
+      else setIsFetchingMore(true);
 
       const data = await getEntries3asq(page);
-      setEntries((prev) => [...prev, ...data]); // Append new entries to existing ones
+      setEntries((prev) => [...prev, ...data]);
 
       setLoading(false);
       setIsFetchingMore(false);
     } catch (err) {
-      console.error('Error fetching entries:', err);
       setError('Failed to fetch entries');
       setLoading(false);
       setIsFetchingMore(false);
@@ -30,7 +28,7 @@ function EntryList3asq(): React.JSX.Element {
   };
 
   useEffect(() => {
-    fetchEntries(1); // Fetch the first page on load
+    fetchEntries(1);
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -39,10 +37,9 @@ function EntryList3asq(): React.JSX.Element {
     const scrollTop = window.scrollY;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
-    // Check if the user is near the bottom of the page
     if (scrollTop + windowHeight >= documentHeight - 100) {
-      setCurrentPage((prev) => prev + 1); // Increment current page
-      fetchEntries(currentPage + 1); // Fetch the next page
+      setCurrentPage((prev) => prev + 1);
+      fetchEntries(currentPage + 1);
     }
   }, [isFetchingMore, loading, currentPage]);
 
@@ -101,7 +98,6 @@ function EntryList3asq(): React.JSX.Element {
         ) : (
           <p>No entries found</p>
         )}
-        {/* Loading More Indicator */}
         {isFetchingMore && (
           <div className="flex justify-center mt-4">
             <p>Loading more...</p>

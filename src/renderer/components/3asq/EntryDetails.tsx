@@ -1,13 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Details, Chapter } from '../../types'; // Adjust the import path if needed
-import { getDetails } from '../../ext/3asq/index'; // Adjust the import path if needed
+import { LuArrowDownUp } from 'react-icons/lu';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { Details, Chapter } from '../../types';
+import { getDetails } from '../../ext/3asq/index';
 
 function EntryDetails(): React.JSX.Element {
-  const { title } = useParams<{ title: string }>(); // Extract the title from the URL
+  const { title } = useParams<{ title: string }>();
+  const location = useLocation();
   const [entryDetails, setEntryDetails] = useState<Details | null>(null);
+  const [banner, setBanner] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [reverseOrder, setReverseOrder] = useState<boolean>(false);
+
+  async function fetchAniListData(searchTitle: string) {
+    const query = `
+    query ($title: String) {
+      Media (search: $title, type: MANGA) {
+        bannerImage
+        chapters
+      }
+    }
+  `;
+    const variables = { title: searchTitle };
+    const url = 'https://graphql.anilist.co';
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ query, variables }),
+    };
+    const res = await fetch(url, options);
+    const data = await res.json();
+    return {
+      bannerImage: data.data.Media?.bannerImage || null,
+      totalChapters: data.data.Media?.chapters || 'Unknown',
+    };
+  }
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -18,8 +49,10 @@ function EntryDetails(): React.JSX.Element {
       }
 
       try {
-        const details = await getDetails(title); // Fetch entry details using the title
+        const details = await getDetails(title);
+        const aniListData = await fetchAniListData(title);
         setEntryDetails(details);
+        setBanner(aniListData.bannerImage);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch entry details');
@@ -28,7 +61,12 @@ function EntryDetails(): React.JSX.Element {
     };
 
     fetchDetails();
-  }, [title]); // Re-run when the title changes
+  }, [title]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setReverseOrder(params.get('reverse') === 'true');
+  }, [location.search]);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -42,46 +80,87 @@ function EntryDetails(): React.JSX.Element {
     return <p>No details available</p>;
   }
 
-  // Use the manga title from the URL (assuming it's the formatted title)
-  const mangaTitle = title || 'default-manga-title'; // Provide a fallback value
+  const mangaTitle = title || 'default-manga-title';
+  const chapters = reverseOrder
+    ? [...entryDetails.chapters].reverse()
+    : entryDetails.chapters;
 
   return (
-    <div>
-      <h2>{entryDetails.title}</h2>
-      {entryDetails.posterURL && (
-        <img
-          src={entryDetails.posterURL}
-          alt={entryDetails.title}
-          width={250}
-        />
-      )}
-      <p>{entryDetails.description || 'No description available'}</p>
-      <p>Author: {entryDetails.author || 'Not available'}</p>
-      <p>Artist: {entryDetails.artist || 'Not available'}</p>
-      {entryDetails.genres.length > 0 && (
-        <p>Genres: {entryDetails.genres.join(', ')}</p>
-      )}
-      <p>Year of Release: {entryDetails.pubYear || 'Not specified'}</p>
-
-      <h3>Chapters</h3>
-      {entryDetails.chapters.length > 0 ? (
-        <ul>
-          {entryDetails.chapters.map((chapter: Chapter) => (
-            <li key={chapter.path}>
-              {/* Link to the chapter using the formatted manga title */}
-              <Link
-                to={`/manga/${encodeURIComponent(mangaTitle)}/chapter/${encodeURIComponent(chapter.path)}`}
-                state={{ entryDetails }}
-              >
-                {chapter.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No chapters available</p>
-      )}
-    </div>
+    <>
+      <div className="relative w-full h-[400px] bg-cover bg-center">
+        {banner && (
+          <img
+            src={banner}
+            alt="Banner"
+            className="w-full h-[400px] object-cover pt-3"
+          />
+        )}
+        <div className="absolute inset-0 flex items-center justify-between p-6 bg-gradient-to-t from-black to-transparent">
+          <div className="flex-1 ml-4 text-white text-right pr-5">
+            <h1 className="text-3xl sm:text-5xl font-bold">
+              {entryDetails.title}
+            </h1>
+            <p className="text-lg mt-2" style={{ fontFamily: 'Amiri' }}>
+              {entryDetails.description || 'No description available'}
+            </p>
+            <h3 className="text-lg font-bold mt-1">
+              {entryDetails.author || 'Unknown Author'} |{' '}
+              {entryDetails.pubYear || 'Unknown year'}
+            </h3>
+            <p className="text-sm text-gray-300">
+              {entryDetails.genres.join(', ') || 'No genres available'}
+            </p>
+            <h3 className="text-lg text-white-200 font-bold mt-1">
+              مجموع الفصول: {entryDetails.chapters.length}
+            </h3>
+          </div>
+          <div className="w-[150px] h-[225px] sm:w-[200px] sm:h-[300px]">
+            {entryDetails.posterURL && (
+              <img
+                src={entryDetails.posterURL}
+                alt={`Cover for ${entryDetails.title}`}
+                className="w-full h-full object-cover rounded-md"
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto p-4">
+        <div className="mt-2">
+          <h2 className="text-2xl font-bold mb-4 flex items-center">
+            Chapters{' '}
+            <Link
+              to={{
+                pathname: location.pathname,
+                search: `?reverse=${!reverseOrder}`,
+              }}
+            >
+              <LuArrowDownUp className="ml-2 text-xl" />
+            </Link>
+          </h2>
+          <div>
+            {chapters.length > 0 ? (
+              <ul className="grid grid-cols-4 ">
+                {chapters.map((chapter: Chapter) => (
+                  <li key={chapter.path} className="mb-2">
+                    <Link
+                      to={`/manga/${encodeURIComponent(mangaTitle)}/chapter/${encodeURIComponent(chapter.path)}`}
+                      className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
+                    >
+                      <span className="w-full text-left">
+                        Chapter {chapter.title}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No chapters available for this manga.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 

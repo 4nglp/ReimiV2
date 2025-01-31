@@ -80,7 +80,6 @@ export async function getDetails(entryTitle: string): Promise<Details> {
     }
   });
 
-  // Return the details
   const details: Details = {
     ext,
     title: mangaTitle,
@@ -96,7 +95,7 @@ export async function getDetails(entryTitle: string): Promise<Details> {
   return details;
 }
 
-export async function getChapter(chapterPath: string) {
+export async function getChapter(chapterPath: string, mangaTitle: string) {
   const res = await fetch(baseURL + chapterPath);
   const doc = parseHTML(await res.text());
 
@@ -109,14 +108,36 @@ export async function getChapter(chapterPath: string) {
   doc.querySelectorAll('.page-break img').forEach((img) => {
     const pageURL = img.getAttribute('src');
     if (pageURL) {
-      // Clean up the URL by trimming whitespace and newline characters
       pages.push(pageURL.trim());
     }
   });
+
+  // Helper function to extract the chapter number from the path
+  const extractChapterNumber = (path: string) => {
+    const match = path.match(/(\d+)$/); // Match the last set of digits in the path
+    return match ? parseInt(match[0], 10) : null;
+  };
+
+  const currentChapterNumber = extractChapterNumber(chapterPath);
+
+  let nextChapterPath: string | null = null;
+  let prevChapterPath: string | null = null;
+
+  if (currentChapterNumber) {
+    // Generate next and previous chapter paths based on the chapter number
+    const nextChapterNumber = currentChapterNumber + 1;
+    const prevChapterNumber = currentChapterNumber - 1;
+
+    // Construct next and previous chapter URLs
+    nextChapterPath = `/manga/${mangaTitle}/chapter/${nextChapterNumber}`;
+    prevChapterPath = `/manga/${mangaTitle}/chapter/${prevChapterNumber}`;
+  }
 
   return {
     title,
     path: chapterPath,
     pages,
+    nextChapterPath,
+    prevChapterPath,
   };
 }
