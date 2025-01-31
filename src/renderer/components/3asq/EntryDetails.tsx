@@ -92,7 +92,7 @@ function EntryDetails(): React.JSX.Element {
           <img
             src={banner}
             alt="Banner"
-            className="w-full h-[400px] object-cover pt-3"
+            className="w-full h-[400px] object-cover"
           />
         )}
         <div className="absolute inset-0 flex items-center justify-between p-6 bg-gradient-to-t from-black to-transparent">

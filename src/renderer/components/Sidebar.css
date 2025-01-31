@@ -18,6 +18,8 @@
   margin-left: 1rem;
   font-size: 2rem;
   background: none;
+  position: absolute;
+  z-index: 1000;
 }
 
 .menu-bars:hover {
