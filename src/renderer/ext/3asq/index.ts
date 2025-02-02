@@ -32,7 +32,7 @@ export async function getEntries3asq(page = 1) {
 }
 
 export async function getDetails(entryTitle: string): Promise<Details> {
-  const formattedTitle = entryTitle.toLowerCase().replace(/\s+/g, '-'); // Format title (e.g., "Blooming Love" -> "blooming-love")
+  const formattedTitle = entryTitle.toLowerCase().replace(/\s+/g, '-');
   const detailsURL = `${baseURL}manga/${formattedTitle}/`;
 
   const res = await fetch(detailsURL);
@@ -112,9 +112,8 @@ export async function getChapter(chapterPath: string, mangaTitle: string) {
     }
   });
 
-  // Helper function to extract the chapter number from the path
   const extractChapterNumber = (path: string) => {
-    const match = path.match(/(\d+)$/); // Match the last set of digits in the path
+    const match = path.match(/(\d+)$/);
     return match ? parseInt(match[0], 10) : null;
   };
 
@@ -124,11 +123,9 @@ export async function getChapter(chapterPath: string, mangaTitle: string) {
   let prevChapterPath: string | null = null;
 
   if (currentChapterNumber) {
-    // Generate next and previous chapter paths based on the chapter number
     const nextChapterNumber = currentChapterNumber + 1;
     const prevChapterNumber = currentChapterNumber - 1;
 
-    // Construct next and previous chapter URLs
     nextChapterPath = `/manga/${mangaTitle}/chapter/${nextChapterNumber}`;
     prevChapterPath = `/manga/${mangaTitle}/chapter/${prevChapterNumber}`;
   }

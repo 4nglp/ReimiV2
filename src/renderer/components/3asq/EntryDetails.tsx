@@ -92,33 +92,41 @@ function EntryDetails(): React.JSX.Element {
           <img
             src={banner}
             alt="Banner"
-            className="w-full h-[400px] object-cover"
+            className="w-full h-[400px] object-cover opacity-85"
           />
         )}
         <div className="absolute inset-0 flex items-center justify-between p-6 bg-gradient-to-t from-black to-transparent">
           <div className="flex-1 ml-4 text-white text-right pr-5">
-            <h1 className="text-3xl sm:text-5xl font-bold">
-              {entryDetails.title}
-            </h1>
-            <p className="text-lg mt-2" style={{ fontFamily: 'Amiri' }}>
-              {entryDetails.description || 'No description available'}
+            <h1 className="text-5xl font-bold">{entryDetails.title}</h1>
+            <p
+              className="text-lg mt-2"
+              style={{ fontFamily: 'Amiri' }}
+              dir="rtl"
+            >
+              {entryDetails.description || 'لا وصف متوفر'}
             </p>
-            <h3 className="text-lg font-bold mt-1">
-              {entryDetails.author || 'Unknown Author'} |{' '}
-              {entryDetails.pubYear || 'Unknown year'}
+            <h3
+              className="text-lg font-bold mt-1"
+              style={{ fontFamily: 'Amiri' }}
+            >
+              {entryDetails.author || 'لا كاتب متوفر'} |{' '}
+              {entryDetails.pubYear || 'سنة النشر غير متوفرة'}
             </h3>
-            <div className="flex justify-end flex-wrap gap-2">
+            <div className="flex justify-end flex-wrap gap-2 pt-2">
               {entryDetails.genres.map((genre) => (
                 <div
                   key={genre}
-                  className="bg-black bg-opacity-50 text-lg rounded-lg px-3 py-1"
+                  className="bg-black bg-opacity-50 text-lg rounded-lg px-3"
                   style={{ fontFamily: 'Amiri' }}
                 >
                   {genre}
                 </div>
               )) || 'No genres available'}
             </div>
-            <h3 className="text-lg text-white-200 font-bold mt-1">
+            <h3
+              className="text-lg text-white-200 font-bold mt-1"
+              style={{ fontFamily: 'Amiri' }}
+            >
               مجموع الفصول: {entryDetails.chapters.length}
             </h3>
           </div>
@@ -155,7 +163,10 @@ function EntryDetails(): React.JSX.Element {
                       to={`/manga/${encodeURIComponent(mangaTitle)}/chapter/${encodeURIComponent(chapter.path)}`}
                       className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
                     >
-                      <span className="w-full text-left">
+                      <span
+                        className="w-full text-left"
+                        style={{ fontFamily: 'Amiri' }}
+                      >
                         Chapter {chapter.title}
                       </span>
                     </Link>
@@ -163,7 +174,7 @@ function EntryDetails(): React.JSX.Element {
                 ))}
               </ul>
             ) : (
-              <p>No chapters available for this manga.</p>
+              <p dir="rtl">لا فصول متوفرة لهذه المانغا.</p>
             )}
           </div>
         </div>
