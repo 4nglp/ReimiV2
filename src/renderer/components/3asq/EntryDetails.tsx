@@ -107,9 +107,17 @@ function EntryDetails(): React.JSX.Element {
               {entryDetails.author || 'Unknown Author'} |{' '}
               {entryDetails.pubYear || 'Unknown year'}
             </h3>
-            <p className="text-sm text-gray-300">
-              {entryDetails.genres.join(', ') || 'No genres available'}
-            </p>
+            <div className="flex justify-end flex-wrap gap-2">
+              {entryDetails.genres.map((genre) => (
+                <div
+                  key={genre}
+                  className="bg-black bg-opacity-50 text-lg rounded-lg px-3 py-1"
+                  style={{ fontFamily: 'Amiri' }}
+                >
+                  {genre}
+                </div>
+              )) || 'No genres available'}
+            </div>
             <h3 className="text-lg text-white-200 font-bold mt-1">
               مجموع الفصول: {entryDetails.chapters.length}
             </h3>

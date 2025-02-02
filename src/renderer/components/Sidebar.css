@@ -36,7 +36,7 @@
   top: 0;
   left: -100%;
   transition: 850ms;
-  z-index: 1000; /* Added z-index to ensure the sidebar is above other elements */
+  z-index: 1000;
 }
 
 .nav-menu.active {
@@ -74,7 +74,6 @@
 }
 
 .navbar-toggle {
-  background-color: blac;
   width: 100%;
   height: 80px;
   display: flex;
