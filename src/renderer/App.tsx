@@ -3,17 +3,12 @@ import './App.css';
 import 'tailwindcss/tailwind.css';
 import SideBar from './components/SideBar';
 import Library from './pages/Library';
-import LekDetails from './components/lekmanga/LekDetails';
 import EntryList from './components/EntryList';
 import EntryDetails from './components/EntryDetails';
 import Reader from './components/Reader';
-import AasqReader from './components/3asq/3asqReader';
-import LekReader from './components/lekmanga/LekReader';
 import AddSeries from './pages/AddSeries';
-import SearchResults3asq from './pages/Search3asq';
 import Downloads from './pages/Downloads';
 import Settings from './pages/Settings';
-import SearchResultsLekManga from './pages/SearchLek';
 
 export default function App() {
   return (
@@ -22,26 +17,18 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Library />} />
         <Route path="/addSeries" element={<AddSeries />} />
-        <Route path="/search-3asq" element={<SearchResults3asq />} />
-        <Route path="/search-lekmanga" element={<SearchResultsLekManga />} />
         <Route path="/downloads" element={<Downloads />} />
         <Route path="/settings" element={<Settings />} />
         <Route
           path="/manga/title/:title/source/:source"
           element={<EntryDetails key={`${window.location.pathname}`} />}
         />
-        <Route path="/e/:title" element={<LekDetails />} />
         <Route path="/entries/:source" element={<EntryList />} />
         <Route path="/manga/:title/source/:source" element={<EntryDetails />} />
         <Route
           path="/manga/:mangaTitle/chapter/:chapterPath/source/:source"
           element={<Reader />}
         />
-        <Route
-          path="/manga/:mangaTitle/chapter/:chapterPath"
-          element={<AasqReader />}
-        />
-        <Route path="/m/:mangaTitle/ch/:chapterPath" element={<LekReader />} />
       </Routes>
     </Router>
   );
