@@ -17,6 +17,7 @@ function EntryDetails(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [reverseOrder, setReverseOrder] = useState<boolean>(false);
 
+  // Fetch AniList data to get the banner and total chapter count
   async function fetchAniListData(searchTitle: string) {
     const query = `
       query ($title: String) {
@@ -44,6 +45,7 @@ function EntryDetails(): React.JSX.Element {
     };
   }
 
+  // Fetch manga details based on the source (3asq or lekmanga)
   useEffect(() => {
     const fetchDetails = async () => {
       if (!title || !source) {
@@ -59,6 +61,7 @@ function EntryDetails(): React.JSX.Element {
         } else if (source === 'lekmanga') {
           details = await getDetailsLek(title);
         }
+
         if (details) {
           const aniListData = await fetchAniListData(title);
           setEntryDetails(details);
@@ -76,6 +79,7 @@ function EntryDetails(): React.JSX.Element {
     fetchDetails();
   }, [title, source]);
 
+  // Update reverse order when the query parameter changes
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setReverseOrder(params.get('reverse') === 'true');
@@ -85,7 +89,7 @@ function EntryDetails(): React.JSX.Element {
   if (error) return <p>{error}</p>;
   if (!entryDetails) return <p>No details available</p>;
 
-  const mangaTitle = title || 'default-manga-title';
+  // Reverse order if the query parameter is set
   const chapters = reverseOrder
     ? [...entryDetails.chapters].reverse()
     : entryDetails.chapters;
@@ -165,7 +169,7 @@ function EntryDetails(): React.JSX.Element {
                 {chapters.map((chapter: Chapter) => (
                   <li key={chapter.path} className="mb-2">
                     <Link
-                      to={`/manga/${encodeURIComponent(mangaTitle)}/chapter/${encodeURIComponent(chapter.path)}`}
+                      to={`/manga/${encodeURIComponent(title || '')}/chapter/${encodeURIComponent(chapter.path)}/source/${encodeURIComponent(source || '')}`}
                       className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
                     >
                       <span

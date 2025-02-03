@@ -61,6 +61,9 @@ export default function SideBar() {
               <Link to="/entries/lekmanga">
                 <span>LekManga</span>
               </Link>
+              <Link to="/manga/vinland-saga/chapter/214/source/lekmanga">
+                a
+              </Link>
             </li>
           </ul>
         </nav>

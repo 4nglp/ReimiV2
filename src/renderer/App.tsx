@@ -6,7 +6,8 @@ import Library from './pages/Library';
 import LekDetails from './components/lekmanga/LekDetails';
 import EntryList from './components/EntryList';
 import EntryDetails from './components/EntryDetails';
-import Reader from './components/3asq/Reader';
+import Reader from './components/Reader';
+import AasqReader from './components/3asq/3asqReader';
 import LekReader from './components/lekmanga/LekReader';
 import AddSeries from './pages/AddSeries';
 import SearchResults3asq from './pages/Search3asq';
@@ -33,8 +34,12 @@ export default function App() {
         <Route path="/entries/:source" element={<EntryList />} />
         <Route path="/manga/:title/source/:source" element={<EntryDetails />} />
         <Route
-          path="/manga/:mangaTitle/chapter/:chapterPath"
+          path="/manga/:mangaTitle/chapter/:chapterPath/source/:source"
           element={<Reader />}
+        />
+        <Route
+          path="/manga/:mangaTitle/chapter/:chapterPath"
+          element={<AasqReader />}
         />
         <Route path="/m/:mangaTitle/ch/:chapterPath" element={<LekReader />} />
       </Routes>

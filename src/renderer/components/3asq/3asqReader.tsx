@@ -34,7 +34,7 @@ function Container({ children }: { children: ReactNode }) {
   );
 }
 
-function Reader(): React.JSX.Element {
+function AasqReader(): React.JSX.Element {
   const { chapterPath } = useParams<{ chapterPath: string }>();
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(0); // Start with the title page
@@ -270,4 +270,4 @@ function Reader(): React.JSX.Element {
   );
 }
 
-export default Reader;
+export default AasqReader;
