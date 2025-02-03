@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Details, Chapter } from '../../types'; // Adjust the import path if needed
-import { getDetails } from '../../ext/lekmanga/index'; // Adjust the import path if needed
+import { getDetailsLek } from '../../ext/lekmanga/index'; // Adjust the import path if needed
 
 function EntryDetails(): React.JSX.Element {
   const { title } = useParams<{ title: string }>(); // Extract the title from the URL
@@ -18,7 +18,7 @@ function EntryDetails(): React.JSX.Element {
       }
 
       try {
-        const details = await getDetails(title); // Fetch entry details using the title
+        const details = await getDetailsLek(title); // Fetch entry details using the title
         setEntryDetails(details);
         setLoading(false);
       } catch (err) {
@@ -67,7 +67,6 @@ function EntryDetails(): React.JSX.Element {
         <ul>
           {entryDetails.chapters.map((chapter: Chapter) => (
             <li key={chapter.path}>
-              {/* Link to the chapter using the formatted manga title */}
               <Link
                 to={`/m/${encodeURIComponent(mangaTitle)}/ch/${encodeURIComponent(chapter.path)}`}
               >

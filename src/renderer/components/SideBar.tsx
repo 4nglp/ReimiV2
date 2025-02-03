@@ -12,6 +12,7 @@ import SidebarData from './SidebarData';
 export default function SideBar() {
   const [sidebar, setSidebar] = useState(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     const handleKeyDown = (event: any) => {
       if (event.key === 'Escape') {
@@ -23,9 +24,11 @@ export default function SideBar() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [navigate]);
+
   const showSidebar = () => {
     setSidebar(!sidebar);
   };
+
   return (
     <IconContext.Provider value={{ color: '#fff' }}>
       <div className="sidebar">
@@ -49,6 +52,16 @@ export default function SideBar() {
                 </li>
               );
             })}
+            <li className="nav-text">
+              <Link to="/entries/3asq">
+                <span>3asq</span>
+              </Link>
+            </li>
+            <li className="nav-text">
+              <Link to="/entries/lekmanga">
+                <span>LekManga</span>
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

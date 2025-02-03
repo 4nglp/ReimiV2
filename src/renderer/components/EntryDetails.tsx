@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { LuArrowDownUp } from 'react-icons/lu';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { Details, Chapter } from '../../types';
-import { getDetails } from '../../ext/3asq/index';
+import { LuArrowDownUp } from 'react-icons/lu';
+import { getDetails3asq } from '../ext/3asq/index';
+import { getDetailsLek } from '../ext/lekmanga/index';
+import { Details, Chapter } from '../types';
 
 function EntryDetails(): React.JSX.Element {
-  const { title } = useParams<{ title: string }>();
+  const { title, source } = useParams<{
+    title: string;
+    source: '3asq' | 'lekmanga';
+  }>();
   const location = useLocation();
   const [entryDetails, setEntryDetails] = useState<Details | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
@@ -15,13 +19,13 @@ function EntryDetails(): React.JSX.Element {
 
   async function fetchAniListData(searchTitle: string) {
     const query = `
-    query ($title: String) {
-      Media (search: $title, type: MANGA) {
-        bannerImage
-        chapters
+      query ($title: String) {
+        Media (search: $title, type: MANGA) {
+          bannerImage
+          chapters
+        }
       }
-    }
-  `;
+    `;
     const variables = { title: searchTitle };
     const url = 'https://graphql.anilist.co';
     const options = {
@@ -42,43 +46,44 @@ function EntryDetails(): React.JSX.Element {
 
   useEffect(() => {
     const fetchDetails = async () => {
-      if (!title) {
-        setError('Title not found');
+      if (!title || !source) {
+        setError('Title or source not found');
         setLoading(false);
         return;
       }
 
       try {
-        const details = await getDetails(title);
-        const aniListData = await fetchAniListData(title);
-        setEntryDetails(details);
-        setBanner(aniListData.bannerImage);
-        setLoading(false);
+        let details: Details | null = null;
+        if (source === '3asq') {
+          details = await getDetails3asq(title);
+        } else if (source === 'lekmanga') {
+          details = await getDetailsLek(title);
+        }
+        if (details) {
+          const aniListData = await fetchAniListData(title);
+          setEntryDetails(details);
+          setBanner(aniListData.bannerImage);
+        } else {
+          setError('Failed to fetch manga details');
+        }
       } catch (err) {
         setError('Failed to fetch entry details');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchDetails();
-  }, [title]);
+  }, [title, source]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setReverseOrder(params.get('reverse') === 'true');
   }, [location.search]);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
-  }
-
-  if (!entryDetails) {
-    return <p>No details available</p>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+  if (!entryDetails) return <p>No details available</p>;
 
   const mangaTitle = title || 'default-manga-title';
   const chapters = reverseOrder
@@ -121,7 +126,7 @@ function EntryDetails(): React.JSX.Element {
                 >
                   {genre}
                 </div>
-              )) || 'No genres available'}
+              ))}
             </div>
             <h3
               className="text-lg text-white-200 font-bold mt-1"
@@ -156,7 +161,7 @@ function EntryDetails(): React.JSX.Element {
           </h2>
           <div>
             {chapters.length > 0 ? (
-              <ul className="grid grid-cols-4 ">
+              <ul className="grid grid-cols-4 gap-4">
                 {chapters.map((chapter: Chapter) => (
                   <li key={chapter.path} className="mb-2">
                     <Link
@@ -167,14 +172,14 @@ function EntryDetails(): React.JSX.Element {
                         className="w-full text-left"
                         style={{ fontFamily: 'Amiri' }}
                       >
-                        Chapter {chapter.title}
+                        {chapter.title}
                       </span>
                     </Link>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p dir="rtl">لا فصول متوفرة لهذه المانغا.</p>
+              <p dir="rtl">لا فصول متوفرة لهذا العمل.</p>
             )}
           </div>
         </div>

@@ -34,7 +34,7 @@ export async function getEntriesLekManga(page = 1) {
   return entries;
 }
 
-export async function getDetails(entryTitle: string): Promise<Details> {
+export async function getDetailsLek(entryTitle: string): Promise<Details> {
   const formattedTitle = entryTitle.toLowerCase().replace(/\s+/g, '-'); // Format title (e.g., "Blooming Love" -> "blooming-love")
   const detailsURL = `${baseURL}manga/${formattedTitle}/`;
 

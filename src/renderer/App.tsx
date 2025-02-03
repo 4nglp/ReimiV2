@@ -3,8 +3,9 @@ import './App.css';
 import 'tailwindcss/tailwind.css';
 import SideBar from './components/SideBar';
 import Library from './pages/Library';
-import EntryDetails from './components/3asq/EntryDetails';
 import LekDetails from './components/lekmanga/LekDetails';
+import EntryList from './components/EntryList';
+import EntryDetails from './components/EntryDetails';
 import Reader from './components/3asq/Reader';
 import LekReader from './components/lekmanga/LekReader';
 import AddSeries from './pages/AddSeries';
@@ -24,8 +25,13 @@ export default function App() {
         <Route path="/search-lekmanga" element={<SearchResultsLekManga />} />
         <Route path="/downloads" element={<Downloads />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/entry/:title" element={<EntryDetails />} />
+        <Route
+          path="/manga/title/:title/source/:source"
+          element={<EntryDetails key={`${window.location.pathname}`} />}
+        />
         <Route path="/e/:title" element={<LekDetails />} />
+        <Route path="/entries/:source" element={<EntryList />} />
+        <Route path="/manga/:title/source/:source" element={<EntryDetails />} />
         <Route
           path="/manga/:mangaTitle/chapter/:chapterPath"
           element={<Reader />}

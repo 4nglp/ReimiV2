@@ -31,7 +31,7 @@ export async function getEntries3asq(page = 1) {
   return entries;
 }
 
-export async function getDetails(entryTitle: string): Promise<Details> {
+export async function getDetails3asq(entryTitle: string): Promise<Details> {
   const formattedTitle = entryTitle.toLowerCase().replace(/\s+/g, '-');
   const detailsURL = `${baseURL}manga/${formattedTitle}/`;
 
