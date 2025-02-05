@@ -61,6 +61,11 @@ export default function SideBar() {
               <Link to="/entries/lekmanga">
                 <span>LekManga</span>
               </Link>
+              <li className="nav-text">
+                <Link to="/a">
+                  <span>Anime3rb</span>
+                </Link>
+              </li>
             </li>
           </ul>
         </nav>

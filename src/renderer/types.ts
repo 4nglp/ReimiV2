@@ -11,6 +11,10 @@ export type Chapter = {
   nextChapterPath?: string;
   prevChapterPath?: string;
 };
+export type Episode = {
+  title: string;
+  path: string;
+};
 export type Details = {
   ext: string;
   title: string;

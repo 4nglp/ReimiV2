@@ -17,7 +17,6 @@ function EntryDetails(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [reverseOrder, setReverseOrder] = useState<boolean>(false);
 
-  // Fetch AniList data to get the banner and total chapter count
   async function fetchAniListData(searchTitle: string) {
     const query = `
       query ($title: String) {
