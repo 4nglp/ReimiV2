@@ -148,18 +148,21 @@ function EntryDetails(): React.JSX.Element {
       </div>
       <div className="container mx-auto p-4">
         <div className="mt-2">
-          <h2 className="text-2xl font-bold mb-4 flex items-center">
-            Chapters{' '}
+          <h2
+            className="text-2xl font-bold mb-4 flex items-center justify-end"
+            style={{ fontFamily: 'Amiri' }}
+          >
             <Link
               to={{
                 pathname: location.pathname,
                 search: `?reverse=${!reverseOrder}`,
               }}
             >
-              <LuArrowDownUp className="ml-2 text-xl" />
+              <LuArrowDownUp className="ml-2 text-xl mr-2" />
             </Link>
+            الفصول
           </h2>
-          <div>
+          <div dir="rtl">
             {chapters.length > 0 ? (
               <ul className="grid grid-cols-4 gap-4">
                 {chapters.map((chapter: Chapter) => (
@@ -169,7 +172,7 @@ function EntryDetails(): React.JSX.Element {
                       className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
                     >
                       <span
-                        className="w-full text-left"
+                        className="w-full text-right text-xl"
                         style={{ fontFamily: 'Amiri' }}
                       >
                         {chapter.title}
@@ -179,7 +182,7 @@ function EntryDetails(): React.JSX.Element {
                 ))}
               </ul>
             ) : (
-              <p dir="rtl">لا فصول متوفرة لهذا العمل.</p>
+              <p>لا فصول متوفرة لهذا العمل.</p>
             )}
           </div>
         </div>

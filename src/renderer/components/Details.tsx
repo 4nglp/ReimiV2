@@ -134,7 +134,7 @@ function Details(): React.JSX.Element {
                       className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
                     >
                       <span
-                        className="w-full text-xl text-center"
+                        className="w-full text-xl text-right"
                         style={{ fontFamily: 'Amiri' }}
                       >
                         {episode.title}
