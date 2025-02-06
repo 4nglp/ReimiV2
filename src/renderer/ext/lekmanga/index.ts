@@ -1,4 +1,4 @@
-import { Entry, Details, Chapter } from '../../types';
+import { Entry, mangaDetails, Chapter } from '../../types';
 
 const baseURL = 'https://lekmanga.net/';
 const ext = 'lekmanga';
@@ -34,8 +34,8 @@ export async function getEntriesLekManga(page = 1) {
   return entries;
 }
 
-export async function getDetailsLek(entryTitle: string): Promise<Details> {
-  const formattedTitle = entryTitle.toLowerCase().replace(/\s+/g, '-'); // Format title (e.g., "Blooming Love" -> "blooming-love")
+export async function getDetailsLek(entryTitle: string): Promise<mangaDetails> {
+  const formattedTitle = entryTitle.toLowerCase().replace(/\s+/g, '-');
   const detailsURL = `${baseURL}manga/${formattedTitle}/`;
 
   const res = await fetch(detailsURL);
@@ -80,7 +80,7 @@ export async function getDetailsLek(entryTitle: string): Promise<Details> {
     }
   });
 
-  const details: Details = {
+  const details: mangaDetails = {
     ext,
     title: mangaTitle,
     description,

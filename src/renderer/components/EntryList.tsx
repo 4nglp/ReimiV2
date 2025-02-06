@@ -109,10 +109,7 @@ function EntryList(): React.JSX.Element {
             {entries.map((entry) => (
               <div key={entry.title} className="relative flex flex-col mb-2">
                 {source === 'anime3rb' ? (
-                  <Link
-                    to={`/anime/${entry.path}/source/${source}`}
-                    className="block"
-                  >
+                  <Link to={`/anime/title/${entry.path}`} className="block">
                     <div className="relative w-48 h-72 bg-gray-200 overflow-hidden flex-shrink-0 transition-transform transform hover:scale-105">
                       {entry.posterURL && (
                         <img

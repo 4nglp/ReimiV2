@@ -11,11 +11,7 @@ export type Chapter = {
   nextChapterPath?: string;
   prevChapterPath?: string;
 };
-export type Episode = {
-  title: string;
-  path: string;
-};
-export type Details = {
+export type mangaDetails = {
   ext: string;
   title: string;
   description: string;
@@ -25,6 +21,23 @@ export type Details = {
   pubYear: string;
   posterURL: string;
   chapters: Chapter[];
+};
+export type Episode = {
+  title: string;
+  path: string;
+};
+export type animeDetails = {
+  ext: string;
+  title: string;
+  status: string;
+  season: string;
+  studio: string;
+  author: string;
+  director: string;
+  genres: string[];
+  rating: string;
+  posterURL: string;
+  episodes: Episode[];
 };
 export type Results = {
   title: string;

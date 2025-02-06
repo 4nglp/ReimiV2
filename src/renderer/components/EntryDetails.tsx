@@ -3,7 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { LuArrowDownUp } from 'react-icons/lu';
 import { getDetails3asq } from '../ext/3asq/index';
 import { getDetailsLek } from '../ext/lekmanga/index';
-import { Details, Chapter } from '../types';
+import { mangaDetails, Chapter } from '../types';
 
 function EntryDetails(): React.JSX.Element {
   const { title, source } = useParams<{
@@ -11,7 +11,7 @@ function EntryDetails(): React.JSX.Element {
     source: '3asq' | 'lekmanga';
   }>();
   const location = useLocation();
-  const [entryDetails, setEntryDetails] = useState<Details | null>(null);
+  const [entryDetails, setEntryDetails] = useState<mangaDetails | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,6 @@ function EntryDetails(): React.JSX.Element {
       query ($title: String) {
         Media (search: $title, type: MANGA) {
           bannerImage
-          chapters
         }
       }
     `;
@@ -44,7 +43,6 @@ function EntryDetails(): React.JSX.Element {
     };
   }
 
-  // Fetch manga details based on the source (3asq or lekmanga)
   useEffect(() => {
     const fetchDetails = async () => {
       if (!title || !source) {
@@ -54,7 +52,7 @@ function EntryDetails(): React.JSX.Element {
       }
 
       try {
-        let details: Details | null = null;
+        let details: mangaDetails | null = null;
         if (source === '3asq') {
           details = await getDetails3asq(title);
         } else if (source === 'lekmanga') {
@@ -78,7 +76,6 @@ function EntryDetails(): React.JSX.Element {
     fetchDetails();
   }, [title, source]);
 
-  // Update reverse order when the query parameter changes
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setReverseOrder(params.get('reverse') === 'true');
@@ -88,7 +85,6 @@ function EntryDetails(): React.JSX.Element {
   if (error) return <p>{error}</p>;
   if (!entryDetails) return <p>No details available</p>;
 
-  // Reverse order if the query parameter is set
   const chapters = reverseOrder
     ? [...entryDetails.chapters].reverse()
     : entryDetails.chapters;
@@ -138,7 +134,7 @@ function EntryDetails(): React.JSX.Element {
               مجموع الفصول: {entryDetails.chapters.length}
             </h3>
           </div>
-          <div className="w-[150px] h-[225px] sm:w-[200px] sm:h-[300px]">
+          <div className="w-[200px] h-[300px]">
             {entryDetails.posterURL && (
               <img
                 src={entryDetails.posterURL}
@@ -146,6 +142,7 @@ function EntryDetails(): React.JSX.Element {
                 className="w-full h-full object-cover rounded-md"
               />
             )}
+            {/* <h1 className="text-2xl text-center">{entryDetails.ext}</h1> */}
           </div>
         </div>
       </div>

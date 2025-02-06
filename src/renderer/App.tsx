@@ -5,6 +5,7 @@ import SideBar from './components/SideBar';
 import Library from './pages/Library';
 import EntryList from './components/EntryList';
 import EntryDetails from './components/EntryDetails';
+import Details from './components/Details';
 import Reader from './components/Reader';
 import AddSeries from './pages/AddSeries';
 import Downloads from './pages/Downloads';
@@ -24,6 +25,7 @@ export default function App() {
           path="/manga/title/:title/source/:source"
           element={<EntryDetails key={`${window.location.pathname}`} />}
         />
+        <Route path="/anime/title/:t" element={<Details />} />
         <Route path="/manga/:title/source/:source" element={<EntryDetails />} />
         <Route
           path="/manga/:mangaTitle/chapter/:chapterPath/source/:source"

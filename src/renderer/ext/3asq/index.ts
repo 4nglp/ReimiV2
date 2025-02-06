@@ -1,4 +1,4 @@
-import { Entry, Details, Chapter } from '../../types';
+import { Entry, Chapter, mangaDetails } from '../../types';
 
 const baseURL = 'https://3asq.org/';
 const ext = '3asq';
@@ -31,7 +31,9 @@ export async function getEntries3asq(page = 1) {
   return entries;
 }
 
-export async function getDetails3asq(entryTitle: string): Promise<Details> {
+export async function getDetails3asq(
+  entryTitle: string,
+): Promise<mangaDetails> {
   const formattedTitle = entryTitle.toLowerCase().replace(/\s+/g, '-');
   const detailsURL = `${baseURL}manga/${formattedTitle}/`;
 
@@ -80,7 +82,7 @@ export async function getDetails3asq(entryTitle: string): Promise<Details> {
     }
   });
 
-  const details: Details = {
+  const details: mangaDetails = {
     ext,
     title: mangaTitle,
     description,
