@@ -34,20 +34,6 @@ export async function getDetails(q: string): Promise<animeDetails> {
       .querySelector('.text-2xl.font-bold.uppercase span[dir="ltr"]')
       ?.textContent?.trim() || '';
 
-  const statusElement = [...doc.querySelectorAll('td')].find((td) =>
-    td.textContent?.includes('الحالة:'),
-  );
-  const status = statusElement
-    ? statusElement.nextElementSibling?.textContent?.trim()
-    : '';
-
-  const seasonElement = [...doc.querySelectorAll('td')].find((td) =>
-    td.textContent?.includes('إصدار:'),
-  );
-  const season = seasonElement
-    ? seasonElement.nextElementSibling?.textContent?.trim()
-    : '';
-
   const studioElement = [...doc.querySelectorAll('td')].find((td) =>
     td.textContent?.includes('الاستديو:'),
   );
@@ -55,28 +41,20 @@ export async function getDetails(q: string): Promise<animeDetails> {
     ? studioElement.nextElementSibling?.querySelector('a')?.textContent?.trim()
     : '';
 
-  const authorElement = [...doc.querySelectorAll('td')].find((td) =>
-    td.textContent?.includes('المؤلف:'),
-  );
-  const author = authorElement
-    ? authorElement.nextElementSibling?.querySelector('a')?.textContent?.trim()
-    : '';
-
-  const directorElement = [...doc.querySelectorAll('td')].find((td) =>
-    td.textContent?.includes('المخرج:'),
-  );
-  const director = directorElement
-    ? directorElement.nextElementSibling
-        ?.querySelector('a')
-        ?.textContent?.trim()
-    : '';
-
   const genres = [...doc.querySelectorAll('.flex.flex-wrap.gap-2 a')]
     .map((genre) => genre?.textContent?.trim())
-    .filter((genre): genre is string => Boolean(genre));
+    .filter((genre): genre is string => Boolean(genre))
+    .slice(0, -2);
 
   const rating =
     doc.querySelector('.text-lg.leading-relaxed')?.textContent?.trim() || 'N/A';
+
+  const ps = doc.querySelectorAll('.py-4 p');
+  const description =
+    Array.from(ps)
+      .map((p) => p.textContent?.trim() || '')
+      .filter((text) => text.length > 0)
+      .join(' ') || '';
 
   const episodes = [...doc.querySelectorAll('a[href*="/episode/"]')].map(
     (ep) => ({
@@ -94,11 +72,8 @@ export async function getDetails(q: string): Promise<animeDetails> {
     ext,
     title,
     genres,
-    author: author || '',
-    status: status || '',
-    season: season || '',
     studio: studio || '',
-    director: director || '',
+    description,
     rating,
     posterURL,
     episodes,

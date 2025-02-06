@@ -29,13 +29,10 @@ export type Episode = {
 export type animeDetails = {
   ext: string;
   title: string;
-  status: string;
-  season: string;
   studio: string;
-  author: string;
-  director: string;
   genres: string[];
   rating: string;
+  description: string;
   posterURL: string;
   episodes: Episode[];
 };
