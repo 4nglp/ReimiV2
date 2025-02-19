@@ -1,36 +1,44 @@
-import React, { useRef, useEffect, useState, ReactNode } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { epd } from '../types';
 import { getEpisode } from '../ext/anime3rb';
 
-function Container({ children }: { children: ReactNode }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    document.onfullscreenchange = () => {
-      if (!document.fullscreenElement) {
-        navigate(-1);
-      }
-    };
-    if (containerRef.current && !document.fullscreenElement) {
-      containerRef.current.requestFullscreen();
-    }
-  }, [navigate]);
-
-  return (
-    <div
-      ref={containerRef}
-      className="h-screen w-full bg-black flex justify-center items-center overflow-hidden"
-    >
-      {children}
-    </div>
-  );
-}
-
 function Player(): React.JSX.Element {
+  const navigate = useNavigate();
   const { t, e } = useParams();
   const [episode, setEpisode] = useState<epd | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [exitingFullscreen, setExitingFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFull = !!document.fullscreenElement;
+      setIsFullscreen(isFull);
+      if (!isFull) {
+        setExitingFullscreen(true);
+        setTimeout(() => setExitingFullscreen(false), 300);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+  const handleKeyNavigation = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isFullscreen && !exitingFullscreen) {
+        navigate(-1);
+      }
+    },
+    [navigate, isFullscreen, exitingFullscreen],
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyNavigation);
+    return () => {
+      window.removeEventListener('keydown', handleKeyNavigation);
+    };
+  }, [handleKeyNavigation]);
 
   useEffect(() => {
     const fetchEp = async () => {
@@ -44,22 +52,18 @@ function Player(): React.JSX.Element {
 
     fetchEp();
   }, [t, e, episode]);
-  const contentRef = useRef<HTMLDivElement>(null);
+
   return (
-    <Container>
-      <div
-        ref={contentRef}
-        className="flex justify-center items-center flex-col relative"
-      >
-        <iframe
-          src={episode?.src || ''}
-          width="800"
-          height="450"
-          title="ep w rbi kbir"
-          allowFullScreen
-        />
-      </div>
-    </Container>
+    <div className="flex justify-center items-center h-screen w-full">
+      <iframe
+        src={episode?.src || ''}
+        width="1002"
+        height="564"
+        title="ep w rbi kbir"
+        allowFullScreen
+      />
+    </div>
   );
 }
+
 export default Player;
