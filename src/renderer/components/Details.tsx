@@ -130,11 +130,11 @@ function Details(): React.JSX.Element {
                 {entryDetails.episodes.map((episode: Episode) => (
                   <li key={episode.path} className="mb-2">
                     <Link
-                      to={`/anime/${entryDetails.title}/episode/${encodeURIComponent(episode.path)}/`}
+                      to={`/anime/title/${t}/episode/${episode.path}/`}
                       className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
                     >
                       <span
-                        className="w-full text-xl text-right"
+                        className="w-full text-xl text-center"
                         style={{ fontFamily: 'Amiri' }}
                       >
                         {episode.title}

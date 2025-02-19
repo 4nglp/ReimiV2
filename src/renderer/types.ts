@@ -26,6 +26,9 @@ export type Episode = {
   title: string;
   path: string;
 };
+export type epd = {
+  src: string;
+};
 export type animeDetails = {
   ext: string;
   title: string;

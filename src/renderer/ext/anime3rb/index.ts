@@ -1,4 +1,4 @@
-import { Entry, animeDetails } from '../../types';
+import { Entry, animeDetails, epd } from '../../types';
 
 const baseURL = 'https://anime3rb.com/';
 const ext = 'anime3rb';
@@ -61,7 +61,7 @@ export async function getDetails(q: string): Promise<animeDetails> {
       title:
         ep.querySelector('.video-metadata span')?.textContent?.trim() ||
         'بدون عنوان',
-      path: ep.getAttribute('href') || '',
+      path: ep.getAttribute('href')?.split('/').at(-1) || '',
     }),
   );
 
@@ -80,4 +80,15 @@ export async function getDetails(q: string): Promise<animeDetails> {
   };
 
   return details;
+}
+
+export async function getEpisode(t: string, e: string): Promise<epd> {
+  const url = `${baseURL}episode/${t}/${e}`;
+  const res = await fetch(url);
+  const doc = parseHTML(await res.text());
+  const buttonElement = doc.querySelector('button[data-source]');
+  const src = buttonElement ? buttonElement.getAttribute('data-source') : null;
+  return {
+    src: src || '',
+  };
 }
