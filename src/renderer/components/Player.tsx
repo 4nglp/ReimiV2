@@ -8,29 +8,25 @@ function Player(): React.JSX.Element {
   const { t, e } = useParams();
   const [episode, setEpisode] = useState<epd | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [exitingFullscreen, setExitingFullscreen] = useState(false);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
       const isFull = !!document.fullscreenElement;
       setIsFullscreen(isFull);
-      if (!isFull) {
-        setExitingFullscreen(true);
-        setTimeout(() => setExitingFullscreen(false), 300);
-      }
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
+
   const handleKeyNavigation = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !isFullscreen && !exitingFullscreen) {
+      if (event.key === 'Escape' && !isFullscreen) {
         navigate(-1);
       }
     },
-    [navigate, isFullscreen, exitingFullscreen],
+    [navigate, isFullscreen],
   );
 
   useEffect(() => {
@@ -54,14 +50,19 @@ function Player(): React.JSX.Element {
   }, [t, e, episode]);
 
   return (
-    <div className="flex justify-center items-center h-screen w-full">
+    <div className="flex flex-col justify-center items-center h-screen w-full">
       <iframe
         src={episode?.src || ''}
         width="1002"
-        height="564"
+        height="538"
         title="ep w rbi kbir"
         allowFullScreen
       />
+      {episode && (
+        <div className="mt-4 text-center" dir="rtl">
+          <h1 className="text-2xl font-bold">{episode.epTitle}</h1>
+        </div>
+      )}
     </div>
   );
 }

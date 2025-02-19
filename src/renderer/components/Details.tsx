@@ -54,7 +54,7 @@ function Details(): React.JSX.Element {
 
         setEntryDetails(details);
         setBanner(aniListData.bannerImage);
-        setPoster(aniListData.posterImage || details.posterURL); // Use AniList poster if available
+        setPoster(aniListData.posterImage || details.posterURL);
       } catch (err) {
         setError('Failed to fetch entry details');
       } finally {

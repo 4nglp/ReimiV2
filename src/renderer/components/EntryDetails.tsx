@@ -142,7 +142,6 @@ function EntryDetails(): React.JSX.Element {
                 className="w-full h-full object-cover rounded-md"
               />
             )}
-            {/* <h1 className="text-2xl text-center">{entryDetails.ext}</h1> */}
           </div>
         </div>
       </div>

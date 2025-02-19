@@ -28,6 +28,7 @@ export type Episode = {
 };
 export type epd = {
   src: string;
+  epTitle: string;
 };
 export type animeDetails = {
   ext: string;

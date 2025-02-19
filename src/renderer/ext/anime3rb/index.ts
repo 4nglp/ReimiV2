@@ -88,7 +88,10 @@ export async function getEpisode(t: string, e: string): Promise<epd> {
   const doc = parseHTML(await res.text());
   const buttonElement = doc.querySelector('button[data-source]');
   const src = buttonElement ? buttonElement.getAttribute('data-source') : null;
+  const TitleElement = doc.querySelector('h1 a');
+  const epTitle = TitleElement?.textContent?.trim() || '';
   return {
     src: src || '',
+    epTitle: epTitle || '',
   };
 }
