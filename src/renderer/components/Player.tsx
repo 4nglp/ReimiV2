@@ -45,7 +45,6 @@ function Player(): React.JSX.Element {
         }
       }
     };
-
     fetchEp();
   }, [t, e, episode]);
 

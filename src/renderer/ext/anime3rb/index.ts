@@ -95,3 +95,22 @@ export async function getEpisode(t: string, e: string): Promise<epd> {
     epTitle: epTitle || '',
   };
 }
+
+export async function getResults(q: string, page = 1) {
+  const res = await fetch(`${baseURL}search?q=${q}&page=${page}`);
+  const doc = parseHTML(await res.text());
+  const entries: Entry[] = [];
+
+  const elements = doc.querySelectorAll('.title-card');
+
+  elements.forEach((e) => {
+    const title = e.querySelector('h2')?.textContent || '';
+    const path =
+      e.querySelector('a')?.getAttribute('href')?.split('/').at(-1) || '';
+    const posterURL = e.querySelector('img')?.getAttribute('src') || '';
+    if (title && path && posterURL) {
+      entries.push({ ext, title, path, posterURL });
+    }
+  });
+  return entries;
+}

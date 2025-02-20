@@ -1,18 +1,20 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
+import { getResults } from '../ext/anime3rb';
 import { Entry } from '../types';
-import { getEntries3asq } from '../ext/3asq/index';
-import { getEntriesLekManga } from '../ext/lekmanga/index';
-import { getEntriesAnime3rb } from '../ext/anime3rb';
 
-function EntryList(): React.JSX.Element {
+export default function Search() {
   const { source } = useParams<{ source: 'lekmanga' | '3asq' | 'anime3rb' }>();
+  const location = useLocation();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+
+  const queryParams = new URLSearchParams(location.search);
+  const query = queryParams.get('q');
 
   const fetchEntries = useCallback(
     async (page: number) => {
@@ -20,15 +22,10 @@ function EntryList(): React.JSX.Element {
         if (page === 1) setLoading(true);
         else setIsFetchingMore(true);
         let data: Entry[] = [];
-        if (source === '3asq') {
-          data = await getEntries3asq(page);
-        } else if (source === 'lekmanga') {
-          data = await getEntriesLekManga(page);
-        } else if (source === 'anime3rb') {
-          data = await getEntriesAnime3rb(page);
-          console.log('Fetched Anime3rb data:', data);
+        if (source === 'anime3rb' && query) {
+          data = await getResults(query, page);
         } else {
-          console.log('ora');
+          throw new Error('Query parameter is missing');
         }
         setEntries((prev) => [...prev, ...data]);
         setLoading(false);
@@ -39,19 +36,18 @@ function EntryList(): React.JSX.Element {
         setIsFetchingMore(false);
       }
     },
-    [source],
+    [source, query],
   );
 
   useEffect(() => {
-    if (source) {
+    if (source && query) {
       setEntries([]);
       fetchEntries(1);
     }
-  }, [source, fetchEntries]);
+  }, [source, query, fetchEntries]);
 
   const handleScroll = useCallback(() => {
     if (isFetchingMore || loading) return;
-
     const scrollTop = window.scrollY;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
@@ -63,7 +59,6 @@ function EntryList(): React.JSX.Element {
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
@@ -106,6 +101,18 @@ function EntryList(): React.JSX.Element {
             }
           })()}
         </h1>
+        <div className="flex items-center justify-end text-right">
+          <span className="text-4xl font-amiri mr-2 mb-4">
+            &quot;{query}&quot;
+          </span>
+          <h1
+            className="text-4xl font-amiri mb-4"
+            style={{ fontFamily: 'Amiri' }}
+          >
+            نتائج البحث ل
+          </h1>
+        </div>
+
         {entries.length > 0 ? (
           <div className="grid grid-cols-6 gap-2">
             {entries.map((entry) => (
@@ -148,16 +155,18 @@ function EntryList(): React.JSX.Element {
             ))}
           </div>
         ) : (
-          <p>No entries found</p>
+          <div className="flex justify-center mt-4 text-4xl">
+            <p style={{ fontFamily: 'Amiri' }}>لا نتائج متوفرة</p>
+          </div>
         )}
         {isFetchingMore && (
-          <div className="flex justify-center mt-4">
-            <p>Loading more...</p>
+          <div className="flex justify-center mt-4 text-2xl">
+            <p dir="rtl" style={{ fontFamily: 'Amiri' }}>
+              تحميل المزيد...
+            </p>
           </div>
         )}
       </div>
     </div>
   );
 }
-
-export default EntryList;
