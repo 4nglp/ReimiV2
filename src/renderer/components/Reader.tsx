@@ -89,12 +89,10 @@ function Reader(): React.JSX.Element {
         event.key === 'D' ||
         event.key === 'ي'
       ) {
-        if (currentPage < chapter.pages.length - 1) {
+        if (currentPage < chapter.pages.length) {
           setScrollOffset(0);
           setZoomLevel(zoomLevel);
-          setCurrentPage((prev) =>
-            Math.min(prev + 1, chapter.pages.length - 1),
-          );
+          setCurrentPage((prev) => Math.min(prev + 1, chapter.pages.length));
         }
       } else if (
         event.key === 'a' ||
@@ -202,11 +200,7 @@ function Reader(): React.JSX.Element {
           transition: 'transform 0.1s ease-out',
         }}
       >
-        {currentPage === 0 && (
-          <div className="flex justify-center items-center text-white text-4xl">
-            <h1>{title}</h1>
-          </div>
-        )}
+        {currentPage === 0 && <h1>{title}</h1>}
         {pages.map((page, index) => {
           const adjustedIndex = index + 1;
           return (
@@ -223,7 +217,7 @@ function Reader(): React.JSX.Element {
       </div>
       {currentPage > 0 && (
         <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded">
-          <p>{`${currentPage + 1} / ${pages.length}`}</p>
+          <p>{`${currentPage} / ${pages.length}`}</p>
         </div>
       )}
     </Container>
