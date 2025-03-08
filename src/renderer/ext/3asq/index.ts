@@ -140,3 +140,33 @@ export async function getChapter(chapterPath: string, mangaTitle: string) {
     prevChapterPath,
   };
 }
+
+export async function getResults(q: string, page = 1) {
+  const res = await fetch(`${baseURL}page/${page}?s=${q}&post_type=wp-manga`);
+  const doc = parseHTML(await res.text());
+  const entries: Entry[] = [];
+
+  const elements = doc.querySelectorAll('.row .c-tabs-item__content');
+
+  elements.forEach((e) => {
+    const title =
+      e.querySelector('.tab-thumb .c-image-hover a')?.getAttribute('title') ||
+      '';
+    const path =
+      e
+        .querySelector('.tab-thumb .c-image-hover a')
+        ?.getAttribute('href')
+        ?.split('/')
+        .at(-2) || '';
+    const posterURLs =
+      e
+        .querySelector('.tab-thumb .c-image-hover  img')
+        ?.getAttribute('srcset') || '';
+    const posterURL = posterURLs.split(', ').at(-1)?.split(' ').at(0);
+
+    if (title && path && posterURL) {
+      entries.push({ ext, title, path, posterURL });
+    }
+  });
+  return entries;
+}

@@ -1,3 +1,4 @@
-export default function Downloads() {
-  return <h1>Downloads</h1>;
+function Downloads() {
+  return <div>Downloads</div>;
 }
+export default Downloads;

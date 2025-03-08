@@ -23,12 +23,16 @@ export type mangaDetails = {
   chapters: Chapter[];
 };
 export type Episode = {
+  ext: string;
   title: string;
   path: string;
+  coverURL: string;
+  season: string;
+  episode: string;
 };
-export type epd = {
+export type EpisodeDetails = {
+  title: string;
   src: string;
-  epTitle: string;
 };
 export type animeDetails = {
   ext: string;

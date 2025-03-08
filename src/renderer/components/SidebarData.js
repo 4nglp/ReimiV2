@@ -27,5 +27,11 @@ const SidebarData = [
     icon: <IoIcons.IoMdSettings />,
     className: 'nav-text',
   },
+  {
+    title: 'AnimeRco',
+    path: '/animerco',
+    icon: <IoIcons.IoMdSettings />,
+    className: 'nav-text',
+  },
 ];
 export default SidebarData;

@@ -3,6 +3,7 @@ import './App.css';
 import 'tailwindcss/tailwind.css';
 import SideBar from './components/SideBar';
 import Library from './pages/Library';
+import EpisodesList from './pages/EpisodesList';
 import EntryList from './components/EntryList';
 import EntryDetails from './components/EntryDetails';
 import Details from './components/Details';
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/addSeries" element={<AddSeries />} />
         <Route path="/downloads" element={<Downloads />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/animerco" element={<EpisodesList />} />
         <Route path="/entries/:source" element={<EntryList />} />
         <Route
           path="/manga/title/:title/source/:source"
