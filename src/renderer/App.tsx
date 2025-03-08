@@ -7,9 +7,9 @@ import EpisodesList from './pages/EpisodesList';
 import EntryList from './components/EntryList';
 import EntryDetails from './components/EntryDetails';
 import Details from './components/Details';
+import Watch from './pages/Watch';
 import Reader from './components/Reader';
 import Search from './components/Search';
-import Player from './components/Player';
 import AddSeries from './pages/AddSeries';
 import Downloads from './pages/Downloads';
 import Settings from './pages/Settings';
@@ -36,7 +36,7 @@ export default function App() {
           path="/manga/:mangaTitle/chapter/:chapterPath/source/:source"
           element={<Reader />}
         />
-        <Route path="/anime/title/:t/episode/:e" element={<Player />} />
+        <Route path="/animerco/episodes/:t" element={<Watch />} />
       </Routes>
     </Router>
   );

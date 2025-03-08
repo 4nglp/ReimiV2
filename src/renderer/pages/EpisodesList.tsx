@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { getEpisodesList } from '../ext/animerco';
 import { Episode } from '../types';
 
@@ -63,27 +64,23 @@ export default function AnimeEpisodes() {
       <h1 className="text-2xl font-bold mb-4">Latest Episodes</h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {episodes.map((episode) => (
-          <div key={episode.path} className="bg-gray-800 p-2 rounded-lg">
-            <img
-              src={episode.coverURL}
-              alt={episode.title}
-              className="w-full h-auto rounded-md mb-2"
-            />
-            <h2
-              className="text-white font-semibold text-lg line-clamp-2"
-              title={episode.title}
-            >
-              {episode.title}
-            </h2>
-            <p className="text-gray-400">{episode.season}</p>
-            <p className="text-gray-400">{episode.episode}</p>
-            <a
-              href={`/${episode.path}`}
-              className="text-blue-400 hover:underline block mt-2"
-            >
-              Watch Now
-            </a>
-          </div>
+          <Link to={`/animerco/episodes/${episode.path}`} key={episode.path}>
+            <div key={episode.path} className="bg-gray-800 p-2 rounded-lg">
+              <img
+                src={episode.coverURL}
+                alt={episode.title}
+                className="w-full h-auto rounded-md mb-2"
+              />
+              <h2
+                className="text-white font-semibold text-lg line-clamp-2"
+                title={episode.title}
+              >
+                {episode.title}
+              </h2>
+              <p className="text-gray-400">{episode.season}</p>
+              <p className="text-gray-400">{episode.episode}</p>
+            </div>
+          </Link>
         ))}
       </div>
       {isFetchingMore && <p className="text-center mt-4">Loading more...</p>}

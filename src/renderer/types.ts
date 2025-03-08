@@ -31,7 +31,9 @@ export type Episode = {
   episode: string;
 };
 export type EpisodeDetails = {
-  title: string;
+  type: string;
+  post: string;
+  nume: string;
   src: string;
 };
 export type animeDetails = {
