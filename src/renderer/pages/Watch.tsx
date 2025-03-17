@@ -43,6 +43,7 @@ function Player(): React.JSX.Element {
         height="450"
         title={`${t}`}
         allowFullScreen
+        sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation"
       />
     </div>
   );

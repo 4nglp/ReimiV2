@@ -2,7 +2,11 @@
 module.exports = {
   content: ['./src/renderer/**/*.{js,jsx,ts,tsx,ejs}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        cairo: ['Cairo', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };

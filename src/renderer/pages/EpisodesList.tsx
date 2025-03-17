@@ -1,22 +1,20 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { getEpisodesList } from '../ext/animerco';
 import { Episode } from '../types';
+import EpisodeCard from '../components/EpisodeCard';
 
 export default function AnimeEpisodes() {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(2);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   const fetchEpisodes = useCallback(async (page: number) => {
-    console.log(`Fetching episodes for page: ${page}`);
     try {
-      if (page === 2) setLoading(true);
+      if (page === 1) setLoading(true);
       else setIsFetchingMore(true);
       const data: Episode[] = await getEpisodesList(page);
-      console.log('Fetched data:', data);
       setEpisodes((prev) => [...prev, ...data]);
     } catch (err) {
       console.error('Fetch error:', err);
@@ -28,7 +26,7 @@ export default function AnimeEpisodes() {
   }, []);
 
   useEffect(() => {
-    fetchEpisodes(2);
+    fetchEpisodes(1);
   }, [fetchEpisodes]);
 
   const handleScroll = useCallback(() => {
@@ -36,13 +34,7 @@ export default function AnimeEpisodes() {
     const scrollTop = window.scrollY;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
-    console.log('Scroll detected:', {
-      scrollTop,
-      windowHeight,
-      documentHeight,
-    });
     if (scrollTop + windowHeight >= documentHeight - 100) {
-      console.log('Fetching next page:', currentPage + 1);
       setCurrentPage((prev) => prev + 1);
       fetchEpisodes(currentPage + 1);
     }
@@ -56,31 +48,16 @@ export default function AnimeEpisodes() {
   }, [handleScroll]);
 
   if (loading && currentPage === 1) return <p>Loading...</p>;
-  console.log(episodes);
   if (error) return <p>{error}</p>;
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Latest Episodes</h1>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <h1 className="text-2xl font-bold font-cairo mb-4" dir="rtl">
+        اخر الحلقات المضافة
+      </h1>
+      <div className="grid grid-cols-3 gap-4">
         {episodes.map((episode) => (
-          <Link to={`/animerco/episodes/${episode.path}`} key={episode.path}>
-            <div key={episode.path} className="bg-gray-800 p-2 rounded-lg">
-              <img
-                src={episode.coverURL}
-                alt={episode.title}
-                className="w-full h-auto rounded-md mb-2"
-              />
-              <h2
-                className="text-white font-semibold text-lg line-clamp-2"
-                title={episode.title}
-              >
-                {episode.title}
-              </h2>
-              <p className="text-gray-400">{episode.season}</p>
-              <p className="text-gray-400">{episode.episode}</p>
-            </div>
-          </Link>
+          <EpisodeCard key={episode.path} episode={episode} />
         ))}
       </div>
       {isFetchingMore && <p className="text-center mt-4">Loading more...</p>}
