@@ -19,7 +19,7 @@ function EpisodeCard({
             {episode.title}
           </h2>
           <div className="flex justify-end items-center space-x-2">
-            <span className="text-yellow-400 font-cairo font-bold text-s mt-2 inline-block">
+            <span className="text-yellow-400 font-cairo font-bold text-xs mt-2 inline-block">
               {episode.season}
             </span>
             <span className="bg-gray-700 text-white font-cairo font-bold text-xs px-3 py-1 rounded-md mt-3 inline-block">

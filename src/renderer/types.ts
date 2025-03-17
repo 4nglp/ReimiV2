@@ -22,6 +22,14 @@ export type mangaDetails = {
   posterURL: string;
   chapters: Chapter[];
 };
+export type pinnedAnime = {
+  ext: string;
+  title: string;
+  path: string;
+  posterURL: string;
+  season: string;
+  status: string;
+};
 export type Episode = {
   ext: string;
   title: string;

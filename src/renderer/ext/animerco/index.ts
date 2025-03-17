@@ -1,9 +1,37 @@
-import { Episode, EpisodeDetails } from '../../types';
+import { pinnedAnime, Episode, EpisodeDetails } from '../../types';
 
 const baseURL = 'https://web.animerco.org/';
 const ext = 'animerco';
 const parser = new DOMParser();
 const parseHTML = (html: string) => parser.parseFromString(html, 'text/html');
+
+export async function getPinnedAnimes() {
+  const res = await fetch(`${baseURL}`);
+  const doc = parseHTML(await res.text());
+  const pinnedAnimes: pinnedAnime[] = [];
+
+  doc.querySelectorAll('.media-carousel .anime-card').forEach((e) => {
+    const title = e.querySelector('.info a h3')?.textContent?.trim() || '';
+    const posterURL =
+      e.querySelector('a.lazyactive')?.getAttribute('data-src') || '';
+    const season = e.querySelector('.info a h4')?.textContent?.trim() || '';
+    const status =
+      e.querySelector('.anime-status a')?.textContent?.trim() || '';
+    const href = e.querySelector('a')?.getAttribute('href') || '';
+    const path =
+      href
+        .split('/')
+        .filter((segment) => segment)
+        .pop() || '';
+    console.log(posterURL);
+    console.log(path);
+
+    if (title && path && posterURL) {
+      pinnedAnimes.push({ ext, title, path, posterURL, season, status });
+    }
+  });
+  return pinnedAnimes;
+}
 
 export async function getEpisodesList(page = 1) {
   const res = await fetch(`${baseURL}episodes/page/${page}`);

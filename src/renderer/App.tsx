@@ -12,7 +12,7 @@ import Search from './components/Search';
 import AddSeries from './pages/AddSeries';
 import Downloads from './pages/Downloads';
 import Settings from './pages/Settings';
-import Sb from './components/Sb';
+import Sb from './components/SideBar';
 
 export default function App() {
   return (

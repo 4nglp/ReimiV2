@@ -18,7 +18,7 @@ export default function Sb() {
     <div className="w-[300px] h-screen sticky top-0 bg-[#1a1b1e] text-right font-cairo ml-auto">
       <h1 className="text-2xl text-white">ريمي</h1>
       <ul className="text-white">
-        <Link to="/library">
+        <Link to="/">
           <li>المكتبة</li>
         </Link>
         <Link to="/downloads">

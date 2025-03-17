@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { getEpisodesList } from '../ext/animerco';
 import { Episode } from '../types';
 import EpisodeCard from '../components/EpisodeCard';
+import PinnedAnimes from '../components/PinnedAnimes';
 
 export default function AnimeEpisodes() {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
@@ -66,19 +67,22 @@ export default function AnimeEpisodes() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div
-      ref={contentRef}
-      className="p-4 max-w-4xl mx-auto h-screen overflow-auto"
-    >
-      <h1 className="text-2xl font-bold font-cairo mb-4" dir="rtl">
-        اخر الحلقات المضافة
-      </h1>
-      <div className="grid grid-cols-3 gap-4">
-        {episodes.map((episode) => (
-          <EpisodeCard key={episode.path} episode={episode} />
-        ))}
+    <div>
+      <PinnedAnimes />
+      <div
+        ref={contentRef}
+        className="p-4  max-w-4xl mx-auto h-screen overflow-auto"
+      >
+        <h1 className="text-2xl font-bold font-cairo mb-4" dir="rtl">
+          اخر الحلقات المضافة
+        </h1>
+        <div className="grid grid-cols-3 gap-4">
+          {episodes.map((episode) => (
+            <EpisodeCard key={episode.path} episode={episode} />
+          ))}
+        </div>
+        {isFetchingMore && <p className="text-center mt-4">Loading more...</p>}
       </div>
-      {isFetchingMore && <p className="text-center mt-4">Loading more...</p>}
     </div>
   );
 }

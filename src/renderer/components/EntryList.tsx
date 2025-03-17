@@ -4,10 +4,9 @@ import SearchBar from './SearchBar';
 import { Entry } from '../types';
 import { getEntries3asq } from '../ext/3asq/index';
 import { getEntriesLekManga } from '../ext/lekmanga/index';
-import { getEntriesAnime3rb } from '../ext/anime3rb';
 
 function EntryList(): React.JSX.Element {
-  const { source } = useParams<{ source: 'lekmanga' | '3asq' | 'anime3rb' }>();
+  const { source } = useParams<{ source: 'lekmanga' | '3asq' }>();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,9 +24,6 @@ function EntryList(): React.JSX.Element {
           data = await getEntries3asq(page);
         } else if (source === 'lekmanga') {
           data = await getEntriesLekManga(page);
-        } else if (source === 'anime3rb') {
-          data = await getEntriesAnime3rb(page);
-          console.log('Fetched Anime3rb data:', data);
         } else {
           console.log('ora');
         }
@@ -105,8 +101,6 @@ function EntryList(): React.JSX.Element {
             switch (source) {
               case '3asq':
                 return '3asq - العاشق';
-              case 'anime3rb':
-                return 'Anime3rb';
               case 'lekmanga':
                 return 'LekManga';
               default:
@@ -118,22 +112,7 @@ function EntryList(): React.JSX.Element {
           <div className="grid grid-cols-6 gap-2">
             {entries.map((entry) => (
               <div key={entry.title} className="relative flex flex-col mb-2">
-                {source === 'anime3rb' ? (
-                  <Link to={`/anime/title/${entry.path}`} className="block">
-                    <div className="relative w-48 h-72 bg-gray-200 overflow-hidden flex-shrink-0 transition-transform transform hover:scale-105">
-                      {entry.posterURL && (
-                        <img
-                          src={entry.posterURL}
-                          alt={entry.title}
-                          className="object-cover w-full h-full"
-                        />
-                      )}
-                      <div className="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2">
-                        {entry.title}
-                      </div>
-                    </div>
-                  </Link>
-                ) : (
+                {source ? (
                   <Link
                     to={`/manga/${entry.path}/source/${source}`}
                     className="block"
@@ -151,6 +130,8 @@ function EntryList(): React.JSX.Element {
                       </div>
                     </div>
                   </Link>
+                ) : (
+                  <h1>damn</h1>
                 )}
               </div>
             ))}
