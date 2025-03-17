@@ -1,6 +1,19 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 export default function Sb() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.key === 'Escape') {
+        navigate(-1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [navigate]);
   return (
     <div className="w-[300px] h-screen sticky top-0 bg-[#1a1b1e] text-right font-cairo ml-auto">
       <h1 className="text-2xl text-white">ريمي</h1>
