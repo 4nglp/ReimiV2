@@ -49,10 +49,10 @@ export default function PinnedAnimes() {
                 className="opacity-95 w-full h-full object-cover"
               />
               <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent">
-                <h3 className="text-lg font-bold text-white truncate text-right">
+                <h3 className="text-base font-bold text-white truncate text-right">
                   {anime.title}
                 </h3>
-                <p className="text-sm opacity-75 text-white mt-1 font-cairo text-right text-bold">
+                <p className="text-sm opacity-75 text-white font-cairo text-right text-bold">
                   {anime.season}
                 </p>
               </div>
