@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import { Entry } from '../types';
@@ -13,6 +13,7 @@ function EntryList(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   const fetchEntries = useCallback(
     async (page: number) => {
@@ -50,22 +51,26 @@ function EntryList(): React.JSX.Element {
   }, [source, fetchEntries]);
 
   const handleScroll = useCallback(() => {
-    if (isFetchingMore || loading) return;
+    if (isFetchingMore || loading || !contentRef.current) return;
 
-    const scrollTop = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    if (scrollTop + windowHeight >= documentHeight - 100) {
-      setCurrentPage((prev) => prev + 1);
-      fetchEntries(currentPage + 1);
+    const { scrollTop, clientHeight, scrollHeight } = contentRef.current;
+    if (scrollTop + clientHeight >= scrollHeight - 100) {
+      setCurrentPage((prev) => {
+        const nextPage = prev + 1;
+        fetchEntries(nextPage);
+        return nextPage;
+      });
     }
-  }, [isFetchingMore, loading, currentPage, fetchEntries]);
+  }, [isFetchingMore, loading, fetchEntries]);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    const contentDiv = contentRef.current;
+    if (!contentDiv) return;
 
+    contentDiv.addEventListener('scroll', handleScroll);
+    // eslint-disable-next-line consistent-return
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      contentDiv.removeEventListener('scroll', handleScroll);
     };
   }, [handleScroll]);
 
@@ -89,7 +94,10 @@ function EntryList(): React.JSX.Element {
   }
 
   return (
-    <div>
+    <div
+      ref={contentRef}
+      className="flex-1 overflow-auto p-6 h-full max-w-full overflow-x-hidden"
+    >
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">
           <SearchBar source={source ?? ''} />

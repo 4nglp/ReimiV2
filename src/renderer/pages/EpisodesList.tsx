@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { getEpisodesList } from '../ext/animerco';
 import { Episode } from '../types';
 import EpisodeCard from '../components/EpisodeCard';
@@ -9,13 +9,21 @@ export default function AnimeEpisodes() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchEpisodes = useCallback(async (page: number) => {
+  const fetchEpisodes = async (page: number) => {
     try {
       if (page === 1) setLoading(true);
       else setIsFetchingMore(true);
+
       const data: Episode[] = await getEpisodesList(page);
-      setEpisodes((prev) => [...prev, ...data]);
+
+      setEpisodes((prev) => {
+        const uniqueEpisodes = [...prev, ...data].filter(
+          (v, i, a) => a.findIndex((t) => t.path === v.path) === i,
+        );
+        return uniqueEpisodes;
+      });
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Failed to fetch episodes');
@@ -23,27 +31,34 @@ export default function AnimeEpisodes() {
       setLoading(false);
       setIsFetchingMore(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchEpisodes(1);
-  }, [fetchEpisodes]);
+  }, []);
 
   const handleScroll = useCallback(() => {
-    if (isFetchingMore || loading) return;
-    const scrollTop = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    if (scrollTop + windowHeight >= documentHeight - 100) {
-      setCurrentPage((prev) => prev + 1);
-      fetchEpisodes(currentPage + 1);
+    if (!contentRef.current || isFetchingMore || loading) return;
+    const { scrollTop, clientHeight, scrollHeight } = contentRef.current;
+    const threshold = 200;
+    if (scrollHeight - scrollTop - clientHeight <= threshold) {
+      setCurrentPage((prev) => {
+        const nextPage = prev + 1;
+        fetchEpisodes(nextPage);
+        return nextPage;
+      });
     }
-  }, [isFetchingMore, loading, currentPage, fetchEpisodes]);
+  }, [isFetchingMore, loading]);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    const contentDiv = contentRef.current;
+    if (!contentDiv) return;
+
+    contentDiv.addEventListener('scroll', handleScroll);
+
+    // eslint-disable-next-line consistent-return
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      contentDiv.removeEventListener('scroll', handleScroll);
     };
   }, [handleScroll]);
 
@@ -51,7 +66,10 @@ export default function AnimeEpisodes() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div
+      ref={contentRef}
+      className="p-4 max-w-4xl mx-auto h-screen overflow-auto"
+    >
       <h1 className="text-2xl font-bold font-cairo mb-4" dir="rtl">
         اخر الحلقات المضافة
       </h1>
