@@ -1,4 +1,4 @@
-import { pinnedAnime, Episode, EpisodeDetails } from '../../types';
+import { pinnedAnime, Episode, EpisodeDetails, Server } from '../../types';
 
 const baseURL = 'https://web.animerco.org/';
 const ext = 'animerco';
@@ -57,16 +57,15 @@ export async function getEpisodesList(page = 1) {
 
   return episodes;
 }
-
-export async function getEpisode(t: string) {
+export async function getEpisode(t: string, nume: string) {
   const res = await fetch(`${baseURL}episodes/${t}`);
   const doc = parseHTML(await res.text());
-  const type =
-    doc.querySelector('ul.server-list li a')?.getAttribute('data-type') || '';
-  const post =
-    doc.querySelector('ul.server-list li a')?.getAttribute('data-post') || '';
-  const nume =
-    doc.querySelector('ul.server-list li a')?.getAttribute('data-nume') || '';
+  const selectedServer = doc.querySelector(
+    `ul.server-list li a[data-nume="${nume}"]`,
+  );
+  const type = selectedServer?.getAttribute('data-type') || '';
+  const post = selectedServer?.getAttribute('data-post') || '';
+
   const req = await fetch('https://web.animerco.org/wp-admin/admin-ajax.php', {
     method: 'POST',
     headers: {
@@ -83,11 +82,12 @@ export async function getEpisode(t: string) {
     },
     body: new URLSearchParams({
       action: 'player_ajax',
-      post: `${post}`,
-      nume: `${nume}`,
-      type: `${type}`,
+      post,
+      nume,
+      type,
     }),
   });
+
   const src = await req.json();
   const details: EpisodeDetails = {
     type,
@@ -96,4 +96,23 @@ export async function getEpisode(t: string) {
     src: src.embed_url,
   };
   return details;
+}
+
+export async function getServers(t: string) {
+  const res = await fetch(`${baseURL}episodes/${t}`);
+  const doc = parseHTML(await res.text());
+  const serverNume = Array.from(doc.querySelectorAll('ul.server-list li a'))
+    .map((el) => el.getAttribute('data-nume') || '')
+    .filter((nume) => nume);
+  const serverName = Array.from(
+    doc.querySelectorAll('ul.server-list li span.server'),
+  )
+    .map((el) => el.textContent?.trim() || '')
+    .filter((name) => name);
+  console.log(serverNume, serverName);
+  const servers: Server[] = serverNume.map((nume, index) => ({
+    nume,
+    name: serverName[index],
+  }));
+  return servers;
 }

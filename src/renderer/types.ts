@@ -44,15 +44,9 @@ export type EpisodeDetails = {
   nume: string;
   src: string;
 };
-export type animeDetails = {
-  ext: string;
-  title: string;
-  studio: string;
-  genres: string[];
-  rating: string;
-  description: string;
-  posterURL: string;
-  episodes: Episode[];
+export type Server = {
+  nume: string;
+  name: string;
 };
 export type Results = {
   title: string;
