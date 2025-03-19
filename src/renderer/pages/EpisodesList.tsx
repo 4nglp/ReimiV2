@@ -71,12 +71,12 @@ export default function AnimeEpisodes() {
       <PinnedAnimes />
       <div
         ref={contentRef}
-        className="p-4  max-w-4xl mx-auto h-screen overflow-auto"
+        className="p-4 max-w-4xl mx-auto h-screen overflow-auto"
       >
         <h1 className="text-2xl font-bold font-cairo mb-4" dir="rtl">
           اخر الحلقات المضافة
         </h1>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {episodes.map((episode) => (
             <EpisodeCard key={episode.path} episode={episode} />
           ))}

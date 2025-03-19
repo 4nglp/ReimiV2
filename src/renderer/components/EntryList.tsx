@@ -92,7 +92,7 @@ function EntryList(): React.JSX.Element {
   return (
     <div
       ref={contentRef}
-      className="flex-1 overflow-auto p-6 h-full max-w-full overflow-x-hidden"
+      className="flex-1 overflow-auto p-6 h-full font-cairo max-w-full overflow-x-hidden"
     >
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">
@@ -109,7 +109,7 @@ function EntryList(): React.JSX.Element {
           })()}
         </h1>
         {entries.length > 0 ? (
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {entries.map((entry) => (
               <div key={entry.title} className="relative flex flex-col mb-2">
                 {source ? (
@@ -117,7 +117,7 @@ function EntryList(): React.JSX.Element {
                     to={`/manga/${entry.path}/source/${source}`}
                     className="block"
                   >
-                    <div className="relative w-48 h-72 bg-gray-200 overflow-hidden flex-shrink-0 transition-transform transform hover:scale-105">
+                    <div className="relative w-48 h-72 mx-2 mb-2 bg-gray-200 overflow-hidden flex-shrink-0 transition-transform transform hover:scale-105">
                       {entry.posterURL && (
                         <img
                           src={entry.posterURL}
@@ -125,8 +125,10 @@ function EntryList(): React.JSX.Element {
                           className="object-cover w-full h-full"
                         />
                       )}
-                      <div className="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2">
-                        {entry.title}
+                      <div className="absolute inset-0 flex flex-col justify-end items-center p-4 bg-gradient-to-t from-black/80 to-transparent hover:from-black/0 hover:to-transparent">
+                        <div className="absolute bottom-0 w-full hover:bg-black hover:bg-opacity-60 text-white text-center py-2">
+                          {entry.title}
+                        </div>
                       </div>
                     </div>
                   </Link>

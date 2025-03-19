@@ -13,21 +13,21 @@ function EpisodeCard({
 }) {
   return (
     <Link to={`/animerco/episodes/${episode.path}`} key={episode.path}>
-      <div className="bg-gray-800 w-72 h-20 flex items-center rounded-lg p-3 space-x-3">
+      <div className="bg-gray-800 w-149 h-30 flex items-center rounded-lg p-3 mr-2 mb-2 space-x-3">
         <div className="flex-1">
-          <h2 className="text-white font-bold text-sm text-right mt-1 line-clamp-1">
+          <h2 className="text-white font-bold text-base text-right mt-1 line-clamp-1">
             {episode.title}
           </h2>
           <div className="flex justify-end items-center space-x-2">
-            <span className="text-yellow-400 font-cairo font-bold text-xs mt-2 inline-block">
+            <span className="text-yellow opacity-75 font-cairo font-bold text-s mt-3 inline-block">
               {episode.season}
             </span>
-            <span className="bg-gray-700 text-white font-cairo font-bold text-xs px-3 py-1 rounded-md mt-3 inline-block">
+            <span className="bg-gray-700 text-white font-cairo font-bold text-s px-3 py-1 rounded-md mt-3 inline-block">
               {episode.episode}
             </span>
           </div>
         </div>
-        <div className="w-20 h-14 rounded-sm overflow-hidden">
+        <div className="w-30 h-20 rounded-sm overflow-hidden">
           <img
             src={episode.coverURL}
             alt={episode.title}
