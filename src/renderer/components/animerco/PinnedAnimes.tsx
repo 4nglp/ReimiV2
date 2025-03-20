@@ -3,8 +3,8 @@ import 'swiper/css';
 import 'swiper/css/free-mode';
 import { FreeMode, Autoplay } from 'swiper/modules';
 import { useState, useEffect } from 'react';
-import { getPinnedAnimes } from '../ext/animerco';
-import { pinnedAnime } from '../types';
+import { getPinnedAnimes } from '../../ext/animerco';
+import { pinnedAnime } from '../../types';
 
 export default function PinnedAnimes() {
   const [pinnedAnimes, setPinnedAnimes] = useState<pinnedAnime[]>([]);

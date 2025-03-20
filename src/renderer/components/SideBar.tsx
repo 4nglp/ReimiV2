@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Divider } from 'antd';
 import { useEffect } from 'react';
 
-export default function Sb() {
+export default function SideBar() {
   const navigate = useNavigate();
   useEffect(() => {
     const handleKeyDown = (event: any) => {

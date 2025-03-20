@@ -1,10 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { getEpisodesList } from '../ext/animerco';
-import { Episode } from '../types';
-import EpisodeCard from '../components/EpisodeCard';
-import PinnedAnimes from '../components/PinnedAnimes';
+import { getEpisodesList } from '../../ext/animerco';
+import { Episode } from '../../types';
+import EpisodeCard from './EpisodeCard';
 
-export default function AnimeEpisodes() {
+export default function LatestEpisodes() {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +67,6 @@ export default function AnimeEpisodes() {
 
   return (
     <div>
-      <PinnedAnimes />
       <div
         ref={contentRef}
         className="p-4 max-w-4xl mx-auto h-screen overflow-auto"
