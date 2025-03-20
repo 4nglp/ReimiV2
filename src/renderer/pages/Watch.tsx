@@ -55,7 +55,7 @@ function Player(): React.JSX.Element {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen w-full">
+    <div className="flex flex-col justify-center items-center h-screen w-full font-cairo">
       <iframe
         src={src || ''}
         width="800"
@@ -72,7 +72,7 @@ function Player(): React.JSX.Element {
             onClick={() => handleServerClick(server.nume)}
             className={`px-4 py-2 rounded-md transition ${
               selectedNume === server.nume
-                ? 'bg-blue-600 text-white'
+                ? 'bg-gray-500 text-white'
                 : 'bg-gray-800 text-white hover:bg-gray-700'
             }`}
           >
