@@ -1,4 +1,10 @@
-import { pinnedAnime, Episode, EpisodeDetails, Server } from '../../types';
+import {
+  pinnedAnime,
+  Episode,
+  EpisodeDetails,
+  Server,
+  SearchResults,
+} from '../../types';
 
 const baseURL = 'https://web.animerco.org/';
 const ext = 'animerco';
@@ -115,4 +121,34 @@ export async function getServers(t: string) {
     name: serverName[index],
   }));
   return servers;
+}
+export async function getResults(s: string) {
+  const res = await fetch(`${baseURL}?s=${s}`);
+  const doc = parseHTML(await res.text());
+  const results: SearchResults[] = [];
+
+  const elements = doc.querySelectorAll('.search-card');
+
+  elements.forEach((e) => {
+    const title = e.querySelector('a.image')?.getAttribute('title') || '';
+    const posterURL =
+      e.querySelector('a.image')?.getAttribute('data-src') || '';
+    const href = e.querySelector('.info a')?.getAttribute('href') || '';
+    const path =
+      href
+        .split('/')
+        .filter((segment) => segment)
+        .pop() || '';
+    const releaseYear =
+      e.querySelector('.info .search-statics span.anime-aired')?.textContent ||
+      '';
+    const type =
+      e.querySelector('.info .search-statics span.anime-type')?.textContent ||
+      '';
+    const rating = e.querySelector('.info a.badge')?.textContent || '';
+    if (title && path && posterURL) {
+      results.push({ title, path, posterURL, releaseYear, type, rating });
+    }
+  });
+  return results;
 }

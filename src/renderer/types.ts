@@ -48,6 +48,14 @@ export type Server = {
   nume: string;
   name: string;
 };
+export type SearchResults = {
+  title: string;
+  path: string;
+  posterURL: string;
+  releaseYear: string;
+  type: string;
+  rating: string;
+};
 export type Results = {
   title: string;
   path: string;
