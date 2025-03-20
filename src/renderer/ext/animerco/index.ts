@@ -29,9 +29,6 @@ export async function getPinnedAnimes() {
         .split('/')
         .filter((segment) => segment)
         .pop() || '';
-    console.log(posterURL);
-    console.log(path);
-
     if (title && path && posterURL) {
       pinnedAnimes.push({ ext, title, path, posterURL, season, status });
     }
@@ -63,6 +60,7 @@ export async function getEpisodesList(page = 1) {
 
   return episodes;
 }
+
 export async function getEpisode(t: string, nume: string) {
   const res = await fetch(`${baseURL}episodes/${t}`);
   const doc = parseHTML(await res.text());
@@ -115,20 +113,18 @@ export async function getServers(t: string) {
   )
     .map((el) => el.textContent?.trim() || '')
     .filter((name) => name);
-  console.log(serverNume, serverName);
   const servers: Server[] = serverNume.map((nume, index) => ({
     nume,
     name: serverName[index],
   }));
   return servers;
 }
+
 export async function getResults(s: string) {
   const res = await fetch(`${baseURL}?s=${s}`);
   const doc = parseHTML(await res.text());
   const results: SearchResults[] = [];
-
   const elements = doc.querySelectorAll('.search-card');
-
   elements.forEach((e) => {
     const title = e.querySelector('a.image')?.getAttribute('title') || '';
     const posterURL =

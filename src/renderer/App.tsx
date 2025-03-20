@@ -12,6 +12,7 @@ import Downloads from './pages/Downloads';
 import Settings from './pages/Settings';
 import AnimeRco from './pages/AnimeRco';
 import SideBar from './components/SideBar';
+import SearchPage from './pages/AnimeRcoSearchResults';
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
               element={<EntryDetails key={`${window.location.pathname}`} />}
             />
             <Route path="/:source/search" element={<Search />} />
+            <Route path="/animerco/search" element={<SearchPage />} />
             <Route
               path="/manga/:title/source/:source"
               element={<EntryDetails />}
