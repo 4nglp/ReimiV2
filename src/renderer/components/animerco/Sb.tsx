@@ -18,7 +18,7 @@ function SearchBar() {
         <input
           type="text"
           placeholder="...ابحث"
-          className="bg-[#212225] text-white text-center w-full rounded-md p-2 pl-10 font-cairo border-none focus:outline-none"
+          className="bg-[#212225] text-white text-right w-full rounded-md p-2 pl-10 font-cairo border-none focus:outline-none"
           onChange={(e) => setQuery(e.target.value)}
         />
       </form>
