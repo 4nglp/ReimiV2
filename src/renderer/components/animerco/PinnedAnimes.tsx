@@ -4,7 +4,7 @@ import 'swiper/css/free-mode';
 import { FreeMode, Autoplay } from 'swiper/modules';
 import { useState, useEffect } from 'react';
 import { getPinnedAnimes } from '../../ext/animerco';
-import { pinnedAnime } from '../../types';
+import { pinnedAnime } from '../../ext/animerco/types';
 
 export default function PinnedAnimes() {
   const [pinnedAnimes, setPinnedAnimes] = useState<pinnedAnime[]>([]);
@@ -47,6 +47,7 @@ export default function PinnedAnimes() {
                 src={anime.posterURL}
                 alt={anime.title}
                 className="opacity-95 w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent">
                 <h3 className="text-base font-bold text-white truncate text-right">

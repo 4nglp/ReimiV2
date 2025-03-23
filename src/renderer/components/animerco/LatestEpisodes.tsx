@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { getEpisodesList } from '../../ext/animerco';
-import { Episode } from '../../types';
+import { Episode } from '../../ext/animerco/types';
 import EpisodeCard from './EpisodeCard';
 
 export default function LatestEpisodes() {

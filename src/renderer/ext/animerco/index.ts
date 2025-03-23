@@ -4,7 +4,7 @@ import {
   EpisodeDetails,
   Server,
   SearchResults,
-} from '../../types';
+} from './types';
 
 const baseURL = 'https://web.animerco.org/';
 const ext = 'animerco';
