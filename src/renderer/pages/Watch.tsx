@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { TbFileSearch } from 'react-icons/tb';
 import EpisodesListComp from '../components/animerco/EpisodesList';
 import { EpisodesList, Server } from '../ext/animerco/types';
 import { getEpisode, getServers, getEpisodesList } from '../ext/animerco/index';
 
-function Player(): React.JSX.Element {
+function Watch(): React.JSX.Element {
   const navigate = useNavigate();
   const { t } = useParams();
   const [src, setSrc] = useState<string>('');
@@ -13,6 +14,7 @@ function Player(): React.JSX.Element {
   const [selectedNume, setSelectedNume] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleKeyNavigation = useCallback(
     (event: KeyboardEvent) => {
@@ -71,6 +73,14 @@ function Player(): React.JSX.Element {
     }
   };
 
+  const filteredEpisodes = episodes.filter((e) => {
+    const episodeNumber = e.path.split('-').pop() || '';
+    return (
+      e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      episodeNumber.includes(searchQuery)
+    );
+  });
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-900">
@@ -89,16 +99,14 @@ function Player(): React.JSX.Element {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        {/* eslint-disable-next-line react/self-closing-comp */}
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white" />
       </div>
     );
   }
-
   return (
-    <div className="flex flex-col md:flex-row items-start gap-6 w-full min-h-screen p-4 font-cairo">
-      <div className="w-full md:w-2/3 lg:w-3/4 space-y-4">
-        <div className="aspect-video w-full rounded-lg overflow-hidden">
+    <div className="flex h-screen w-full p-6 gap-6 font-cairo bg-[#0a0a0a] rounded-md">
+      <div className="w-3/4 flex flex-col gap-4 h-[calc(100vh-48px)]">
+        <div className="aspect-video w-full rounded-xl overflow-hidden">
           <iframe
             src={src}
             className="w-full h-full"
@@ -107,33 +115,51 @@ function Player(): React.JSX.Element {
             sandbox="allow-scripts allow-same-origin"
           />
         </div>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-2 w-full">
+
+        <div className="grid grid-cols-6 gap-3">
           {servers.map((server) => (
             <button
               key={server.nume}
               type="button"
               onClick={() => handleServerClick(server.nume)}
-              className={`px-4 py-2 rounded-md transition-colors w-full ${
+              className={`p-3 rounded-lg transition-all ${
                 selectedNume === server.nume
-                  ? 'bg-gray-700 cursor-default'
-                  : 'bg-[#141517] hover:bg-[#1a1b1e]'
+                  ? 'bg-[#1a1b1e] cursor-default'
+                  : 'bg-[#0a0a0a] hover:bg-[#1a1b1e]'
               }`}
             >
-              <span className="truncate block">{server.name}</span>
+              <span className="truncate block text-sm">{server.name}</span>
             </button>
           ))}
         </div>
       </div>
-      <div className="w-1/4 rounded-lg p-4 h-[calc(100vh-160px)] overflow-y-auto">
-        <h3 className="text-xl font-bold mb-4 text-right">قائمة الحلقات</h3>
-        <div className="space-y-2">
-          {episodes.map((e) => (
-            <EpisodesListComp key={e.path} e={e} />
-          ))}
+      <div className="w-1/4 flex flex-col h-[515px]">
+        <div className="bg-[#141517] p-4 rounded-t-xl">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="البحث عن حلقة..."
+              value={searchQuery}
+              dir="rtl"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 pr-10 rounded-lg bg-[#1a1b1e] text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray"
+            />
+            <TbFileSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto bg-[#141517] rounded-b-xl">
+          <div className="p-2 space-y-1">
+            {filteredEpisodes.map((e) => (
+              <EpisodesListComp key={e.path} e={e} />
+            ))}
+            {filteredEpisodes.length === 0 && (
+              <p className="text-gray-400 text-center py-6">لا توجد نتائج</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default Player;
+export default Watch;
