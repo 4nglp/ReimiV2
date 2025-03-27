@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { getEpisodesList } from '../../ext/animerco';
+import { getLatestEpisodes } from '../../ext/animerco';
 import { Episode } from '../../ext/animerco/types';
 import EpisodeCard from './EpisodeCard';
 
@@ -16,7 +16,7 @@ export default function LatestEpisodes() {
       if (page === 1) setLoading(true);
       else setIsFetchingMore(true);
 
-      const data: Episode[] = await getEpisodesList(page);
+      const data: Episode[] = await getLatestEpisodes(page);
 
       setEpisodes((prev) => {
         const uniqueEpisodes = [...prev, ...data].filter(

@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Server } from '../types';
-import { getEpisode, getServers } from '../ext/animerco/index';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { EpisodesList, Server } from '../ext/animerco/types';
+import { getEpisode, getServers, getEpisodesList } from '../ext/animerco/index';
 
 function Player(): React.JSX.Element {
   const navigate = useNavigate();
   const { t } = useParams();
   const [src, setSrc] = useState<string>('');
   const [servers, setServers] = useState<Server[]>([]);
+  const [episodes, setEpisodes] = useState<EpisodesList[]>([]);
   const [selectedNume, setSelectedNume] = useState<string>('1');
 
   const handleKeyNavigation = useCallback(
@@ -54,6 +55,18 @@ function Player(): React.JSX.Element {
     setSelectedNume(nume);
   };
 
+  useEffect(() => {
+    const fetchEpsList = async () => {
+      if (t) {
+        const e = await getEpisodesList(t);
+        if (e) {
+          setEpisodes(e);
+        }
+      }
+    };
+    fetchEpsList();
+  }, [t]);
+
   return (
     <div className="flex flex-col justify-center items-center h-screen w-full font-cairo">
       <iframe
@@ -64,13 +77,13 @@ function Player(): React.JSX.Element {
         allowFullScreen
         sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation"
       />
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 rounded-md flex gap-2">
         {servers.map((server) => (
           <button
             type="button"
             key={server.nume}
             onClick={() => handleServerClick(server.nume)}
-            className={`px-4 py-2 rounded-md transition ${
+            className={`px-4 py-2 rounded-mdtransition ${
               selectedNume === server.nume
                 ? 'bg-gray-500 text-white'
                 : 'bg-gray-800 text-white hover:bg-gray-700'
@@ -80,6 +93,11 @@ function Player(): React.JSX.Element {
           </button>
         ))}
       </div>
+      {episodes.map((e) => (
+        <Link to={`/animerco/episodes/${e.path}`} key={e.path}>
+          <h1>{e.title}</h1>
+        </Link>
+      ))}
     </div>
   );
 }

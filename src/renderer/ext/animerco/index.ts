@@ -4,6 +4,7 @@ import {
   EpisodeDetails,
   Server,
   SearchResults,
+  EpisodesList,
 } from './types';
 
 const baseURL = 'https://web.animerco.org/';
@@ -36,7 +37,7 @@ export async function getPinnedAnimes() {
   return pinnedAnimes;
 }
 
-export async function getEpisodesList(page = 1) {
+export async function getLatestEpisodes(page = 1) {
   const res = await fetch(`${baseURL}episodes/page/${page}`);
   const doc = parseHTML(await res.text());
   const episodes: Episode[] = [];
@@ -100,6 +101,27 @@ export async function getEpisode(t: string, nume: string) {
     src: src.embed_url,
   };
   return details;
+}
+
+export async function getEpisodesList(t: string) {
+  const res = await fetch(`${baseURL}episodes/${t}`);
+  const doc = parseHTML(await res.text());
+
+  const episodesList: EpisodesList[] = Array.from(
+    doc.querySelectorAll('ul.episodes-list li a'),
+  ).map((el) => {
+    const title = el.querySelector('span')?.textContent?.trim() || '';
+    const href = el.getAttribute('href') || '';
+    const path =
+      href
+        .split('/')
+        .filter((segment) => segment)
+        .pop() || '';
+
+    return { title, path };
+  });
+
+  return episodesList;
 }
 
 export async function getServers(t: string) {

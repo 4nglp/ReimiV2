@@ -25,7 +25,10 @@ export type WatchDetails = {
   prevEp: string;
   nextEp: string;
   seasons: string;
-  episodesList: string[];
+};
+export type EpisodesList = {
+  title: string;
+  path: string;
 };
 export type Server = {
   nume: string;
