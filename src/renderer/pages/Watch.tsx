@@ -107,24 +107,23 @@ function Player(): React.JSX.Element {
             sandbox="allow-scripts allow-same-origin"
           />
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-2 w-full">
           {servers.map((server) => (
             <button
               key={server.nume}
               type="button"
               onClick={() => handleServerClick(server.nume)}
-              className={`px-4 py-2 rounded-md transition-colors ${
+              className={`px-4 py-2 rounded-md transition-colors w-full ${
                 selectedNume === server.nume
                   ? 'bg-gray-700 cursor-default'
                   : 'bg-[#141517] hover:bg-[#1a1b1e]'
               }`}
             >
-              {server.name}
+              <span className="truncate block">{server.name}</span>
             </button>
           ))}
         </div>
       </div>
-
       <div className="w-1/4 rounded-lg p-4 h-[calc(100vh-160px)] overflow-y-auto">
         <h3 className="text-xl font-bold mb-4 text-right">قائمة الحلقات</h3>
         <div className="space-y-2">

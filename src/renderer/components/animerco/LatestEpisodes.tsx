@@ -25,7 +25,7 @@ export default function LatestEpisodes() {
         return uniqueEpisodes;
       });
     } catch (err) {
-      console.error('Fetch error:', err);
+      // console.error('Fetch error:', err);
       setError('Failed to fetch episodes');
     } finally {
       setLoading(false);
@@ -79,7 +79,9 @@ export default function LatestEpisodes() {
             <EpisodeCard key={episode.path} episode={episode} />
           ))}
         </div>
-        {isFetchingMore && <p className="text-center mt-4">Loading more...</p>}
+        {isFetchingMore && (
+          <p className="text-center mt-4 font-cairo">... تحميل المزيد</p>
+        )}
       </div>
     </div>
   );
