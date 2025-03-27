@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import EpisodesListComp from '../components/animerco/EpisodesList';
 import { EpisodesList, Server } from '../ext/animerco/types';
 import { getEpisode, getServers, getEpisodesList } from '../ext/animerco/index';
 
@@ -9,95 +10,129 @@ function Player(): React.JSX.Element {
   const [src, setSrc] = useState<string>('');
   const [servers, setServers] = useState<Server[]>([]);
   const [episodes, setEpisodes] = useState<EpisodesList[]>([]);
-  const [selectedNume, setSelectedNume] = useState<string>('1');
+  const [selectedNume, setSelectedNume] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
   const handleKeyNavigation = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        navigate(-1);
-      }
+      if (event.key === 'Escape') navigate(-1);
     },
     [navigate],
   );
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!t) return;
+
+        const [sourceData, serversData, episodesData] = await Promise.all([
+          getEpisode(t, selectedNume || '1'),
+          getServers(t),
+          getEpisodesList(t),
+        ]);
+
+        if (serversData?.length) {
+          setServers(serversData);
+          setSelectedNume((prev) => prev || serversData[0].nume);
+        }
+
+        if (sourceData) setSrc(sourceData.src);
+        if (episodesData) setEpisodes(episodesData);
+      } catch (err) {
+        setError('Failed to load content. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     window.addEventListener('keydown', handleKeyNavigation);
+    fetchData();
+
     return () => {
       window.removeEventListener('keydown', handleKeyNavigation);
     };
-  }, [handleKeyNavigation]);
+  }, [t, handleKeyNavigation, selectedNume]);
 
-  useEffect(() => {
-    const fetchEpisode = async () => {
-      if (t) {
-        const source = await getEpisode(t, selectedNume);
-        if (source) {
-          setSrc(source.src);
-        }
+  const handleServerClick = async (nume: string) => {
+    try {
+      if (!t) return;
+
+      setIsLoading(true);
+      const source = await getEpisode(t, nume);
+      if (source) {
+        setSrc(source.src);
+        setSelectedNume(nume);
       }
-    };
-    fetchEpisode();
-  }, [t, selectedNume]);
-
-  useEffect(() => {
-    const fetchServers = async () => {
-      if (t) {
-        const s = await getServers(t);
-        if (s) {
-          setServers(s);
-        }
-      }
-    };
-    fetchServers();
-  }, [t]);
-
-  const handleServerClick = (nume: string) => {
-    setSelectedNume(nume);
+    } catch (err) {
+      setError('Failed to switch server. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  useEffect(() => {
-    const fetchEpsList = async () => {
-      if (t) {
-        const e = await getEpisodesList(t);
-        if (e) {
-          setEpisodes(e);
-        }
-      }
-    };
-    fetchEpsList();
-  }, [t]);
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-900">
+        <p className="text-red-500 text-lg mb-4">{error}</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        {/* eslint-disable-next-line react/self-closing-comp */}
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white" />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen w-full font-cairo">
-      <iframe
-        src={src || ''}
-        width="800"
-        height="450"
-        title={`${t}`}
-        allowFullScreen
-        sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation"
-      />
-      <div className="mt-4 rounded-md flex gap-2">
-        {servers.map((server) => (
-          <button
-            type="button"
-            key={server.nume}
-            onClick={() => handleServerClick(server.nume)}
-            className={`px-4 py-2 rounded-mdtransition ${
-              selectedNume === server.nume
-                ? 'bg-gray-500 text-white'
-                : 'bg-gray-800 text-white hover:bg-gray-700'
-            }`}
-          >
-            {server.name}
-          </button>
-        ))}
+    <div className="flex flex-col md:flex-row items-start gap-6 w-full min-h-screen p-4 font-cairo">
+      <div className="w-full md:w-2/3 lg:w-3/4 space-y-4">
+        <div className="aspect-video w-full rounded-lg overflow-hidden">
+          <iframe
+            src={src}
+            className="w-full h-full"
+            title={`${t} Player`}
+            allowFullScreen
+            sandbox="allow-scripts allow-same-origin"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {servers.map((server) => (
+            <button
+              key={server.nume}
+              type="button"
+              onClick={() => handleServerClick(server.nume)}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                selectedNume === server.nume
+                  ? 'bg-gray-700 cursor-default'
+                  : 'bg-[#141517] hover:bg-[#1a1b1e]'
+              }`}
+            >
+              {server.name}
+            </button>
+          ))}
+        </div>
       </div>
-      {episodes.map((e) => (
-        <Link to={`/animerco/episodes/${e.path}`} key={e.path}>
-          <h1>{e.title}</h1>
-        </Link>
-      ))}
+
+      <div className="w-1/4 rounded-lg p-4 h-[calc(100vh-160px)] overflow-y-auto">
+        <h3 className="text-xl font-bold mb-4 text-right">قائمة الحلقات</h3>
+        <div className="space-y-2">
+          {episodes.map((e) => (
+            <EpisodesListComp key={e.path} e={e} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
