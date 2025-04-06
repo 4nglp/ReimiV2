@@ -120,35 +120,8 @@ function Watch(): React.JSX.Element {
 
   return (
     <div className="container font-cairo flex flex-col gap-4">
-      {/* Title and Controls */}
-      <div className="flex justify-between items-start w-full">
-        <h1
-          dir="rtl"
-          className="text-xl text-white font-bold mb-2 line-clamp-1"
-        >
-          {episodeControls.epTitle}
-        </h1>
-        <div className="flex gap-2">
-          {episodeControls.nextEp && (
-            <button
-              type="button"
-              onClick={() =>
-                navigate(`/animerco/episodes/${episodeControls.nextEp}`)
-              }
-              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
-            >
-              الحلقة التالية
-            </button>
-          )}
-          {episodeControls.backToDetails && (
-            <button
-              type="button"
-              onClick={() => console.log('details')}
-              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
-            >
-              العودة للتفاصيل
-            </button>
-          )}
+      <div className="flex justify-between items-center w-full">
+        <div dir="ltr" className="flex gap-2">
           {episodeControls.previousEp && (
             <button
               type="button"
@@ -160,12 +133,35 @@ function Watch(): React.JSX.Element {
               الحلقة السابقة
             </button>
           )}
+          {episodeControls.backToDetails && (
+            <button
+              type="button"
+              onClick={() => console.log('details')}
+              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
+            >
+              العودة للتفاصيل
+            </button>
+          )}
+          {episodeControls.nextEp && (
+            <button
+              type="button"
+              onClick={() =>
+                navigate(`/animerco/episodes/${episodeControls.nextEp}`)
+              }
+              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
+            >
+              الحلقة التالية
+            </button>
+          )}
         </div>
+        <h1
+          dir="rtl"
+          className="text-xl text-white font-bold line-clamp-1 max-w-[60%]"
+        >
+          {episodeControls.epTitle}
+        </h1>
       </div>
-
-      {/* Main Content */}
       <div className="flex w-full gap-6 bg-[#0a0a0a] rounded-lg p-4">
-        {/* Video Section */}
         <div className="w-3/4 flex flex-col gap-4">
           <div className="aspect-video w-full rounded-xl overflow-hidden">
             <iframe
@@ -176,7 +172,6 @@ function Watch(): React.JSX.Element {
               sandbox="allow-scripts allow-same-origin"
             />
           </div>
-          {/* Servers Grid */}
           <div className="grid grid-cols-6 gap-2">
             {servers.map((server) => (
               <button
@@ -194,9 +189,7 @@ function Watch(): React.JSX.Element {
             ))}
           </div>
         </div>
-
-        {/* Episodes List */}
-        <div className="w-1/4 flex flex-col">
+        <div className="w-1/4 flex flex-col h-[515px]">
           <div className="bg-[#141517] p-3 rounded-t-xl">
             <div className="relative">
               <input
