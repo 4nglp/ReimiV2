@@ -42,3 +42,9 @@ export type SearchResults = {
   type: string;
   rating: string;
 };
+export type EpisodeControls = {
+  epTitle: string;
+  previousEp: string;
+  backToDetails: string;
+  nextEp: string;
+};

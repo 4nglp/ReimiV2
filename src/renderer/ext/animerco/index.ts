@@ -5,6 +5,7 @@ import {
   Server,
   SearchResults,
   EpisodesList,
+  EpisodeControls,
 } from './types';
 
 const baseURL = 'https://web.animerco.org/';
@@ -122,6 +123,48 @@ export async function getEpisodesList(t: string) {
   });
 
   return episodesList;
+}
+
+export async function getEpisodeControls(t: string): Promise<EpisodeControls> {
+  const res = await fetch(`${baseURL}episodes/${t}`);
+  const html = await res.text();
+  const doc = parseHTML(html);
+  const controls = doc.querySelectorAll('.page-controls a');
+  const e = doc.querySelector('.page-head .container');
+  const epTitle = e?.querySelector('h1')?.textContent || '';
+  let nextEp = '';
+  let backToDetails = '';
+  let previousEp = '';
+  controls.forEach((a) => {
+    const href = a.getAttribute('href') ?? '';
+    const spanText = a.querySelector('span')?.textContent?.trim();
+    if (spanText === 'التالية') {
+      nextEp =
+        href
+          .split('/')
+          .filter((segment) => segment)
+          .pop() || '';
+    } else if (spanText === 'المواسم') {
+      backToDetails =
+        href
+          .split('/')
+          .filter((segment) => segment)
+          .pop() || '';
+    } else if (spanText === 'السابقة') {
+      previousEp =
+        href
+          .split('/')
+          .filter((segment) => segment)
+          .pop() || '';
+    }
+  });
+  const episodeControls: EpisodeControls = {
+    epTitle,
+    previousEp,
+    backToDetails,
+    nextEp,
+  };
+  return episodeControls;
 }
 
 export async function getServers(t: string) {

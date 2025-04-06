@@ -2,8 +2,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TbFileSearch } from 'react-icons/tb';
 import EpisodesListComp from '../components/animerco/EpisodesList';
-import { EpisodesList, Server } from '../ext/animerco/types';
-import { getEpisode, getServers, getEpisodesList } from '../ext/animerco/index';
+import { EpisodesList, Server, EpisodeControls } from '../ext/animerco/types';
+import {
+  getEpisode,
+  getServers,
+  getEpisodesList,
+  getEpisodeControls,
+} from '../ext/animerco/index';
 
 function Watch(): React.JSX.Element {
   const navigate = useNavigate();
@@ -15,6 +20,12 @@ function Watch(): React.JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [episodeControls, setEpisodeControls] = useState<EpisodeControls>({
+    epTitle: '',
+    previousEp: '',
+    backToDetails: '',
+    nextEp: '',
+  });
 
   const handleKeyNavigation = useCallback(
     (event: KeyboardEvent) => {
@@ -28,11 +39,13 @@ function Watch(): React.JSX.Element {
       try {
         if (!t) return;
 
-        const [sourceData, serversData, episodesData] = await Promise.all([
-          getEpisode(t, selectedNume || '1'),
-          getServers(t),
-          getEpisodesList(t),
-        ]);
+        const [sourceData, serversData, episodesData, episodeControlsData] =
+          await Promise.all([
+            getEpisode(t, selectedNume || '1'),
+            getServers(t),
+            getEpisodesList(t),
+            getEpisodeControls(t),
+          ]);
 
         if (serversData?.length) {
           setServers(serversData);
@@ -41,6 +54,7 @@ function Watch(): React.JSX.Element {
 
         if (sourceData) setSrc(sourceData.src);
         if (episodesData) setEpisodes(episodesData);
+        if (episodeControlsData) setEpisodeControls(episodeControlsData);
       } catch (err) {
         setError('Failed to load content. Please try again.');
       } finally {
@@ -103,58 +117,110 @@ function Watch(): React.JSX.Element {
       </div>
     );
   }
-  return (
-    <div className="flex h-screen w-full p-6 gap-6 font-cairo bg-[#0a0a0a] rounded-md">
-      <div className="w-3/4 flex flex-col gap-4 h-[calc(100vh-48px)]">
-        <div className="aspect-video w-full rounded-xl overflow-hidden">
-          <iframe
-            src={src}
-            className="w-full h-full"
-            title={`${t} Player`}
-            allowFullScreen
-            sandbox="allow-scripts allow-same-origin"
-          />
-        </div>
 
-        <div className="grid grid-cols-6 gap-3">
-          {servers.map((server) => (
+  return (
+    <div className="container font-cairo flex flex-col gap-4">
+      {/* Title and Controls */}
+      <div className="flex justify-between items-start w-full">
+        <h1
+          dir="rtl"
+          className="text-xl text-white font-bold mb-2 line-clamp-1"
+        >
+          {episodeControls.epTitle}
+        </h1>
+        <div className="flex gap-2">
+          {episodeControls.nextEp && (
             <button
-              key={server.nume}
               type="button"
-              onClick={() => handleServerClick(server.nume)}
-              className={`p-3 rounded-lg transition-all ${
-                selectedNume === server.nume
-                  ? 'bg-[#1a1b1e] cursor-default'
-                  : 'bg-[#0a0a0a] hover:bg-[#1a1b1e]'
-              }`}
+              onClick={() =>
+                navigate(`/animerco/episodes/${episodeControls.nextEp}`)
+              }
+              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
             >
-              <span className="truncate block text-sm">{server.name}</span>
+              الحلقة التالية
             </button>
-          ))}
+          )}
+          {episodeControls.backToDetails && (
+            <button
+              type="button"
+              onClick={() => console.log('details')}
+              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
+            >
+              العودة للتفاصيل
+            </button>
+          )}
+          {episodeControls.previousEp && (
+            <button
+              type="button"
+              onClick={() =>
+                navigate(`/animerco/episodes/${episodeControls.previousEp}`)
+              }
+              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
+            >
+              الحلقة السابقة
+            </button>
+          )}
         </div>
       </div>
-      <div className="w-1/4 flex flex-col h-[515px]">
-        <div className="bg-[#141517] p-4 rounded-t-xl">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="البحث عن حلقة..."
-              value={searchQuery}
-              dir="rtl"
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 pr-10 rounded-lg bg-[#1a1b1e] text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray"
+
+      {/* Main Content */}
+      <div className="flex w-full gap-6 bg-[#0a0a0a] rounded-lg p-4">
+        {/* Video Section */}
+        <div className="w-3/4 flex flex-col gap-4">
+          <div className="aspect-video w-full rounded-xl overflow-hidden">
+            <iframe
+              src={src}
+              className="w-full h-full"
+              title={`${t} Player`}
+              allowFullScreen
+              sandbox="allow-scripts allow-same-origin"
             />
-            <TbFileSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+          </div>
+          {/* Servers Grid */}
+          <div className="grid grid-cols-6 gap-2">
+            {servers.map((server) => (
+              <button
+                key={server.nume}
+                type="button"
+                onClick={() => handleServerClick(server.nume)}
+                className={`p-2 rounded transition-all text-sm ${
+                  selectedNume === server.nume
+                    ? 'bg-[#1a1b1e] cursor-default'
+                    : 'bg-[#0a0a0a] hover:bg-[#1a1b1e]'
+                }`}
+              >
+                <span className="truncate block">{server.name}</span>
+              </button>
+            ))}
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto bg-[#141517] rounded-b-xl">
-          <div className="p-2 space-y-1">
-            {filteredEpisodes.map((e) => (
-              <EpisodesListComp key={e.path} e={e} />
-            ))}
-            {filteredEpisodes.length === 0 && (
-              <p className="text-gray-400 text-center py-6">لا توجد نتائج</p>
-            )}
+
+        {/* Episodes List */}
+        <div className="w-1/4 flex flex-col">
+          <div className="bg-[#141517] p-3 rounded-t-xl">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="البحث عن حلقة..."
+                value={searchQuery}
+                dir="rtl"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-1.5 pr-8 rounded bg-[#1a1b1e] text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray text-sm"
+              />
+              <TbFileSearch className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-md" />
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto bg-[#141517] rounded-b-xl">
+            <div className="p-1 space-y-1">
+              {filteredEpisodes.map((e) => (
+                <EpisodesListComp key={e.path} e={e} />
+              ))}
+              {filteredEpisodes.length === 0 && (
+                <p className="text-gray-400 text-center py-4 text-sm">
+                  لا توجد نتائج
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
