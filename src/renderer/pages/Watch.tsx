@@ -120,15 +120,21 @@ function Watch(): React.JSX.Element {
 
   return (
     <div className="container font-cairo flex flex-col gap-4">
-      <div className="flex justify-between items-center w-full">
-        <div dir="ltr" className="flex gap-2">
+      <div className="flex flex-col items-center gap-4">
+        <h1
+          dir="rtl"
+          className="text-xl text-white font-bold text-center line-clamp-1 max-w-4xl"
+        >
+          {episodeControls.epTitle}{' '}
+        </h1>
+        <div className="flex gap-3" dir="rtl">
           {episodeControls.previousEp && (
             <button
               type="button"
               onClick={() =>
                 navigate(`/animerco/episodes/${episodeControls.previousEp}`)
               }
-              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
+              className="bg-[#1a1b1e] text-white px-6 py-2 rounded hover:bg-[#2a2b2e]"
             >
               الحلقة السابقة
             </button>
@@ -137,9 +143,9 @@ function Watch(): React.JSX.Element {
             <button
               type="button"
               onClick={() => console.log('details')}
-              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
+              className="bg-[#1a1b1e] text-white px-6 py-2 rounded hover:bg-[#2a2b2e]"
             >
-              العودة للتفاصيل
+              التفاصيل
             </button>
           )}
           {episodeControls.nextEp && (
@@ -148,18 +154,12 @@ function Watch(): React.JSX.Element {
               onClick={() =>
                 navigate(`/animerco/episodes/${episodeControls.nextEp}`)
               }
-              className="bg-[#1a1b1e] text-white px-3 py-1.5 rounded hover:bg-[#2a2b2e] text-sm"
+              className="bg-[#1a1b1e] text-white px-6 py-2 rounded hover:bg-[#2a2b2e]"
             >
               الحلقة التالية
             </button>
           )}
         </div>
-        <h1
-          dir="rtl"
-          className="text-xl text-white font-bold line-clamp-1 max-w-[60%]"
-        >
-          {episodeControls.epTitle}
-        </h1>
       </div>
       <div className="flex w-full gap-6 bg-[#0a0a0a] rounded-lg p-4">
         <div className="w-3/4 flex flex-col gap-4">
