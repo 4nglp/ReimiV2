@@ -62,7 +62,10 @@ export type AnimesDetails = {
   genres: string[];
   description: string;
   type: string;
+  seasonsNumber: string;
   seasons: Season[];
   eps: string;
-  airingDate: string;
+};
+export type Movie = {
+  title: string;
 };

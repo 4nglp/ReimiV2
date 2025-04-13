@@ -7,6 +7,7 @@ import {
   EpisodesList,
   EpisodeControls,
   AnimesDetails,
+  Movie,
 } from './types';
 
 const baseURL = 'https://web.animerco.org/';
@@ -229,17 +230,50 @@ export async function getAnimes(a: string) {
     ) || '';
   const description =
     doc.querySelector('.content p')?.textContent?.trim() || '';
+  let type = '';
+  let seasonsNumber = '';
+  let eps = '';
+  const mediaInfoItems = Array.from(doc.querySelectorAll('.media-info li'));
+  mediaInfoItems.forEach((item) => {
+    const span = item.querySelector('span');
+    if (!span) return;
+    const value = span.textContent?.trim() || '';
+    const labelText = item.textContent
+      ? item.textContent.replace(value, '').trim()
+      : '';
+    if (labelText.includes('النوع')) {
+      type = value;
+    } else if (labelText.includes('المواسم')) {
+      seasonsNumber = value;
+    } else if (labelText.includes('الحلقات')) {
+      eps = value;
+    }
+  });
+
   const animeDetails: AnimesDetails = {
     title,
     posterURL,
     bannerURL,
     genres,
     description,
-    type: '', // Additional scraping can be added here
-    seasons: [], // Additional scraping can be added here
-    eps: '', // Additional scraping can be added here
-    airingDate: '', // Additional scraping can be added here
+    type,
+    eps,
+    seasonsNumber,
+    seasons: [],
   };
 
   return animeDetails;
+}
+
+export async function getMovie(a: string) {
+  const res = await fetch(`${baseURL}/movies/${a}`);
+  const doc = parseHTML(await res.text());
+  const p = doc.querySelector('.anime-card');
+  const title = p?.querySelector('.image')?.getAttribute('title') || '';
+
+  const movie: Movie = {
+    title,
+  };
+
+  return movie;
 }

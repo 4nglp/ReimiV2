@@ -12,8 +12,13 @@ function AnimeCard({
     rating: string;
   };
 }) {
+  const normalizedType = s.type.trim().toLowerCase();
+  const linkPath =
+    normalizedType === 'movie'
+      ? `/animerco/movies/${s.path}`
+      : `/animerco/animes/${s.path}`;
   return (
-    <Link to={`/animerco/animes/${s.path}`}>
+    <Link to={linkPath}>
       <div className="relative bg-gray-800 text-white rounded-lg overflow-hidden w-60 shadow-lg">
         <div className="flex">
           <div className="p-4 flex flex-col justify-center flex-1">

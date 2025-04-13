@@ -63,7 +63,8 @@ export default function Animes() {
               <strong>Episodes:</strong> {details.eps}
             </p>
             <p>
-              <strong>Airing Date:</strong> {details.airingDate}
+              <strong>Seasons number:</strong>
+              {details.seasonsNumber}
             </p>
           </div>
         </>
