@@ -1,6 +1,6 @@
 {
-  "name": "electron-react-boilerplate",
-  "description": "A foundation for scalable desktop apps",
+  "name": "Reimi",
+  "description": "A manga reading and anime watching app for arabic sources",
   "keywords": [
     "electron",
     "boilerplate",
@@ -12,6 +12,10 @@
     "hot",
     "reload"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4nglp/ReimiV2.git"
+  },
   "license": "MIT",
   "main": "./.erb/dll/main.bundle.dev.js",
   "scripts": {

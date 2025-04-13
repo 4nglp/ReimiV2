@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import AnimeRco from './pages/AnimeRco';
 import SideBar from './components/SideBar';
 import SearchPage from './pages/AnimeRcoSearchResults';
+import Animes from './pages/Animes';
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
               element={<Reader />}
             />
             <Route path="/animerco/episodes/:t" element={<Watch />} />
+            <Route path="/animerco/animes/:a" element={<Animes />} />
           </Routes>
         </div>
         <SideBar />

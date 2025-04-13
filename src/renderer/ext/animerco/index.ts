@@ -6,6 +6,7 @@ import {
   SearchResults,
   EpisodesList,
   EpisodeControls,
+  AnimesDetails,
 } from './types';
 
 const baseURL = 'https://web.animerco.org/';
@@ -212,4 +213,33 @@ export async function getResults(s: string) {
     }
   });
   return results;
+}
+
+export async function getAnimes(a: string) {
+  const res = await fetch(`${baseURL}/animes/${a}`);
+  const doc = parseHTML(await res.text());
+  const p = doc.querySelector('.anime-card');
+  const title = p?.querySelector('.image')?.getAttribute('title') || '';
+  const posterURL = p?.querySelector('.image')?.getAttribute('data-src') || '';
+  const bannerURL =
+    doc.querySelector('.banner')?.getAttribute('data-src') || '';
+  const genres =
+    Array.from(doc.querySelectorAll('.genres a')).map(
+      (element) => element.textContent?.trim() || '',
+    ) || '';
+  const description =
+    doc.querySelector('.content p')?.textContent?.trim() || '';
+  const animeDetails: AnimesDetails = {
+    title,
+    posterURL,
+    bannerURL,
+    genres,
+    description,
+    type: '', // Additional scraping can be added here
+    seasons: [], // Additional scraping can be added here
+    eps: '', // Additional scraping can be added here
+    airingDate: '', // Additional scraping can be added here
+  };
+
+  return animeDetails;
 }

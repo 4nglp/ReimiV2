@@ -48,3 +48,21 @@ export type EpisodeControls = {
   backToDetails: string;
   nextEp: string;
 };
+export type Season = {
+  season: string;
+  title: string;
+  posterURL: string;
+  status: string;
+  path: string;
+};
+export type AnimesDetails = {
+  title: string;
+  posterURL: string;
+  bannerURL: string;
+  genres: string[];
+  description: string;
+  type: string;
+  seasons: Season[];
+  eps: string;
+  airingDate: string;
+};
