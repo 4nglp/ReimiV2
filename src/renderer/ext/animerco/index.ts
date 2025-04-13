@@ -7,6 +7,7 @@ import {
   EpisodesList,
   EpisodeControls,
   AnimesDetails,
+  Season,
   Movie,
 } from './types';
 
@@ -219,28 +220,32 @@ export async function getResults(s: string) {
 export async function getAnimes(a: string) {
   const res = await fetch(`${baseURL}/animes/${a}`);
   const doc = parseHTML(await res.text());
+
   const p = doc.querySelector('.anime-card');
-  const title = p?.querySelector('.image')?.getAttribute('title') || '';
-  const posterURL = p?.querySelector('.image')?.getAttribute('data-src') || '';
+  const title = p?.querySelector('.image')?.getAttribute('title')?.trim() || '';
+  const posterURL =
+    p?.querySelector('.image')?.getAttribute('data-src')?.trim() || '';
   const bannerURL =
-    doc.querySelector('.banner')?.getAttribute('data-src') || '';
-  const genres =
-    Array.from(doc.querySelectorAll('.genres a')).map(
-      (element) => element.textContent?.trim() || '',
-    ) || '';
+    doc.querySelector('.banner')?.getAttribute('data-src')?.trim() || '';
+
+  const genres = Array.from(doc.querySelectorAll('.genres a')).map(
+    (element) => element.textContent?.trim() || '',
+  );
+
   const description =
     doc.querySelector('.content p')?.textContent?.trim() || '';
+
   let type = '';
   let seasonsNumber = '';
   let eps = '';
   const mediaInfoItems = Array.from(doc.querySelectorAll('.media-info li'));
+
   mediaInfoItems.forEach((item) => {
     const span = item.querySelector('span');
     if (!span) return;
     const value = span.textContent?.trim() || '';
-    const labelText = item.textContent
-      ? item.textContent.replace(value, '').trim()
-      : '';
+    const labelText = item.textContent?.replace(value, '').trim() || '';
+
     if (labelText.includes('النوع')) {
       type = value;
     } else if (labelText.includes('المواسم')) {
@@ -248,6 +253,19 @@ export async function getAnimes(a: string) {
     } else if (labelText.includes('الحلقات')) {
       eps = value;
     }
+  });
+
+  const seasonsList = Array.from(doc.querySelectorAll('.episodes-lists li'));
+  const seasons: Season[] = seasonsList.map((seasonEl) => {
+    const posterAnchor = seasonEl.querySelector<HTMLAnchorElement>('a.poster');
+
+    return {
+      title: posterAnchor?.getAttribute('title')?.trim() || '',
+      posterURL: posterAnchor?.getAttribute('data-src')?.trim() || '',
+      path: posterAnchor?.getAttribute('href')?.trim() || '',
+      status:
+        seasonEl.querySelector('.badge')?.textContent?.trim() || 'غير معروف',
+    };
   });
 
   const animeDetails: AnimesDetails = {
@@ -259,12 +277,11 @@ export async function getAnimes(a: string) {
     type,
     eps,
     seasonsNumber,
-    seasons: [],
+    seasons,
   };
 
   return animeDetails;
 }
-
 export async function getMovie(a: string) {
   const res = await fetch(`${baseURL}/movies/${a}`);
   const doc = parseHTML(await res.text());

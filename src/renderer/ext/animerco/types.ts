@@ -49,7 +49,6 @@ export type EpisodeControls = {
   nextEp: string;
 };
 export type Season = {
-  season: string;
   title: string;
   posterURL: string;
   status: string;
@@ -62,8 +61,8 @@ export type AnimesDetails = {
   genres: string[];
   description: string;
   type: string;
-  seasonsNumber: string;
   seasons: Season[];
+  seasonsNumber: string;
   eps: string;
 };
 export type Movie = {
