@@ -109,15 +109,14 @@ function Watch(): React.JSX.Element {
       </div>
     );
   }
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white" />
+        {/* eslint-disable-next-line react/self-closing-comp */}
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-solid border-white border-t-transparent" />
       </div>
     );
   }
-
   return (
     <div className="container font-cairo flex flex-col gap-4">
       <div className="flex flex-col items-center gap-4">
