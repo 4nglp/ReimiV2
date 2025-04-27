@@ -68,3 +68,17 @@ export type AnimesDetails = {
 export type Movie = {
   title: string;
 };
+export type Ep = {
+  title: string;
+  coverURL: string;
+  path: string;
+};
+export type SeasonDetails = {
+  title: string;
+  posterURL: string;
+  bannerURL: string;
+  genres: string[];
+  description: string;
+  status: string;
+  eps: Ep[];
+};

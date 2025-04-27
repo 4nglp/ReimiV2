@@ -1,36 +1,35 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { MdPlaylistPlay } from 'react-icons/md';
-import { getAnimes } from '../ext/animerco/index';
-import { AnimesDetails, Season } from '../ext/animerco/types';
+import { getSeason } from '../ext/animerco/index';
+import { SeasonDetails, Ep } from '../ext/animerco/types';
 
-export default function Animes() {
-  const { a } = useParams();
-  const [details, setDetails] = useState<AnimesDetails | null>(null);
+export default function Seasons() {
+  const { s } = useParams();
+  const [details, setDetails] = useState<SeasonDetails | null>(null);
 
   useEffect(() => {
     const getDetails = async () => {
       try {
-        if (!a) return;
-        const data: AnimesDetails = await getAnimes(a);
+        if (!s) return;
+        const data: SeasonDetails = await getSeason(s);
         setDetails(data);
       } catch (err) {
         console.error(err);
       }
     };
     getDetails();
-  }, [a]);
+  }, [s]);
 
-  const renderSeason = (season: Season) => (
-    <Link to={`/animerco/seasons/${season.path}`}>
+  const renderEp = (ep: Ep) => (
+    <Link to={`/animerco/episodes/${ep.path}`}>
       <div
-        key={season.path}
+        key={ep.title}
         className="flex items-center justify-center gap-4 bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors"
       >
         <div className="shrink-0">
           <img
-            src={season.posterURL}
-            alt={season.title}
+            src={ep.coverURL}
+            alt={ep.title}
             className="w-24 h-32 object-cover rounded-md"
             loading="lazy"
             referrerPolicy="no-referrer"
@@ -38,20 +37,8 @@ export default function Animes() {
         </div>
         <div className="flex-1 flex flex-col items-center text-center">
           <div className="mb-2">
-            <h3 className="text-lg font-semibold">{season.title}</h3>
+            <h3 className="text-lg font-semibold">{ep.title}</h3>
           </div>
-          <div className="flex items-center gap-3">
-            <span
-              className={`px-2 py-1 text-sm rounded ${
-                season.status === 'مكتمل' ? 'bg-green-600' : 'bg-red-600'
-              }`}
-            >
-              {season.status}
-            </span>
-          </div>
-        </div>
-        <div className="text-white hover:text-blue-300 transition-colors shrink-0">
-          <MdPlaylistPlay className="text-4xl" />
         </div>
       </div>
     </Link>
@@ -81,20 +68,6 @@ export default function Animes() {
                 loading="lazy"
                 referrerPolicy="no-referrer"
               />
-              <div className="mt-4 space-y-2 bg-gray-800 p-4 rounded-lg">
-                <p>
-                  <strong className="block text-gray-400">النوع:</strong>
-                  {details.type}
-                </p>
-                <p>
-                  <strong className="block text-gray-400">عدد الحلقات:</strong>
-                  {details.eps}
-                </p>
-                <p>
-                  <strong className="block text-gray-400">عدد المواسم:</strong>
-                  {details.seasonsNumber}
-                </p>
-              </div>
             </div>
             <div className="lg:col-span-3 space-y-6">
               <div className="flex flex-wrap gap-2">
@@ -113,14 +86,15 @@ export default function Animes() {
                   {details.description}
                 </p>
               </div>
+              <h1>{details.status}</h1>
               <div>
-                <h2 className="text-xl font-bold mb-4">قائمة المواسم</h2>
+                <h2 className="text-xl font-bold mb-4">قائمة الحلقات</h2>
                 <div className="grid grid-cols-1 gap-4">
-                  {details.seasons.length > 0 ? (
-                    details.seasons.map(renderSeason)
+                  {details.eps.length > 0 ? (
+                    details.eps.map(renderEp)
                   ) : (
                     <div className="p-4 bg-gray-800 rounded-lg text-center text-gray-400">
-                      لا توجد مواسم متاحة
+                      لا توجد حلقات متاحة
                     </div>
                   )}
                 </div>

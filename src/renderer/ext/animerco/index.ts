@@ -9,6 +9,8 @@ import {
   AnimesDetails,
   Season,
   Movie,
+  SeasonDetails,
+  Ep,
 } from './types';
 
 const baseURL = 'https://web.animerco.org/';
@@ -262,7 +264,11 @@ export async function getAnimes(a: string) {
     return {
       title: posterAnchor?.getAttribute('title')?.trim() || '',
       posterURL: posterAnchor?.getAttribute('data-src')?.trim() || '',
-      path: posterAnchor?.getAttribute('href')?.trim() || '',
+      path:
+        (posterAnchor?.getAttribute('href') || '')
+          .split('/')
+          .filter((segment) => segment)
+          .pop() || '',
       status:
         seasonEl.querySelector('.badge')?.textContent?.trim() || 'غير معروف',
     };
@@ -293,4 +299,50 @@ export async function getMovie(a: string) {
   };
 
   return movie;
+}
+
+export async function getSeason(s: string) {
+  const res = await fetch(`${baseURL}/seasons/${s}`);
+  const doc = parseHTML(await res.text());
+
+  const p = doc.querySelector('.head-box');
+  const title = p?.querySelector('.media-title h1')?.textContent || '';
+  const bannerURL =
+    doc.querySelector('.banner')?.getAttribute('data-src')?.trim() || '';
+  const posterURL =
+    doc.querySelector('.anime-card a')?.getAttribute('data-src')?.trim() || '';
+  const genres = Array.from(doc.querySelectorAll('.genres a')).map(
+    (element) => element.textContent?.trim() || '',
+  );
+
+  const description =
+    doc.querySelector('.content p')?.textContent?.trim() || '';
+  const status =
+    doc.querySelector('a.btn.large.fluid')?.textContent?.trim() || 'Unknown';
+  const episodesList = Array.from(doc.querySelectorAll('.episodes-lists li'));
+  const eps: Ep[] = episodesList.map((epEl) => {
+    const posterAnchor = epEl.querySelector<HTMLAnchorElement>('a.image');
+
+    return {
+      title: posterAnchor?.getAttribute('title')?.trim() || '',
+      coverURL: posterAnchor?.getAttribute('data-src')?.trim() || '',
+      path:
+        (posterAnchor?.getAttribute('href') || '')
+          .split('/')
+          .filter((segment) => segment)
+          .pop() || '',
+    };
+  });
+
+  const seasonsDetails: SeasonDetails = {
+    title,
+    posterURL,
+    bannerURL,
+    genres,
+    status,
+    description,
+    eps,
+  };
+
+  return seasonsDetails;
 }

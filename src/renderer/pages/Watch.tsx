@@ -73,7 +73,6 @@ function Watch(): React.JSX.Element {
   const handleServerClick = async (nume: string) => {
     try {
       if (!t) return;
-
       setIsLoading(true);
       const source = await getEpisode(t, nume);
       if (source) {
