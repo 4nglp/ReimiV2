@@ -1,4 +1,5 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Link } from 'react-router-dom';
 import 'swiper/css';
 import 'swiper/css/free-mode';
 import { FreeMode, Autoplay } from 'swiper/modules';
@@ -42,25 +43,27 @@ export default function PinnedAnimes() {
       >
         {pinnedAnimes.map((anime) => (
           <SwiperSlide key={anime.path}>
-            <div className="relative w-full h-80 overflow-hidden rounded-lg">
-              <img
-                src={anime.posterURL}
-                alt={anime.title}
-                className="opacity-95 w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent">
-                <h3 className="text-base font-bold text-white truncate text-right">
-                  {anime.title}
-                </h3>
-                <p className="text-sm opacity-75 text-white font-cairo text-right text-bold">
-                  {anime.season}
-                </p>
+            <Link to={`/animerco/seasons/${anime.path}`}>
+              <div className="relative w-full h-80 overflow-hidden rounded-lg">
+                <img
+                  src={anime.posterURL}
+                  alt={anime.title}
+                  className="opacity-95 w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent">
+                  <h3 className="text-base font-bold text-white truncate text-right">
+                    {anime.title}
+                  </h3>
+                  <p className="text-sm opacity-75 text-white font-cairo text-right text-bold">
+                    {anime.season}
+                  </p>
+                </div>
+                <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-cairo">
+                  {anime.status}
+                </div>
               </div>
-              <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-cairo">
-                {anime.status}
-              </div>
-            </div>
+            </Link>
           </SwiperSlide>
         ))}
       </Swiper>
