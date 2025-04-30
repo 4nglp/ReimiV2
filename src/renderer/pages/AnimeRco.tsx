@@ -4,7 +4,7 @@ import LatestEpisodes from '../components/animerco/LatestEpisodes';
 
 export default function AnimeRco() {
   return (
-    <div className="container">
+    <div className="container p-6">
       <SearchBar />
       <PinnedAnimes />
       <LatestEpisodes />

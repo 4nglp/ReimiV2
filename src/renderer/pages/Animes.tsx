@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { MdPlaylistPlay } from 'react-icons/md';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getAnimes } from '../ext/animerco/index';
-import { AnimesDetails, Season } from '../ext/animerco/types';
+import { AnimesDetails } from '../ext/animerco/types';
 
 export default function Animes() {
   const { a } = useParams();
+  const navigate = useNavigate();
   const [details, setDetails] = useState<AnimesDetails | null>(null);
 
   useEffect(() => {
@@ -20,112 +20,149 @@ export default function Animes() {
     };
     getDetails();
   }, [a]);
-
-  const renderSeason = (season: Season) => (
-    <Link to={`/animerco/seasons/${season.path}`}>
-      <div
-        key={season.path}
-        className="flex items-center justify-center gap-4 bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors"
-      >
-        <div className="shrink-0">
-          <img
-            src={season.posterURL}
-            alt={season.title}
-            className="w-24 h-32 object-cover rounded-md"
-            loading="lazy"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-        <div className="flex-1 flex flex-col items-center text-center">
-          <div className="mb-2">
-            <h3 className="text-lg font-semibold">{season.title}</h3>
-          </div>
-          <div className="flex items-center gap-3">
-            <span
-              className={`px-2 py-1 text-sm rounded ${
-                season.status === 'مكتمل' ? 'bg-green-600' : 'bg-red-600'
-              }`}
-            >
-              {season.status}
-            </span>
-          </div>
-        </div>
-        <div className="text-white hover:text-blue-300 transition-colors shrink-0">
-          <MdPlaylistPlay className="text-4xl" />
-        </div>
-      </div>
-    </Link>
-  );
-
   return (
-    <div className="container mx-auto px-4 py-8 font" dir="rtl">
+    <div className="container mx-auto font-cairo" dir="rtl">
       {details && (
         <div className="space-y-8">
-          <div className="relative h-64 rounded-lg overflow-hidden">
+          <div className="relative h-64 overflow-visible bg-black">
             <img
               src={details.bannerURL}
               alt={`${details.title} Banner`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-b-xl border-b-2 border-black"
               loading="lazy"
+              referrerPolicy="no-referrer"
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-              <h1 className="text-3xl font-bold text-white">{details.title}</h1>
-            </div>
-          </div>
-          <div className="grid grid-cols-4 gap-8 font-cairo">
-            <div className="lg:col-span-1 order-2">
+            <div
+              className="absolute bottom-0 right-6 z-40"
+              style={{ transform: 'translateY(40%)' }}
+            >
               <img
                 src={details.posterURL}
                 alt={`${details.title} Poster`}
-                className="w-full rounded-lg shadow-lg"
+                className="w-52 h-80 object-cover rounded-lg shadow-2xl border-2 border-white/20 mr-3 mb-10"
                 loading="lazy"
                 referrerPolicy="no-referrer"
               />
-              <div className="mt-4 space-y-2 bg-gray-800 p-4 rounded-lg">
-                <p>
-                  <strong className="block text-gray-400">النوع:</strong>
-                  {details.type}
-                </p>
-                <p>
-                  <strong className="block text-gray-400">عدد الحلقات:</strong>
-                  {details.eps}
-                </p>
-                <p>
-                  <strong className="block text-gray-400">عدد المواسم:</strong>
-                  {details.seasonsNumber}
-                </p>
-              </div>
             </div>
-            <div className="lg:col-span-3 space-y-6">
-              <div className="flex flex-wrap gap-2">
-                {details.genres.map((genre) => (
-                  <span
-                    key={genre}
-                    className="px-3 py-1 bg-gray-700 rounded-full text-sm"
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 pr-56 rounded-b-xl">
+              <h1 className="text-3xl font-bold text-white mr-8">
+                {details.title}
+              </h1>
+            </div>
+          </div>
+          <div className="px-6 space-y-8">
+            <div className="grid grid-cols-4 gap-6 items-start">
+              <div className="lg:col-span-1  bg-gray-800 rounded-xl shadow-lg overflow-hidden mt-20">
+                <table className="w-full text-sm">
+                  <tbody className="divide-y divide-gray-700">
+                    <tr className="hover:bg-gray-700/50 transition-colors">
+                      <td className="px-4 py-3 text-gray-400 font-medium">
+                        النوع
+                      </td>
+                      <td className="px-4 py-3 font-medium">{details.type}</td>
+                    </tr>
+                    <tr className="hover:bg-gray-700/50 transition-colors">
+                      <td className="px-4 py-3 text-gray-400 font-medium">
+                        عدد الحلقات
+                      </td>
+                      <td className="px-4 py-3 font-medium">{details.eps}</td>
+                    </tr>
+                    <tr className="hover:bg-gray-700/50 transition-colors">
+                      <td className="px-4 py-3 text-gray-400 font-medium">
+                        عدد المواسم
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        {details.seasonsNumber}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="lg:col-span-3 space-y-6">
+                <h2 className="text-xl font-bold border-s-4 border-primary rounded-sm ps-3">
+                  التفاصيل
+                </h2>
+                <div
+                  dir="ltr"
+                  className="max-h-40 overflow-y-auto space-y-4 px-2 scrollbar-thin"
+                >
+                  <p
+                    dir="rtl"
+                    className="text-gray-300 leading-relaxed text-justify text-lg"
                   >
-                    {genre}
-                  </span>
-                ))}
-              </div>
-              <div>
-                <h2 className="text-xl font-bold mb-3">القصة</h2>
-                <p className="text-gray-300 leading-relaxed" dir="rtl">
-                  {details.description}
-                </p>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold mb-4">قائمة المواسم</h2>
-                <div className="grid grid-cols-1 gap-4">
-                  {details.seasons.length > 0 ? (
-                    details.seasons.map(renderSeason)
-                  ) : (
-                    <div className="p-4 bg-gray-800 rounded-lg text-center text-gray-400">
-                      لا توجد مواسم متاحة
-                    </div>
-                  )}
+                    {details.description}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {details.genres.map((genre) => (
+                    <span
+                      key={genre}
+                      className="px-4 py-2 bg-gray-700 rounded-full text-sm font-medium hover:bg-gray-600 transition-colors"
+                    >
+                      {genre}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
+            <div className="space-y-4 mb-2">
+              <h2 className="text-xl font-bold border-s-4 border-primary rounded-sm ps-3 mb-4">
+                قائمة المواسم
+              </h2>
+              <div className="bg-gray-800 rounded-xl shadow-lg overflow-y-auto max-h-96">
+                <table className="w-full text-sm">
+                  <tbody className="divide-y divide-gray-700">
+                    {details.seasons.length > 0 ? (
+                      details.seasons.map((season) => (
+                        <tr
+                          key={season.path}
+                          className="hover:bg-gray-700/30 transition-colors cursor-pointer"
+                          onClick={() =>
+                            navigate(`/animerco/seasons/${season.path}`)
+                          }
+                        >
+                          <td className="px-4 py-3 w-28">
+                            <img
+                              src={season.posterURL}
+                              alt={season.title}
+                              className="w-full h-full object-cover rounded-md"
+                              loading="lazy"
+                              referrerPolicy="no-referrer"
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-lg">{season.title}</td>
+                          <td className="px-4 py-3 text-left">
+                            <div className="h-full">
+                              <span
+                                className={`px-3 py-1 rounded-full text-sm ${
+                                  season.status === 'غير معروف'
+                                    ? 'hidden'
+                                    : 'bg-green-600/30 text-green-400'
+                                }`}
+                              >
+                                {season.status}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="px-4 py-6 text-center text-gray-400"
+                        >
+                          لا توجد مواسم متاحة
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {/* eslint-disable-next-line react/self-closing-comp */}
+            <div className="mb-10" />
           </div>
         </div>
       )}

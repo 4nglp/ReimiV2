@@ -39,7 +39,7 @@ export default function SearchPage() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="font-cairo">
+    <div className="font-cairo p-6">
       <SearchBar />
       <h1 className="text-lg text-center mb-4" dir="rtl">
         نتائج البحث ل&quot;{query}&quot;

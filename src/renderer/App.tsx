@@ -21,7 +21,7 @@ export default function App() {
   return (
     <Router>
       <div className="flex h-screen">
-        <div className="flex-1 overflow-auto p-6 h-full overflow-x-hidden">
+        <div className="flex-1 overflow-auto h-full overflow-x-hidden">
           <Routes>
             <Route path="/" element={<Library />} />
             <Route path="/addSeries" element={<AddSeries />} />

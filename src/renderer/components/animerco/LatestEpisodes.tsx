@@ -67,13 +67,13 @@ export default function LatestEpisodes() {
 
   return (
     <div>
+      <h1 className="text-2xl font-bold font-cairo mb-4 mr-16" dir="rtl">
+        اخر الحلقات المضافة
+      </h1>
       <div
         ref={contentRef}
         className="p-4 max-w-4xl mx-auto h-screen overflow-auto"
       >
-        <h1 className="text-2xl font-bold font-cairo mb-4" dir="rtl">
-          اخر الحلقات المضافة
-        </h1>
         <div className="grid grid-cols-2 gap-4">
           {episodes.map((episode) => (
             <EpisodeCard key={episode.path} episode={episode} />

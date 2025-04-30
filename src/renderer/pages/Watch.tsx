@@ -117,7 +117,7 @@ function Watch(): React.JSX.Element {
     );
   }
   return (
-    <div className="container font-cairo flex flex-col gap-4">
+    <div className="container p-6 font-cairo flex flex-col gap-4">
       <div className="flex flex-col items-center gap-4">
         <h1
           dir="rtl"

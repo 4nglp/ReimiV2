@@ -30,7 +30,7 @@ export default function Seasons() {
           <img
             src={ep.coverURL}
             alt={ep.title}
-            className="w-24 h-32 object-cover rounded-md"
+            className="w-full h-20 object-cover rounded-md"
             loading="lazy"
             referrerPolicy="no-referrer"
           />
@@ -60,7 +60,7 @@ export default function Seasons() {
             </div>
           </div>
           <div className="grid grid-cols-4 gap-8 font-cairo">
-            <div className="lg:col-span-1 order-2">
+            <div className="col-span-1 order-2">
               <img
                 src={details.posterURL}
                 alt={`${details.title} Poster`}
