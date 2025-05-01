@@ -140,7 +140,9 @@ function Watch(): React.JSX.Element {
           {episodeControls.backToDetails && (
             <button
               type="button"
-              onClick={() => console.log('details')}
+              onClick={() =>
+                navigate(`/animerco/animes/${episodeControls.backToDetails}`)
+              }
               className="bg-[#1a1b1e] text-white px-6 py-2 rounded hover:bg-[#2a2b2e]"
             >
               التفاصيل
