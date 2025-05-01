@@ -93,7 +93,6 @@ export default function Animes() {
                     {details.description}
                   </p>
                 </div>
-
                 <div className="flex flex-wrap gap-2">
                   {details.genres.map((genre) => (
                     <span

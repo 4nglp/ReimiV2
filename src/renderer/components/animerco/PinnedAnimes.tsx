@@ -28,11 +28,10 @@ export default function PinnedAnimes() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
   return (
-    <div className="w-[90%] pb-4 ml-10">
+    <div className="w-[90%] pb-4 ml-12">
       <h1 className="text-2xl font-bold mb-4 text-white text-right font-cairo">
         الأنميات المثبتة
       </h1>
-
       <Swiper
         modules={[FreeMode, Autoplay]}
         slidesPerView={4}

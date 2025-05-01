@@ -16,7 +16,7 @@ export default function SideBar() {
     };
   }, [navigate]);
   return (
-    <div className="w-[300px] h-screen sticky top-0 bg-[#1a1b1e] text-right font-cairo ml-auto">
+    <div className="w-[250px] h-screen sticky top-0 bg-[#1a1b1e] text-right font-cairo ml-auto">
       <h1 className="text-2xl text-white text-center my-3">Reimi v0.0.1</h1>
       <ul>
         <Divider
