@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getMp4EmbedUrl } from '../ext/animerco';
 
 export default function Mp4(): React.JSX.Element {
   const { t } = useParams();
+  const navigate = useNavigate();
   const [fileUrl, setFileUrl] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -34,25 +35,14 @@ export default function Mp4(): React.JSX.Element {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full bg-gray-900 rounded-xl">
+      <div className="flex items-center justify-center h-screen">
+        {/* eslint-disable-next-line react/self-closing-comp */}
         <div className="animate-spin rounded-full h-10 w-10 border-4 border-solid border-white border-t-transparent" />
       </div>
     );
   }
-
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full bg-gray-900 rounded-xl p-4">
-        <p className="text-red-500 text-lg mb-4">{error}</p>
-        <button
-          type="button"
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Retry
-        </button>
-      </div>
-    );
+    navigate(`/animerco/episodes/${t}`);
   }
 
   return (
