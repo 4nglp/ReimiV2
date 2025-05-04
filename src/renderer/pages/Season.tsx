@@ -131,7 +131,7 @@ export default function Seasons() {
                   <div className="divide-y divide-gray-700/50">
                     {details.eps.map((ep, index) => (
                       <Link
-                        to={`/animerco/episodes/${ep.path}`}
+                        to={`/es/${ep.path}`}
                         key={ep.title}
                         className="block hover:bg-gray-700 transition-all duration-200"
                       >

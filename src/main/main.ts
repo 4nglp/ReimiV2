@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -76,6 +76,9 @@ const createWindow = async () => {
     backgroundColor: '#141517',
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      webviewTag: true,
       webSecurity: false,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
@@ -130,6 +133,13 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    session.defaultSession.webRequest.onBeforeSendHeaders(
+      { urls: ['*://*.mp4upload.com/*'] },
+      (details, callback) => {
+        details.requestHeaders['Referer'] = 'https://www.mp4upload.com/';
+        callback({ cancel: false, requestHeaders: details.requestHeaders });
+      },
+    );
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

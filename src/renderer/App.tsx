@@ -16,6 +16,7 @@ import SearchPage from './pages/AnimeRcoSearchResults';
 import Animes from './pages/Animes';
 import Movies from './pages/Movies';
 import Seasons from './pages/Season';
+import Mp4 from './pages/Mp4';
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
               element={<Reader />}
             />
             <Route path="/animerco/episodes/:t" element={<Watch />} />
+            <Route path="/es/:t" element={<Mp4 />} />
             <Route path="/animerco/animes/:a" element={<Animes />} />
             <Route path="/animerco/movies/:a" element={<Movies />} />
             <Route path="/animerco/seasons/:s" element={<Seasons />} />

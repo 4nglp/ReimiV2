@@ -346,3 +346,56 @@ export async function getSeason(s: string) {
 
   return seasonsDetails;
 }
+
+export async function getMp4EmbedUrl(t: string): Promise<EpisodeDetails> {
+  const res = await fetch(`${baseURL}episodes/${t}`);
+  const doc = parseHTML(await res.text());
+
+  const mp4uploadServer = Array.from(
+    doc.querySelectorAll('ul.server-list li a'),
+  ).find((el) =>
+    el
+      .querySelector('.server')
+      ?.textContent?.toLowerCase()
+      .includes('mp4upload'),
+  );
+
+  if (!mp4uploadServer) {
+    throw new Error('mp4upload server not found');
+  }
+
+  const type = mp4uploadServer.getAttribute('data-type') || '';
+  const post = mp4uploadServer.getAttribute('data-post') || '';
+  const serNume = mp4uploadServer.getAttribute('data-nume') || '';
+
+  const req = await fetch('https://web.animerco.org/wp-admin/admin-ajax.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      Origin: 'https://web.animerco.org',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+      Accept: '*/*',
+      'Accept-Encoding': 'gzip, deflate, br, zstd',
+      'Accept-Language': 'en-US,en;q=0.7',
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: new URLSearchParams({
+      action: 'player_ajax',
+      post,
+      nume: serNume,
+      type,
+    }),
+  });
+
+  const src = await req.json();
+  const details: EpisodeDetails = {
+    type,
+    post,
+    nume: serNume,
+    src: src.embed_url,
+  };
+  return details;
+}
