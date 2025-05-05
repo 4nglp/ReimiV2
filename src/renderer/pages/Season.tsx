@@ -9,6 +9,7 @@ export default function Seasons() {
   const [details, setDetails] = useState<SeasonDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     const getDetails = async () => {
@@ -26,6 +27,27 @@ export default function Seasons() {
     };
     getDetails();
   }, [s]);
+
+  const addToLibrary = () => {
+    if (!details) return;
+    const storageKey = 'all series';
+    try {
+      const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const alreadyExists = existing.some(
+        (item: any) => item.title === details.title,
+      );
+      if (!alreadyExists) {
+        const updated = [
+          ...existing,
+          { title: details.title, posterURL: details.posterURL, path: s },
+        ];
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+        setAdded(true);
+      }
+    } catch (e) {
+      console.error('Failed to add to library', e);
+    }
+  };
 
   if (loading) {
     return (
@@ -92,8 +114,13 @@ export default function Seasons() {
             </div>
             <div className="bg-gray-800/80 rounded-lg p-4">
               <div className="flex flex-wrap gap-2 justify-center">
-                <button type="button" className="h-[25px]">
-                  اضف للمكتبة
+                <button
+                  type="button"
+                  onClick={addToLibrary}
+                  className="mt-2 px-4 py-2 bg-primary rounded-lg text-white hover:bg-primary/80 transition-colors"
+                  disabled={added}
+                >
+                  {added ? 'مضاف للمكتبة' : 'اضف للمكتبة'}
                 </button>
               </div>
             </div>
