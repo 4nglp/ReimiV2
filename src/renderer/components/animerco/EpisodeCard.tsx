@@ -12,7 +12,7 @@ function EpisodeCard({
   };
 }) {
   return (
-    <Link to={`/animerco/episodes/${episode.path}`} key={episode.path}>
+    <Link to={`/es/${episode.path}`} key={episode.path}>
       <div className="bg-gray-800 w-149 h-30 flex items-center rounded-lg p-3 mr-2 mb-2 space-x-3">
         <div className="flex-1">
           <h2 className="text-white font-bold text-base text-right mt-1 line-clamp-1">

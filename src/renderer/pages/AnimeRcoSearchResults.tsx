@@ -45,9 +45,11 @@ export default function SearchPage() {
         نتائج البحث ل&quot;{query}&quot;
       </h1>
       {resultsRes && resultsRes.length > 0 ? (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="flex flex-wrap flex-row-reverse justify-center gap-5">
           {resultsRes.map((s) => (
-            <AnimeCard key={s.path} s={s} />
+            <div key={s.path} className="w-[calc(25%-12px)]">
+              <AnimeCard key={s.path} s={s} />
+            </div>
           ))}
         </div>
       ) : (
