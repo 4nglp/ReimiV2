@@ -17,6 +17,7 @@ import Animes from './pages/Animes';
 import Movies from './pages/Movies';
 import Seasons from './pages/Season';
 import Mp4 from './pages/Mp4';
+import CategoryView from './pages/CategoryView';
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="/animerco/animes/:a" element={<Animes />} />
             <Route path="/animerco/movies/:a" element={<Movies />} />
             <Route path="/animerco/seasons/:s" element={<Seasons />} />
+            <Route path="/category/:categoryName" element={<CategoryView />} />
           </Routes>
         </div>
         <SideBar />

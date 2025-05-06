@@ -2,11 +2,13 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { Modal, Checkbox } from 'antd';
 
 interface SeriesItem {
   title: string;
   posterURL: string;
   path: string;
+  categories?: string[];
 }
 
 interface ContextMenuState {
@@ -24,6 +26,9 @@ export default function Library() {
     y: 0,
     itemIndex: -1,
   });
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,6 +38,14 @@ export default function Library() {
       setSeries(Array.isArray(items) ? items : []);
     } catch {
       setSeries([]);
+    }
+    try {
+      const savedCategories = JSON.parse(
+        localStorage.getItem('categories') || '',
+      );
+      setCategories(Array.isArray(savedCategories) ? savedCategories : []);
+    } catch {
+      setCategories(['']);
     }
   }, []);
 
@@ -72,6 +85,38 @@ export default function Library() {
     }
   };
 
+  const handleManageCategories = () => {
+    if (contextMenu.itemIndex >= 0) {
+      const currentItem = series[contextMenu.itemIndex];
+      setSelectedCategories(currentItem.categories || []);
+      setIsCategoryModalOpen(true);
+      setContextMenu((prev) => ({ ...prev, visible: false }));
+    }
+  };
+
+  const handleCategoryModalCancel = () => {
+    setIsCategoryModalOpen(false);
+    setSelectedCategories([]);
+  };
+
+  const handleCategoryChange = (checkedValues: string[]) => {
+    setSelectedCategories(checkedValues);
+  };
+
+  const handleSaveCategories = () => {
+    if (contextMenu.itemIndex >= 0) {
+      const updatedSeries = [...series];
+      updatedSeries[contextMenu.itemIndex] = {
+        ...updatedSeries[contextMenu.itemIndex],
+        categories: selectedCategories,
+      };
+
+      setSeries(updatedSeries);
+      localStorage.setItem('all series', JSON.stringify(updatedSeries));
+      setIsCategoryModalOpen(false);
+    }
+  };
+
   if (series.length === 0) {
     return (
       <div className="font-cairo text-center py-20">
@@ -82,11 +127,11 @@ export default function Library() {
 
   return (
     <div className="font-cairo container mx-auto px-6 py-8" dir="rtl">
-      <h2 className="text-2xl font-bold mb-6">مكتبتي</h2>
-      <div className="grid  md:grid-cols-4 lg:grid-cols-5 gap-6">
+      <h2 className="text-2xl font-bold mb-6">المكتبة</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {series.map((item, index) => (
           <div
-            key={item.title}
+            key={`${item.title}`}
             className="block h-full"
             onContextMenu={(e) => handleContextMenu(e, index)}
           >
@@ -111,13 +156,29 @@ export default function Library() {
                   >
                     {item.title}
                   </h3>
+                  {item.categories && item.categories.length > 0 && (
+                    <div className="mt-2 flex flex-wrap justify-center gap-1">
+                      {item.categories.slice(0, 2).map((category) => (
+                        <span
+                          key={category}
+                          className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded"
+                        >
+                          {category}
+                        </span>
+                      ))}
+                      {item.categories.length > 2 && (
+                        <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">
+                          +{item.categories.length - 2}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </Link>
           </div>
         ))}
       </div>
-
       {contextMenu.visible && (
         <div
           ref={contextMenuRef}
@@ -125,10 +186,29 @@ export default function Library() {
           style={{
             top: `${contextMenu.y}px`,
             left: `${contextMenu.x}px`,
-            transform: 'translate(-50%, -50%)',
           }}
         >
           <ul className="py-1">
+            <li
+              className="px-4 py-2 hover:bg-gray-700 cursor-pointer text-white flex items-center"
+              onClick={handleManageCategories}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 ml-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                />
+              </svg>
+              إدارة التصنيفات
+            </li>
             <li
               className="px-4 py-2 hover:bg-red-600 cursor-pointer text-white flex items-center"
               onClick={handleDeleteSeries}
@@ -152,6 +232,95 @@ export default function Library() {
           </ul>
         </div>
       )}
+      <Modal
+        title={<span className="font-cairo">إدارة التصنيفات</span>}
+        open={isCategoryModalOpen}
+        onCancel={handleCategoryModalCancel}
+        okText="حفظ"
+        cancelText="إلغاء"
+        onOk={handleSaveCategories}
+        className="dark-modal"
+        styles={{
+          header: {
+            background: '#1f1f1f',
+            color: 'white',
+            borderBottom: '1px solid #303030',
+          },
+          body: {
+            background: '#1f1f1f',
+            color: 'white',
+          },
+          footer: {
+            background: '#1f1f1f',
+            borderTop: '1px solid #303030',
+          },
+          mask: {
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          },
+          content: {
+            background: '#1f1f1f',
+            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.5)',
+          },
+        }}
+      >
+        <p className="mb-4 font-cairo" dir="rtl">
+          اختر التصنيفات التي تريد إضافة هذه السلسلة إليها:
+        </p>
+        <div dir="rtl" className="max-h-64 overflow-y-auto pr-1">
+          <Checkbox.Group
+            className="flex flex-col gap-2"
+            value={selectedCategories}
+            onChange={handleCategoryChange}
+          >
+            {categories
+              .filter((cat) => cat !== 'جميع السلاسل')
+              .map((category) => (
+                <Checkbox
+                  key={category}
+                  value={category}
+                  className="text-white font-cairo checkmark-white"
+                >
+                  {category}
+                </Checkbox>
+              ))}
+          </Checkbox.Group>
+        </div>
+      </Modal>
+      <style>{`
+        .dark-modal .ant-modal-content {
+          background-color: #1f1f1f !important;
+          color: white !important;
+        }
+        .dark-modal .ant-modal-header {
+          background-color: #1f1f1f !important;
+          border-bottom: 1px solid #303030 !important;
+        }
+        .dark-modal .ant-modal-title {
+          color: white !important;
+        }
+        .dark-modal .ant-modal-footer {
+          border-top: 1px solid #303030 !important;
+        }
+        .dark-modal .ant-btn-default {
+          background-color: #141414 !important;
+          border-color: #434343 !important;
+          color: white !important;
+        }
+        .dark-modal .ant-modal-close-x {
+          color: white !important;
+        }
+        .ant-checkbox-wrapper {
+          color: white !important;
+        }
+        .ant-checkbox-inner {
+          background-color: #1f1f1f !important;
+          border-color: #434343 !important;
+        }
+        .ant-checkbox-checked .ant-checkbox-inner {
+          background-color: #1890ff !important;
+          border-color: #1890ff !important;
+        }
+      `}</style>
     </div>
   );
 }

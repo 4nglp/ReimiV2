@@ -117,10 +117,14 @@ export default function Seasons() {
                 <button
                   type="button"
                   onClick={addToLibrary}
-                  className="mt-2 px-4 py-2 bg-primary rounded-lg text-white hover:bg-primary/80 transition-colors"
+                  className={`mt-2 px-4 py-2 rounded-lg text-white transition-colors ${
+                    added
+                      ? 'cursor-not-allowed'
+                      : 'bg-primary hover:bg-primary/80'
+                  }`}
                   disabled={added}
                 >
-                  {added ? 'مضاف للمكتبة' : 'اضف للمكتبة'}
+                  اضف للمكتبة
                 </button>
               </div>
             </div>
