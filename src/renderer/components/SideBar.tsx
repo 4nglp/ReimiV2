@@ -117,6 +117,65 @@ export default function SideBar() {
               </div>
             </div>
           )}
+          <div className="mb-2">
+            <div
+              className="flex items-center justify-between p-2 rounded cursor-pointer hover:bg-gray-700"
+              onClick={() => setIsMangaOpen(!isMangaOpen)}
+              dir="rtl"
+            >
+              <div className="flex items-center">
+                <IoBookOutline className="ml-2" />
+                <span className="mr-1 font-semibold font-cairo">مانجا</span>
+                <div className="mr-[120px]">
+                  {isMangaOpen ? <CaretDownOutlined /> : <CaretLeftOutlined />}
+                </div>
+              </div>
+            </div>
+            {isMangaOpen && (
+              <div className="mr-8 mt-1" dir="rtl">
+                <Link to="/entries/3asq">
+                  <div
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/entries/3asq') ? 'text-white font-semibold' : ''}`}
+                  >
+                    العاشق
+                  </div>
+                </Link>
+                <Link to="/entries/lekmanga">
+                  <div
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/entries/lekmanga') ? 'text-white font-semibold' : ''}`}
+                  >
+                    ليك مانجا
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
+          <div className="mb-2">
+            <div
+              className="flex items-center justify-between p-2 rounded cursor-pointer hover:bg-gray-700"
+              onClick={() => setIsAnimeOpen(!isAnimeOpen)}
+              dir="rtl"
+            >
+              <div className="flex items-center">
+                <LuMonitorPlay className="ml-2" />
+                <span className="mr-1 font-semibold font-cairo">أنمي</span>
+                <div className="mr-[120px]">
+                  {isAnimeOpen ? <CaretDownOutlined /> : <CaretLeftOutlined />}
+                </div>
+              </div>
+            </div>
+            {isAnimeOpen && (
+              <div className="mr-8 mt-1" dir="rtl">
+                <Link to="/animerco">
+                  <div
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/animerco') ? 'text-white font-semibold' : ''}`}
+                  >
+                    انميركو
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
         <div
           className={`flex items-center p-2 rounded cursor-pointer mb-2 ${isActive('/downloads') ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
@@ -141,65 +200,6 @@ export default function SideBar() {
           >
             الإعدادات
           </Link>
-        </div>
-        <div className="mb-2">
-          <div
-            className="flex items-center justify-between p-2 rounded cursor-pointer hover:bg-gray-700"
-            onClick={() => setIsMangaOpen(!isMangaOpen)}
-            dir="rtl"
-          >
-            <div className="flex items-center">
-              <IoBookOutline className="ml-2" />
-              <span className="mr-1 font-semibold font-cairo">مانجا</span>
-              <div className="mr-[120px]">
-                {isMangaOpen ? <CaretDownOutlined /> : <CaretLeftOutlined />}
-              </div>
-            </div>
-          </div>
-          {isMangaOpen && (
-            <div className="mr-8 mt-1" dir="rtl">
-              <Link to="/entries/3asq">
-                <div
-                  className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/entries/3asq') ? 'text-white font-semibold' : ''}`}
-                >
-                  العاشق
-                </div>
-              </Link>
-              <Link to="/entries/lekmanga">
-                <div
-                  className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/entries/lekmanga') ? 'text-white font-semibold' : ''}`}
-                >
-                  ليك مانجا
-                </div>
-              </Link>
-            </div>
-          )}
-        </div>
-        <div className="mb-2">
-          <div
-            className="flex items-center justify-between p-2 rounded cursor-pointer hover:bg-gray-700"
-            onClick={() => setIsAnimeOpen(!isAnimeOpen)}
-            dir="rtl"
-          >
-            <div className="flex items-center">
-              <LuMonitorPlay className="ml-2" />
-              <span className="mr-1 font-semibold font-cairo">أنمي</span>
-              <div className="mr-[120px]">
-                {isAnimeOpen ? <CaretDownOutlined /> : <CaretLeftOutlined />}
-              </div>
-            </div>
-          </div>
-          {isAnimeOpen && (
-            <div className="mr-8 mt-1" dir="rtl">
-              <Link to="/animerco">
-                <div
-                  className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/animerco') ? 'text-white font-semibold' : ''}`}
-                >
-                  انميركو
-                </div>
-              </Link>
-            </div>
-          )}
         </div>
       </div>
       <div className="absolute bottom-4 w-full text-center text-gray-400 text-md">

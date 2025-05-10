@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMp4EmbedUrl } from '../ext/animerco';
+import { getMp4EmbedUrl, getEpisodeControls } from '../ext/animerco';
+import { EpisodeControls } from '../ext/animerco/types';
 
 function Container({ children }: { children: ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,6 +43,12 @@ export default function Mp4(): React.JSX.Element {
   const [fileUrl, setFileUrl] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [episodeControls, setEpisodeControls] = useState<EpisodeControls>({
+    epTitle: '',
+    previousEp: '',
+    backToDetails: '',
+    nextEp: '',
+  });
 
   useEffect(() => {
     const fetchSource = async () => {
@@ -52,10 +59,12 @@ export default function Mp4(): React.JSX.Element {
       }
       try {
         const { src: embedUrl } = await getMp4EmbedUrl(t);
+        const epc = await getEpisodeControls(t);
         const pageRes = await fetch(embedUrl);
         const html = await pageRes.text();
         const pos = html.indexOf('src:') + 6;
         const url = html.slice(pos, html.indexOf('"', pos));
+        setEpisodeControls(epc);
         setFileUrl(url);
       } catch (e) {
         console.error(e);
@@ -66,6 +75,30 @@ export default function Mp4(): React.JSX.Element {
     };
     fetchSource();
   }, [t]);
+
+  const { nextEp, previousEp, backToDetails } = episodeControls;
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      switch (key) {
+        case 'n':
+          if (nextEp) navigate(`/es/${nextEp}`);
+          break;
+        case 'p':
+          if (previousEp) navigate(`/es/${previousEp}`);
+          break;
+        case 'd':
+          if (backToDetails) navigate(`/animerco/animes/${backToDetails}`);
+          break;
+        default:
+          break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [navigate, nextEp, previousEp, backToDetails]);
 
   if (isLoading) {
     return (
