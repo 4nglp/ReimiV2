@@ -25,13 +25,28 @@ export default function PinnedAnimes() {
     };
     fetchPinnedAnimes();
   }, []);
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <div className="w-[90%] pb-4 ml-12">
+        <div className="flex gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="w-1/4">
+              <div className="relative w-full h-80 overflow-hidden rounded-lg bg-gray-800 animate-pulse">
+                <div className="absolute inset-0 flex flex-col justify-end p-4">
+                  <div className="h-6 w-3/4 bg-gray-700 rounded animate-pulse mb-2" />
+                  <div className="h-4 w-1/2 bg-gray-700 rounded animate-pulse" />
+                </div>
+                <div className="absolute top-2 left-2 h-6 w-16 bg-gray-700 rounded animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
   if (error) return <p>{error}</p>;
   return (
     <div className="w-[90%] pb-4 ml-12">
-      <h1 className="text-2xl font-bold mb-4 text-white text-right font-cairo">
-        الأنميات المثبتة
-      </h1>
       <Swiper
         modules={[FreeMode, Autoplay]}
         slidesPerView={4}

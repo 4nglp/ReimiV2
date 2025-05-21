@@ -29,7 +29,7 @@ function Watch(): React.JSX.Element {
 
   const handleKeyNavigation = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape') navigate(-1);
+      if (event.key === 'Escape') navigate(-2);
     },
     [navigate],
   );

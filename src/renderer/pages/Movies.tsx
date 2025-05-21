@@ -108,8 +108,52 @@ export default function Movies() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-solid border-white border-t-transparent" />
+      <div className="font-cairo" dir="rtl">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-row gap-8 mt-6">
+            <div className="w-1/4">
+              <div className="mb-3">
+                <div className="w-full aspect-[2/3] rounded-lg bg-gray-800 animate-pulse" />
+              </div>
+              <div className="bg-gray-800/80 rounded-lg p-4">
+                <div className="h-[30px] bg-gray-700 rounded-lg animate-pulse" />
+              </div>
+            </div>
+            <div className="md:w-3/4">
+              <div className="flex mb-3 mt-3">
+                <div className="container mx-auto">
+                  <div className="h-10 w-3/4 bg-gray-800 rounded animate-pulse" />
+                </div>
+              </div>
+              <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-3" />
+              <div className="bg-gray-800/80 rounded-lg p-6 mb-3">
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-700 rounded w-full animate-pulse" />
+                  <div className="h-4 bg-gray-700 rounded w-5/6 animate-pulse" />
+                  <div className="h-4 bg-gray-700 rounded w-4/6 animate-pulse" />
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-8 w-20 bg-gray-800 rounded-full animate-pulse" />
+                ))}
+              </div>
+              <div className="mt-6">
+                <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-3" />
+                <div className="flex w-full gap-6 bg-[#0a0a0a] rounded-lg p-4">
+                  <div className="w-full flex flex-col gap-4">
+                    <div className="aspect-video w-full rounded-xl bg-gray-800 animate-pulse" />
+                    <div className="grid grid-cols-6 gap-2">
+                      {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div key={i} className="h-8 bg-gray-800 rounded animate-pulse" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

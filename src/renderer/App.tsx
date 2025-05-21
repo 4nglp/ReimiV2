@@ -7,7 +7,6 @@ import EntryDetails from './components/EntryDetails';
 import Watch from './pages/Watch';
 import Reader from './components/Reader';
 import Search from './components/Search';
-import AddSeries from './pages/AddSeries';
 import Downloads from './pages/Downloads';
 import Settings from './pages/Settings';
 import AnimeRco from './pages/AnimeRco';
@@ -26,7 +25,6 @@ export default function App() {
         <div className="flex-1 overflow-auto h-full overflow-x-hidden">
           <Routes>
             <Route path="/" element={<Library />} />
-            <Route path="/addSeries" element={<AddSeries />} />
             <Route path="/downloads" element={<Downloads />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/animerco" element={<AnimeRco />} />
