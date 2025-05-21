@@ -18,6 +18,12 @@ export default function Seasons() {
         if (!s) return;
         const data = await getSeason(s);
         setDetails(data);
+        const storageKey = 'all series';
+        const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const alreadyExists = existing.some(
+          (item: any) => item.title === data.title,
+        );
+        setAdded(alreadyExists);
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -121,14 +127,50 @@ export default function Seasons() {
                 <button
                   type="button"
                   onClick={addToLibrary}
-                  className={`mt-2 px-4 py-2 rounded-lg text-white transition-colors ${
+                  className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white transition-all h-[30px] ${
                     added
                       ? 'cursor-not-allowed'
-                      : 'bg-primary hover:bg-primary/80'
+                      : 'bg-primary hover:bg-primary/80 hover:scale-105'
                   }`}
                   disabled={added}
                 >
-                  اضف للمكتبة
+                  {added ? (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>مضاف للمكتبة</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <span>اضف للمكتبة</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
