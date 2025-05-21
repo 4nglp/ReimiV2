@@ -44,7 +44,7 @@ export default function CategoryView() {
   if (series.length === 0) {
     return (
       <div className="font-cairo text-center py-20">
-        <p className="text-gray-400 text-lg">
+        <p className="text-gray-400 text-lg" dir='rtl'>
           لا توجد سلاسل في التصنيف {categoryName}.
         </p>
       </div>
@@ -54,7 +54,7 @@ export default function CategoryView() {
   return (
     <div className="font-cairo container mx-auto px-6 py-8" dir="rtl">
       <h2 className="text-2xl font-bold mb-6">تصنيف: {categoryName}</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      <div className="grid md:grid-cols-5 lg:grid-cols-6 gap-6">
         {series.map((item) => (
           <div key={`${item.title}`} className="block h-full">
             <Link

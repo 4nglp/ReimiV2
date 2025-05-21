@@ -129,7 +129,7 @@ export default function Animes() {
                     {details.seasons.map((season) => (
                       <Link to={`/animerco/seasons/${season.path}`}>
                         <div className="flex items-center gap-4 p-4">
-                          <div className="w-20 h-full md:w-32 md:h-20 shrink-0 relative rounded-lg overflow-hidden">
+                          <div className="w-20 h-32 md:h-32 shrink-0 relative rounded-lg overflow-hidden">
                             <img
                               src={season.posterURL}
                               alt={season.title}

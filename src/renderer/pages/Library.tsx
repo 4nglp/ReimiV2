@@ -2,7 +2,6 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Modal, Checkbox } from 'antd';
 
 interface SeriesItem {
   title: string;
@@ -18,6 +17,77 @@ interface ContextMenuState {
   itemIndex: number;
 }
 
+interface DeleteConfirmModalState {
+  isOpen: boolean;
+  itemIndex: number;
+}
+
+const CustomModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  title,
+  children,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  title: string;
+  children: React.ReactNode;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50">
+      <div
+        className="bg-[#1f1f1f] rounded-lg shadow-lg max-w-md w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center border-b border-gray-700 px-6 py-4">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+          <h3 className="font-cairo text-white text-lg font-medium text-center flex-1">
+            {title}
+          </h3>
+          <div className="w-5"></div>
+        </div>
+        <div className="px-6 py-4">{children}</div>
+        <div className="flex justify-end gap-4 border-t border-gray-700 px-6 py-4">
+          <button
+            onClick={onClose}
+            className="bg-gray-700 hover:bg-gray-600 text-white px-8 py-2 rounded font-cairo"
+          >
+            إلغاء
+          </button>
+          <button
+            onClick={onSave}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded font-cairo"
+          >
+            حفظ
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Library() {
   const [series, setSeries] = useState<SeriesItem[]>([]);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
@@ -29,7 +99,16 @@ export default function Library() {
   const [categories, setCategories] = useState<string[]>([]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedEntryTitle, setSelectedEntryTitle] = useState<string>('');
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [isCategoryDeleteModalOpen, setIsCategoryDeleteModalOpen] =
+    useState(false);
   const contextMenuRef = useRef<HTMLDivElement>(null);
+  const [deleteConfirmModal, setDeleteConfirmModal] =
+    useState<DeleteConfirmModalState>({
+      isOpen: false,
+      itemIndex: -1,
+    });
 
   useEffect(() => {
     const storageKey = 'all series';
@@ -69,26 +148,39 @@ export default function Library() {
     e.preventDefault();
     setContextMenu({
       visible: true,
-      x: e.clientX,
+      x: e.clientX - 150,
       y: e.clientY,
       itemIndex: index,
     });
   };
 
   const handleDeleteSeries = () => {
-    if (contextMenu.itemIndex >= 0) {
+    setDeleteConfirmModal({
+      isOpen: true,
+      itemIndex: contextMenu.itemIndex,
+    });
+    setContextMenu((prev) => ({ ...prev, visible: false }));
+  };
+
+  const confirmDeleteSeries = () => {
+    if (deleteConfirmModal.itemIndex >= 0) {
       const updatedSeries = [...series];
-      updatedSeries.splice(contextMenu.itemIndex, 1);
+      updatedSeries.splice(deleteConfirmModal.itemIndex, 1);
       setSeries(updatedSeries);
       localStorage.setItem('all series', JSON.stringify(updatedSeries));
-      setContextMenu((prev) => ({ ...prev, visible: false }));
+      setDeleteConfirmModal({ isOpen: false, itemIndex: -1 });
     }
+  };
+
+  const cancelDeleteSeries = () => {
+    setDeleteConfirmModal({ isOpen: false, itemIndex: -1 });
   };
 
   const handleManageCategories = () => {
     if (contextMenu.itemIndex >= 0) {
       const currentItem = series[contextMenu.itemIndex];
       setSelectedCategories(currentItem.categories || []);
+      setSelectedEntryTitle(currentItem.title);
       setIsCategoryModalOpen(true);
       setContextMenu((prev) => ({ ...prev, visible: false }));
     }
@@ -97,10 +189,17 @@ export default function Library() {
   const handleCategoryModalCancel = () => {
     setIsCategoryModalOpen(false);
     setSelectedCategories([]);
+    setSelectedEntryTitle('');
   };
 
-  const handleCategoryChange = (checkedValues: string[]) => {
-    setSelectedCategories(checkedValues);
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategories((prev) => {
+      if (prev.includes(category)) {
+        return prev.filter((cat) => cat !== category);
+      } else {
+        return [...prev, category];
+      }
+    });
   };
 
   const handleSaveCategories = () => {
@@ -115,6 +214,159 @@ export default function Library() {
       localStorage.setItem('all series', JSON.stringify(updatedSeries));
       setIsCategoryModalOpen(false);
     }
+  };
+
+  const handleDeleteCategory = (category: string) => {
+    setCategoryToDelete(category);
+    setIsCategoryDeleteModalOpen(true);
+  };
+
+  const confirmDeleteCategory = () => {
+    if (categoryToDelete) {
+      const updatedCategories = categories.filter(
+        (cat) => cat !== categoryToDelete,
+      );
+      setCategories(updatedCategories);
+      localStorage.setItem('categories', JSON.stringify(updatedCategories));
+      const updatedSeries = series.map((item) => {
+        if (item.categories && item.categories.includes(categoryToDelete)) {
+          return {
+            ...item,
+            categories: item.categories.filter(
+              (cat) => cat !== categoryToDelete,
+            ),
+          };
+        }
+        window.location.reload();
+        return item;
+      });
+
+      setSeries(updatedSeries);
+      localStorage.setItem('all series', JSON.stringify(updatedSeries));
+
+      if (selectedCategories.includes(categoryToDelete)) {
+        setSelectedCategories(
+          selectedCategories.filter((cat) => cat !== categoryToDelete),
+        );
+      }
+
+      setCategoryToDelete(null);
+      setIsCategoryDeleteModalOpen(false);
+    }
+  };
+
+  const cancelDeleteCategory = () => {
+    setCategoryToDelete(null);
+    setIsCategoryDeleteModalOpen(false);
+  };
+
+  const CustomCheckbox = ({
+    checked,
+    onChange,
+    label,
+  }: {
+    checked: boolean;
+    onChange: () => void;
+    label: string;
+  }) => {
+    return (
+      <label className="flex items-center cursor-pointer mb-2">
+        <div className="relative">
+          <input
+            type="checkbox"
+            className="sr-only"
+            checked={checked}
+            onChange={onChange}
+          />
+          <div
+            className={`w-5 h-5 mr-2 border rounded ${checked ? 'bg-gray-500 border-gray-500' : 'border-gray-500 bg-gray-800'}`}
+          >
+            {checked && (
+              <svg
+                className="w-3 h-3 text-white absolute left-1 top-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+            )}
+          </div>
+        </div>
+        <span className="text-white mr-2">{label}</span>
+      </label>
+    );
+  };
+
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState<{
+    isOpen: boolean;
+    category: string | null;
+  }>({
+    isOpen: false,
+    category: null,
+  });
+
+  const openConfirmDeleteModal = (category: string) => {
+    setConfirmDeleteModal({
+      isOpen: true,
+      category,
+    });
+  };
+
+  const closeConfirmDeleteModal = () => {
+    setConfirmDeleteModal({
+      isOpen: false,
+      category: null,
+    });
+  };
+
+  const confirmDelete = () => {
+    if (confirmDeleteModal.category) {
+      handleDeleteCategory(confirmDeleteModal.category);
+      closeConfirmDeleteModal();
+      window.location.reload();
+    }
+  };
+
+  const ConfirmDeleteModal = () => {
+    if (!confirmDeleteModal.isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50">
+        <div
+          className="bg-[#1f1f1f] rounded-lg shadow-lg max-w-md w-full mx-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="px-6 py-4">
+            <h3 className="text-lg font-medium text-white mb-4">تأكيد الحذف</h3>
+            <p className="text-gray-300 mb-6">
+              هل أنت متأكد من حذف تصنيف "{confirmDeleteModal.category}"؟ سيتم
+              إزالته من جميع السلاسل.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={closeConfirmDeleteModal}
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded font-cairo"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-cairo"
+              >
+                نعم، احذف
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (series.length === 0) {
@@ -232,95 +484,167 @@ export default function Library() {
           </ul>
         </div>
       )}
-      <Modal
-        title={<span className="font-cairo">إدارة التصنيفات</span>}
-        open={isCategoryModalOpen}
-        onCancel={handleCategoryModalCancel}
-        okText="حفظ"
-        cancelText="إلغاء"
-        onOk={handleSaveCategories}
-        className="dark-modal"
-        styles={{
-          header: {
-            background: '#1f1f1f',
-            color: 'white',
-            borderBottom: '1px solid #303030',
-          },
-          body: {
-            background: '#1f1f1f',
-            color: 'white',
-          },
-          footer: {
-            background: '#1f1f1f',
-            borderTop: '1px solid #303030',
-          },
-          mask: {
-            backgroundColor: 'rgba(0, 0, 0, 0.65)',
-          },
-          content: {
-            background: '#1f1f1f',
-            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.5)',
-          },
-        }}
+
+      <CustomModal
+        isOpen={isCategoryModalOpen}
+        onClose={handleCategoryModalCancel}
+        onSave={handleSaveCategories}
+        title="إدارة التصنيفات"
       >
+        <div className="mb-4">
+          <p className="text-white text-lg text-center" dir="ltr">
+            {selectedEntryTitle}
+          </p>
+        </div>
         <p className="mb-4 font-cairo" dir="rtl">
           اختر التصنيفات التي تريد إضافة هذه السلسلة إليها:
         </p>
         <div dir="rtl" className="max-h-64 overflow-y-auto pr-1">
-          <Checkbox.Group
-            className="flex flex-col gap-2"
-            value={selectedCategories}
-            onChange={handleCategoryChange}
-          >
-            {categories
-              .filter((cat) => cat !== 'جميع السلاسل')
-              .map((category) => (
-                <Checkbox
-                  key={category}
-                  value={category}
-                  className="text-white font-cairo checkmark-white"
+          {categories
+            .filter((cat) => cat !== 'جميع السلاسل')
+            .map((category) => (
+              <div
+                key={category}
+                className="flex justify-between items-center mb-2"
+              >
+                <CustomCheckbox
+                  checked={selectedCategories.includes(category)}
+                  onChange={() => handleCategoryChange(category)}
+                  label={category}
+                />
+                <button
+                  onClick={() => handleDeleteCategory(category)}
+                  className="text-red-500 hover:text-red-700 p-1"
+                  title="حذف التصنيف"
                 >
-                  {category}
-                </Checkbox>
-              ))}
-          </Checkbox.Group>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            ))}
         </div>
-      </Modal>
-      <style>{`
-        .dark-modal .ant-modal-content {
-          background-color: #1f1f1f !important;
-          color: white !important;
-        }
-        .dark-modal .ant-modal-header {
-          background-color: #1f1f1f !important;
-          border-bottom: 1px solid #303030 !important;
-        }
-        .dark-modal .ant-modal-title {
-          color: white !important;
-        }
-        .dark-modal .ant-modal-footer {
-          border-top: 1px solid #303030 !important;
-        }
-        .dark-modal .ant-btn-default {
-          background-color: #141414 !important;
-          border-color: #434343 !important;
-          color: white !important;
-        }
-        .dark-modal .ant-modal-close-x {
-          color: white !important;
-        }
-        .ant-checkbox-wrapper {
-          color: white !important;
-        }
-        .ant-checkbox-inner {
-          background-color: #1f1f1f !important;
-          border-color: #434343 !important;
-        }
-        .ant-checkbox-checked .ant-checkbox-inner {
-          background-color: #1890ff !important;
-          border-color: #1890ff !important;
-        }
-      `}</style>
+      </CustomModal>
+
+      {deleteConfirmModal.isOpen && (
+        <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50">
+          <div
+            className="bg-[#1f1f1f] rounded-lg shadow-lg max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center border-b border-gray-700 px-6 py-4">
+              <button
+                onClick={cancelDeleteSeries}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+              <h3 className="font-cairo text-white text-lg font-medium text-center flex-1">
+                تأكيد الحذف
+              </h3>
+              <div className="w-5"></div>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-gray-300 mb-6">
+                هل أنت متأكد من حذف هذه السلسلة؟ لا يمكن التراجع عن هذا الإجراء.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={cancelDeleteSeries}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-8 py-2 rounded font-cairo"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={confirmDeleteSeries}
+                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-2 rounded font-cairo"
+                >
+                  احذف
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isCategoryDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50">
+          <div
+            className="bg-[#1f1f1f] rounded-lg shadow-lg max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center border-b border-gray-700 px-6 py-4">
+              <button
+                onClick={cancelDeleteCategory}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+              <h3 className="font-cairo text-white text-lg font-medium text-center flex-1">
+                تأكيد حذف التصنيف
+              </h3>
+              <div className="w-5"></div>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-gray-300 mb-6">
+                هل أنت متأكد من حذف تصنيف "{categoryToDelete}"؟ سيتم إزالته من
+                جميع السلاسل.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={cancelDeleteCategory}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-8 py-2 rounded font-cairo"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={confirmDeleteCategory}
+                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-2 rounded font-cairo"
+                >
+                  احذف
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

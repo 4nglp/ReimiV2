@@ -3,7 +3,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Modal, Input, Button } from 'antd';
 import { RiBookShelfLine } from 'react-icons/ri';
 import { LuMonitorPlay } from 'react-icons/lu';
 import { IoBookOutline } from 'react-icons/io5';
@@ -14,6 +13,73 @@ import {
   CaretDownOutlined,
   CaretLeftOutlined,
 } from '@ant-design/icons';
+
+const CustomModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  title,
+  children,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  title: string;
+  children: React.ReactNode;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50">
+      <div
+        className="bg-[#1f1f1f] rounded-lg shadow-lg max-w-md w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-end items-center border-b border-gray-700 px-6 py-4">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+          <h3 className="font-cairo text-white text-lg font-medium text-center flex-1">
+            {title}
+          </h3>
+          <div className="w-5"></div>{' '}
+          {/* Empty div for spacing in RTL layout */}
+        </div>
+        <div className="px-6 py-4">{children}</div>
+        <div className="flex justify-start gap-4 border-t border-gray-700 px-6 py-4">
+          <button
+            onClick={onSave}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded font-cairo"
+          >
+            حفظ
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-gray-700 hover:bg-gray-600 text-white px-8 py-2 rounded font-cairo"
+          >
+            إلغاء
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function SideBar() {
   const navigate = useNavigate();
@@ -55,11 +121,6 @@ export default function SideBar() {
     setIsModalOpen(true);
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    setNewCategoryName('');
-  };
-
   const handleSave = () => {
     if (newCategoryName.trim()) {
       const updatedCategories = [...categories, newCategoryName.trim()];
@@ -67,6 +128,7 @@ export default function SideBar() {
       localStorage.setItem('categories', JSON.stringify(updatedCategories));
       setNewCategoryName('');
       setIsModalOpen(false);
+      window.location.reload();
     }
   };
 
@@ -202,56 +264,20 @@ export default function SideBar() {
           </Link>
         </div>
       </div>
-      <div className="absolute bottom-4 w-full text-center text-gray-400 text-md">
-        Beta Version
-      </div>
-      <Modal
-        title={<span className="font-cairo">إنشاء تصنيف</span>}
-        open={isModalOpen}
-        onCancel={handleCancel}
-        footer={[
-          <Button key="cancel" onClick={handleCancel} className="font-cairo">
-            إلغاء
-          </Button>,
-          <Button
-            key="save"
-            type="primary"
-            onClick={handleSave}
-            disabled={!newCategoryName.trim()}
-            className="font-cairo"
-          >
-            حفظ
-          </Button>,
-        ]}
-        className="dark-modal"
-        styles={{
-          header: {
-            background: '#1f1f1f',
-            color: 'white',
-            borderBottom: '1px solid #303030',
-          },
-          body: {
-            background: '#1f1f1f',
-            color: 'white',
-          },
-          footer: {
-            background: '#1f1f1f',
-            borderTop: '1px solid #303030',
-          },
-          mask: {
-            backgroundColor: 'rgba(0, 0, 0, 0.65)',
-          },
-          content: {
-            background: '#1f1f1f',
-            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.5)',
-          },
+      <CustomModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setNewCategoryName('');
         }}
+        onSave={handleSave}
+        title="إنشاء تصنيف"
       >
         <p className="mb-4 font-cairo" dir="rtl">
           استخدم التصنيفات لتنظيم مكتبتك.
         </p>
         <p
-          className="mb-4 text-sm bg-gray-800 p-2 rounded font-cairo"
+          className="mb-4 text-sm bg-gray-800 p-3 rounded font-cairo"
           dir="rtl"
         >
           بعد إنشاء تصنيف، يمكنك إضافة محتوى إليه عن طريق النقر بزر الفأرة
@@ -261,45 +287,21 @@ export default function SideBar() {
           <label htmlFor="categoryName" className="block mb-2 font-cairo">
             الاسم
           </label>
-          <Input
+          <input
             id="categoryName"
+            type="text"
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
-            autoFocus
-            className="bg-gray-700 border-gray-600 text-white"
+            className="w-full bg-gray-700 border border-gray-600 text-white rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+            placeholder="أدخل اسم التصنيف"
+            dir="rtl"
           />
         </div>
-      </Modal>
+      </CustomModal>
 
-      <style>{`
-        .dark-modal .ant-modal-content {
-          background-color: #1f1f1f !important;
-          color: white !important;
-        }
-        .dark-modal .ant-modal-header {
-          background-color: #1f1f1f !important;
-          border-bottom: 1px solid #303030 !important;
-        }
-        .dark-modal .ant-modal-title {
-          color: white !important;
-        }
-        .dark-modal .ant-modal-footer {
-          border-top: 1px solid #303030 !important;
-        }
-        .dark-modal .ant-btn-default {
-          background-color: #141414 !important;
-          border-color: #434343 !important;
-          color: white !important;
-        }
-        .dark-modal .ant-input {
-          background-color: #141414 !important;
-          border-color: #434343 !important;
-          color: white !important;
-        }
-        .dark-modal .ant-modal-close-x {
-          color: white !important;
-        }
-      `}</style>
+      <div className="absolute bottom-4 w-full text-center text-gray-400 text-md">
+        Beta Version
+      </div>
     </div>
   );
 }
