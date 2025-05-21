@@ -387,10 +387,7 @@ export default function Library() {
             className="block h-full"
             onContextMenu={(e) => handleContextMenu(e, index)}
           >
-            <Link
-              to={`/animerco/seasons/${item.path}`}
-              className="block h-full"
-            >
+            <Link to={item.path} className="block h-full">
               <div className="bg-gray-800/80 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full transform hover:scale-105">
                 <div className="relative pb-[140%] w-full">
                   <img

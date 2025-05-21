@@ -9,6 +9,7 @@ import {
   AnimesDetails,
   Season,
   Movie,
+  M,
   SeasonDetails,
   Ep,
 } from './types';
@@ -293,9 +294,17 @@ export async function getMovie(a: string) {
   const doc = parseHTML(await res.text());
   const p = doc.querySelector('.anime-card');
   const title = p?.querySelector('.image')?.getAttribute('title') || '';
+  const posterURL = p?.querySelector('.image')?.getAttribute('data-src') || '';
+  const description = doc.querySelector('.content')?.textContent?.trim() || '';
+  const genres = Array.from(doc.querySelectorAll('.genres a')).map(
+    (element) => element.textContent?.trim() || '',
+  );
 
   const movie: Movie = {
     title,
+    posterURL,
+    description,
+    genres,
   };
 
   return movie;
@@ -398,4 +407,63 @@ export async function getMp4EmbedUrl(t: string): Promise<EpisodeDetails> {
     src: src.embed_url,
   };
   return details;
+}
+
+export async function getM(t: string, nume: string) {
+  const res = await fetch(`${baseURL}movies/${t}`);
+  const doc = parseHTML(await res.text());
+  const selectedServer = doc.querySelector(
+    `ul.server-list li a[data-nume="${nume}"]`,
+  );
+  const type = selectedServer?.getAttribute('data-type') || '';
+  const post = selectedServer?.getAttribute('data-post') || '';
+
+  const req = await fetch('https://web.animerco.org/wp-admin/admin-ajax.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      Origin: 'https://web.animerco.org',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+      Accept: '*/*',
+      'Accept-Encoding': 'gzip, deflate, br, zstd',
+      'Accept-Language': 'en-US,en;q=0.7',
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: new URLSearchParams({
+      action: 'player_ajax',
+      post,
+      nume,
+      type,
+    }),
+  });
+
+  const src = await req.json();
+  const m: M = {
+    type,
+    post,
+    nume,
+    src: src.embed_url,
+  };
+  return m;
+}
+
+export async function getMovieServers(t: string) {
+  const res = await fetch(`${baseURL}movies/${t}`);
+  const doc = parseHTML(await res.text());
+  const serverNume = Array.from(doc.querySelectorAll('ul.server-list li a'))
+    .map((el) => el.getAttribute('data-nume') || '')
+    .filter((nume) => nume);
+  const serverName = Array.from(
+    doc.querySelectorAll('ul.server-list li span.server'),
+  )
+    .map((el) => el.textContent?.trim() || '')
+    .filter((name) => name);
+  const servers: Server[] = serverNume.map((nume, index) => ({
+    nume,
+    name: serverName[index],
+  }));
+  return servers;
 }

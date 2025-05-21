@@ -39,7 +39,11 @@ export default function Seasons() {
       if (!alreadyExists) {
         const updated = [
           ...existing,
-          { title: details.title, posterURL: details.posterURL, path: s },
+          {
+            title: details.title,
+            posterURL: details.posterURL,
+            path: `/animerco/seasons/${s}`,
+          },
         ];
         localStorage.setItem(storageKey, JSON.stringify(updated));
         setAdded(true);

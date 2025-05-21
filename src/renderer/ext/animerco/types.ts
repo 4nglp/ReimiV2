@@ -67,6 +67,15 @@ export type AnimesDetails = {
 };
 export type Movie = {
   title: string;
+  posterURL: string;
+  description: string;
+  genres: string[];
+};
+export type M = {
+  type: string;
+  post: string;
+  nume: string;
+  src: string;
 };
 export type Ep = {
   title: string;
