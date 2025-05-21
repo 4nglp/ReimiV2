@@ -44,7 +44,7 @@ export default function CategoryView() {
   if (series.length === 0) {
     return (
       <div className="font-cairo text-center py-20">
-        <p className="text-gray-400 text-lg" dir='rtl'>
+        <p className="text-gray-400 text-lg" dir="rtl">
           لا توجد سلاسل في التصنيف {categoryName}.
         </p>
       </div>
@@ -57,10 +57,7 @@ export default function CategoryView() {
       <div className="grid md:grid-cols-5 lg:grid-cols-6 gap-6">
         {series.map((item) => (
           <div key={`${item.title}`} className="block h-full">
-            <Link
-              to={`/animerco/seasons/${item.path}`}
-              className="block h-full"
-            >
+            <Link to={item.path} className="block h-full">
               <div className="bg-gray-800/80 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full transform hover:scale-105">
                 <div className="relative pb-[140%] w-full">
                   <img

@@ -103,6 +103,7 @@ export default function Library() {
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [isCategoryDeleteModalOpen, setIsCategoryDeleteModalOpen] =
     useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const [deleteConfirmModal, setDeleteConfirmModal] =
     useState<DeleteConfirmModalState>({
@@ -125,6 +126,8 @@ export default function Library() {
       setCategories(Array.isArray(savedCategories) ? savedCategories : []);
     } catch {
       setCategories(['']);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -369,10 +372,20 @@ export default function Library() {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-solid border-white border-t-transparent" />
+      </div>
+    );
+  }
+
   if (series.length === 0) {
     return (
       <div className="font-cairo text-center py-20">
-        <p className="text-gray-400 text-lg">لا توجد سلاسل في المكتبة بعد.</p>
+        <p className="text-gray-400 text-lg" dir="rtl">
+          لا توجد سلاسل في المكتبة بعد.
+        </p>
       </div>
     );
   }
