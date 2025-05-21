@@ -135,9 +135,9 @@ export default function Movies() {
                 <button
                   type="button"
                   onClick={addToLibrary}
-                  className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white transition-all ${
+                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg text-white transition-all h-[30px] ${
                     added
-                      ? 'bg-green-600/80 cursor-not-allowed'
+                      ? 'cursor-not-allowed'
                       : 'bg-primary hover:bg-primary/80 hover:scale-105'
                   }`}
                   disabled={added}
