@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getMovie, getM, getMovieServers } from '../ext/animerco/index';
-import { Movie, Server } from '../ext/animerco/types';
+import { getMovie, getM, getMovieServers } from '../../ext/animerco/index';
+import { Movie, Server } from '../../ext/animerco/types';
 
 export default function Movies() {
   const { a } = useParams();
@@ -135,7 +135,10 @@ export default function Movies() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-8 w-20 bg-gray-800 rounded-full animate-pulse" />
+                  <div
+                    key={i}
+                    className="h-8 w-20 bg-gray-800 rounded-full animate-pulse"
+                  />
                 ))}
               </div>
               <div className="mt-6">
@@ -145,7 +148,10 @@ export default function Movies() {
                     <div className="aspect-video w-full rounded-xl bg-gray-800 animate-pulse" />
                     <div className="grid grid-cols-6 gap-2">
                       {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-8 bg-gray-800 rounded animate-pulse" />
+                        <div
+                          key={i}
+                          className="h-8 bg-gray-800 rounded animate-pulse"
+                        />
                       ))}
                     </div>
                   </div>

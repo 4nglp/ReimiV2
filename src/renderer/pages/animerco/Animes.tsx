@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getAnimes } from '../ext/animerco/index';
-import { AnimesDetails } from '../ext/animerco/types';
+import { getAnimes } from '../../ext/animerco/index';
+import { AnimesDetails } from '../../ext/animerco/types';
 
 export default function Animes() {
   const { a } = useParams();

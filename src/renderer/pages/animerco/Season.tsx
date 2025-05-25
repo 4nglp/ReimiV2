@@ -1,8 +1,8 @@
 /* eslint-disable react/self-closing-comp */
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getSeason } from '../ext/animerco/index';
-import { SeasonDetails } from '../ext/animerco/types';
+import { getSeason } from '../../ext/animerco/index';
+import { SeasonDetails } from '../../ext/animerco/types';
 
 export default function Seasons() {
   const { s } = useParams();
@@ -91,7 +91,10 @@ export default function Seasons() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-8 w-20 bg-gray-800 rounded-full animate-pulse" />
+                  <div
+                    key={i}
+                    className="h-8 w-20 bg-gray-800 rounded-full animate-pulse"
+                  />
                 ))}
               </div>
               <div className="mt-6">

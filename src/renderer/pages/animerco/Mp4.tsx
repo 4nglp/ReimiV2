@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMp4EmbedUrl, getEpisodeControls } from '../ext/animerco';
-import { EpisodeControls } from '../ext/animerco/types';
+import { getMp4EmbedUrl, getEpisodeControls } from '../../ext/animerco';
+import { EpisodeControls } from '../../ext/animerco/types';
 
 function Container({ children }: { children: ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import SearchBar from '../components/animerco/Sb';
-import AnimeCard from '../components/animerco/AnimeCard';
-import { getResults } from '../ext/animerco/index';
-import { SearchResults } from '../ext/animerco/types';
+import SearchBar from '../../components/animerco/Sb';
+import AnimeCard from '../../components/animerco/AnimeCard';
+import { getResults } from '../../ext/animerco/index';
+import { SearchResults } from '../../ext/animerco/types';
 
 export default function SearchPage() {
   const [resultsRes, setResultsRes] = useState<SearchResults[]>([]);

@@ -1,14 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TbFileSearch } from 'react-icons/tb';
-import EpisodesListComp from '../components/animerco/EpisodesList';
-import { EpisodesList, Server, EpisodeControls } from '../ext/animerco/types';
+import EpisodesListComp from '../../components/animerco/EpisodesList';
+import {
+  EpisodesList,
+  Server,
+  EpisodeControls,
+} from '../../ext/animerco/types';
 import {
   getEpisode,
   getServers,
   getEpisodesList,
   getEpisodeControls,
-} from '../ext/animerco/index';
+} from '../../ext/animerco/index';
 
 function Watch(): React.JSX.Element {
   const navigate = useNavigate();

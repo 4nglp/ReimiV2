@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { LuArrowDownUp } from 'react-icons/lu';
-import { getDetails3asq } from '../ext/3asq/index';
-import { getDetailsLek } from '../ext/lekmanga/index';
-import { mangaDetails, Chapter } from '../types';
+import { getDetailsLek } from '../../ext/lekmanga/index';
+import { mangaDetails, Chapter } from '../../types';
 
-function EntryDetails(): React.JSX.Element {
-  const { title, source } = useParams<{
-    title: string;
-    source: '3asq' | 'lekmanga';
+function Manga(): React.JSX.Element {
+  const { m } = useParams<{
+    m: string;
   }>();
   const location = useLocation();
   const [entryDetails, setEntryDetails] = useState<mangaDetails | null>(null);
@@ -45,22 +43,17 @@ function EntryDetails(): React.JSX.Element {
 
   useEffect(() => {
     const fetchDetails = async () => {
-      if (!title || !source) {
-        setError('Title or source not found');
+      if (!m) {
+        setError('Title not found');
         setLoading(false);
         return;
       }
 
       try {
         let details: mangaDetails | null = null;
-        if (source === '3asq') {
-          details = await getDetails3asq(title);
-        } else if (source === 'lekmanga') {
-          details = await getDetailsLek(title);
-        }
-
+        details = await getDetailsLek(m);
         if (details) {
-          const aniListData = await fetchAniListData(title);
+          const aniListData = await fetchAniListData(m);
           setEntryDetails(details);
           setBanner(aniListData.bannerImage);
         } else {
@@ -74,7 +67,7 @@ function EntryDetails(): React.JSX.Element {
     };
 
     fetchDetails();
-  }, [title, source]);
+  }, [m]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -167,7 +160,7 @@ function EntryDetails(): React.JSX.Element {
                 {chapters.map((chapter: Chapter) => (
                   <li key={chapter.path} className="mb-2">
                     <Link
-                      to={`/manga/${encodeURIComponent(title || '')}/chapter/${encodeURIComponent(chapter.path)}/source/${encodeURIComponent(source || '')}`}
+                      to={`/manga/${encodeURIComponent(m || '')}/chapter/${encodeURIComponent(chapter.path)}}`}
                       className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
                     >
                       <span
@@ -190,4 +183,4 @@ function EntryDetails(): React.JSX.Element {
   );
 }
 
-export default EntryDetails;
+export default Manga;
