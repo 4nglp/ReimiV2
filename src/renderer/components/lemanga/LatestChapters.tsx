@@ -9,52 +9,51 @@ function LatestChapters(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
-  const contentRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const fetchEntries = useCallback(async (page: number) => {
     try {
-      if (page === 1) setLoading(true);
-      else setIsFetchingMore(true);
-      let data: Entry[] = [];
-      data = await getEntriesLekManga(page);
+      if (page === 1) {
+        setLoading(true);
+        setEntries([]);
+      } else {
+        setIsFetchingMore(true);
+      }
+
+      const data: Entry[] = await getEntriesLekManga(page);
       setEntries((prev) => [...prev, ...data]);
-      setLoading(false);
-      setIsFetchingMore(false);
     } catch (err) {
       setError('Failed to fetch entries');
+    } finally {
       setLoading(false);
       setIsFetchingMore(false);
     }
   }, []);
 
   useEffect(() => {
-    setEntries([]);
     fetchEntries(1);
   }, [fetchEntries]);
 
-  const handleScroll = useCallback(() => {
-    if (isFetchingMore || loading || !contentRef.current) return;
-
-    const { scrollTop, clientHeight, scrollHeight } = contentRef.current;
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      setCurrentPage((prev) => {
-        const nextPage = prev + 1;
-        fetchEntries(nextPage);
-        return nextPage;
-      });
-    }
-  }, [isFetchingMore, loading, fetchEntries]);
+  useEffect(() => {
+    if (observerRef.current) observerRef.current.disconnect();
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && !loading && !isFetchingMore) {
+          setCurrentPage((prev) => prev + 1);
+        }
+      },
+      { rootMargin: '200px' },
+    );
+    if (loadMoreRef.current) observerRef.current.observe(loadMoreRef.current);
+    return () => observerRef.current?.disconnect();
+  }, [loading, isFetchingMore]);
 
   useEffect(() => {
-    const contentDiv = contentRef.current;
-    if (!contentDiv) return;
-
-    contentDiv.addEventListener('scroll', handleScroll);
-    // eslint-disable-next-line consistent-return
-    return () => {
-      contentDiv.removeEventListener('scroll', handleScroll);
-    };
-  }, [handleScroll]);
+    if (currentPage === 1) return;
+    fetchEntries(currentPage);
+  }, [currentPage, fetchEntries]);
 
   if (loading && currentPage === 1) {
     return <p>Loading...</p>;
@@ -66,7 +65,10 @@ function LatestChapters(): React.JSX.Element {
         <p>{error}</p>
         <button
           type="button"
-          onClick={() => fetchEntries(1)}
+          onClick={() => {
+            setCurrentPage(1);
+            fetchEntries(1);
+          }}
           className="px-4 py-2 bg-red-500 text-white rounded"
         >
           Retry
@@ -76,10 +78,7 @@ function LatestChapters(): React.JSX.Element {
   }
 
   return (
-    <div
-      ref={contentRef}
-      className="flex-1 overflow-auto p-6 h-full font-cairo max-w-full overflow-x-hidden"
-    >
+    <div className="h-screen overflow-y-auto p-6 font-cairo">
       <div className="container mx-auto p-4">
         {entries.length > 0 ? (
           <div className="grid grid-cols-4 gap-2">
@@ -94,8 +93,8 @@ function LatestChapters(): React.JSX.Element {
                         className="object-cover w-full h-full"
                       />
                     )}
-                    <div className="absolute inset-0 flex flex-col justify-end items-center p-4 bg-gradient-to-t from-black/80 to-transparent hover:from-black/0 hover:to-transparent">
-                      <div className="absolute bottom-0 w-full hover:bg-black hover:bg-opacity-60 text-white text-center py-2">
+                    <div className="absolute inset-0 flex flex-col justify-end items-center p-4 bg-gradient-to-t from-black/80 to-transparent">
+                      <div className="absolute bottom-0 w-full text-white text-center py-2 bg-black bg-opacity-60 hover:bg-opacity-80">
                         {entry.title}
                       </div>
                     </div>
@@ -107,11 +106,13 @@ function LatestChapters(): React.JSX.Element {
         ) : (
           <p>No entries found</p>
         )}
+
         {isFetchingMore && (
           <div className="flex justify-center mt-4">
             <p>Loading more...</p>
           </div>
         )}
+        <div ref={loadMoreRef} className="h-1"></div>
       </div>
     </div>
   );
