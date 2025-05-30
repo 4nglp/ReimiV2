@@ -209,6 +209,13 @@ export default function SideBar() {
                     ليك مانجا
                   </div>
                 </Link>
+                <Link to="/despair-manga">
+                  <div
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/despair-manga') ? 'text-white font-semibold' : ''}`}
+                  >
+                    ديسباير
+                  </div>
+                </Link>
               </div>
             )}
           </div>

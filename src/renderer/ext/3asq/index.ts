@@ -30,7 +30,6 @@ export async function getEntries3asq(page = 1) {
   });
   return entries;
 }
-
 export async function getDetails3asq(
   entryTitle: string,
 ): Promise<mangaDetails> {
@@ -66,10 +65,29 @@ export async function getDetails3asq(
     doc
       .querySelector('.post-status .post-content_item .summary-content a')
       ?.textContent?.trim() || 'Not specified';
+
   const chapters: Chapter[] = [];
-  const chapterElements = doc.querySelectorAll(
-    '.listing-chapters_wrap .wp-manga-chapter a',
+
+  const chaptersRes = await fetch(
+    `${baseURL}manga/${formattedTitle}/ajax/chapters/?t=1`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        Accept: '*/*',
+        Origin: baseURL.replace(/\/$/, ''),
+        Referer: `${baseURL}manga/${formattedTitle}/`,
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    },
   );
+
+  const chaptersHTML = await chaptersRes.text();
+  const chapterDoc = parseHTML(chaptersHTML);
+  const chapterElements = chapterDoc.querySelectorAll('.wp-manga-chapter a');
+
   chapterElements.forEach((e) => {
     const chapterTitle = e.textContent?.trim() || '';
     const chapterFullPath = e.getAttribute('href') || '';
