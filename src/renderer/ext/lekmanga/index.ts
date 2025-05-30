@@ -66,15 +66,12 @@ export async function getDetailsLek(entryTitle: string): Promise<mangaDetails> {
   const pubYear = '-';
   const chapters: Chapter[] = [];
   const chapterElements = doc.querySelectorAll(
-    '.main.version-chap .wp-manga-chapter a',
+    '.version-chap span.chapter-release-date span.new-tag a',
   );
   chapterElements.forEach((e) => {
     const chapterTitle = e.textContent?.trim() || '';
     const chapterFullPath = e.getAttribute('href') || '';
-    const chapterPath = new URL(chapterFullPath, baseURL).pathname.replace(
-      /^\/+/,
-      '',
-    );
+    const chapterPath = chapterFullPath.split('/').pop();
     if (chapterTitle && chapterPath) {
       chapters.push({ title: chapterTitle, path: chapterPath, pages: [] });
     }
@@ -94,8 +91,8 @@ export async function getDetailsLek(entryTitle: string): Promise<mangaDetails> {
   return details;
 }
 
-export async function getChapter(chapterPath: string) {
-  const res = await fetch(baseURL + chapterPath);
+export async function getChapter(m: string, n: string) {
+  const res = await fetch(`${baseURL}/manga/${m}/${n}`);
   const doc = parseHTML(await res.text());
 
   const titleElement = doc.querySelector('h1#chapter-heading');
@@ -113,7 +110,7 @@ export async function getChapter(chapterPath: string) {
 
   return {
     title,
-    path: chapterPath,
+    path: n,
     pages,
   };
 }

@@ -81,6 +81,7 @@ function Manga(): React.JSX.Element {
   const chapters = reverseOrder
     ? [...entryDetails.chapters].reverse()
     : entryDetails.chapters;
+  console.log(entryDetails.chapters);
 
   return (
     <>
@@ -160,7 +161,7 @@ function Manga(): React.JSX.Element {
                 {chapters.map((chapter: Chapter) => (
                   <li key={chapter.path} className="mb-2">
                     <Link
-                      to={`/manga/${encodeURIComponent(m || '')}/chapter/${encodeURIComponent(chapter.path)}}`}
+                      to={`/lekmanga/read/${m}/${chapter.path}`}
                       className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
                     >
                       <span
@@ -168,13 +169,14 @@ function Manga(): React.JSX.Element {
                         style={{ fontFamily: 'Amiri' }}
                       >
                         {chapter.title}
+                        {chapter.path}
                       </span>
                     </Link>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p>j</p>
+              <p>help</p>
             )}
           </div>
         </div>
