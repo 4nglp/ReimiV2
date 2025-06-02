@@ -2,7 +2,7 @@
 import { Pinned, Latest } from './types';
 
 const baseURL = 'https://despair-manga.com/';
-const ext = 'despair-manga';
+const ext = 'despair';
 const parser = new DOMParser();
 const parseHTML = (html: string) => parser.parseFromString(html, 'text/html');
 
@@ -27,40 +27,27 @@ export async function getPinnedEntries() {
   return pinned;
 }
 
-export async function getLatestUpdates() {
-  const res = await fetch(`${baseURL}`);
+export async function getLatestUpdates(page = 1) {
+  const res = await fetch(`${baseURL}all-manga/page/${page}`);
   const doc = parseHTML(await res.text());
-  const latest: Latest[] = [];
+  const entries: Latest[] = [];
 
   doc.querySelectorAll('.bsx').forEach((e) => {
     const title = e.querySelector('a')?.getAttribute('title') || '';
-    const posterUrl = e.querySelector('.limit img')?.getAttribute('src') || '';
+    const posterUrl = e.querySelector('img')?.getAttribute('src') || '';
     const href = e.querySelector('a')?.getAttribute('href') || '';
     const path =
       href
         .split('/')
         .filter((segment) => segment)
         .pop() || '';
-    const chapterSelectors = [
-      '.bigor ul.chfiv a span.fivchap',
-      '.bigor .chfiv span.fivchap',
-      '.chfiv span.fivchap',
-      'span.fivchap',
-      '.fivchap',
-    ];
-
-    let latestChapter = '';
-    for (const selector of chapterSelectors) {
-      const element = e.querySelector(selector);
-      if (element) {
-        latestChapter = element.textContent || '';
-        break;
-      }
-    }
+    const latestChapter =
+      e.querySelector('.epxs')?.textContent?.split(' ').pop() || '';
     if (title && path && posterUrl && latestChapter) {
-      latest.push({ title, path, posterUrl, latestChapter });
+      entries.push({ title, path, posterUrl, latestChapter });
     }
   });
+  console.log(entries);
 
-  return latest;
+  return entries;
 }

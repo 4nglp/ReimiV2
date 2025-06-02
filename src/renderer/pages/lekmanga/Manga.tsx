@@ -169,7 +169,6 @@ function Manga(): React.JSX.Element {
                         style={{ fontFamily: 'Amiri' }}
                       >
                         {chapter.title}
-                        {chapter.path}
                       </span>
                     </Link>
                   </li>

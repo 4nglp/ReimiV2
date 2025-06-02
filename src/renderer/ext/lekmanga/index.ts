@@ -1,4 +1,5 @@
-import { Entry, mangaDetails, Chapter } from '../../types';
+import { mangaDetails, Chapter } from '../../types';
+import { Latest } from '../manga/types';
 
 const baseURL = 'https://lekmanga.net/';
 const ext = 'lekmanga';
@@ -8,10 +9,8 @@ const parseHTML = (html: string) => parser.parseFromString(html, 'text/html');
 export async function getEntriesLekManga(page = 1) {
   const res = await fetch(`${baseURL}page/${page}`);
   const doc = parseHTML(await res.text());
-  const entries: Entry[] = [];
-
+  const entries: Latest[] = [];
   const elements = doc.querySelectorAll('.page-item-detail.manga');
-
   elements.forEach((e) => {
     const title =
       e.querySelector('.item-thumb.c-image-hover a')?.getAttribute('title') ||
@@ -22,12 +21,15 @@ export async function getEntriesLekManga(page = 1) {
         ?.getAttribute('href')
         ?.split('/')
         .at(-2) || '';
-    const posterURL =
+    const posterUrl =
       e.querySelector('.item-thumb.c-image-hover img')?.getAttribute('src') ||
       '';
+    const latestChapter =
+      e.querySelector('.list-chapter .chapter-item a')?.textContent?.trim() ||
+      '';
 
-    if (title && path && posterURL) {
-      entries.push({ ext, title, path, posterURL });
+    if (title && path && posterUrl && latestChapter) {
+      entries.push({ title, path, posterUrl, latestChapter });
     }
   });
 
@@ -40,6 +42,7 @@ export async function getDetailsLek(entryTitle: string): Promise<mangaDetails> {
 
   const res = await fetch(detailsURL);
   const doc = parseHTML(await res.text());
+  console.log(doc);
 
   const mangaTitle =
     doc.querySelector('.post-title h1')?.textContent?.trim() || '';
@@ -65,13 +68,12 @@ export async function getDetailsLek(entryTitle: string): Promise<mangaDetails> {
       .map((genre) => genre.trim()) || [];
   const pubYear = '-';
   const chapters: Chapter[] = [];
-  const chapterElements = doc.querySelectorAll(
-    '.version-chap span.chapter-release-date span.new-tag a',
-  );
+
+  const chapterElements = doc.querySelectorAll('li.wp-manga-chapter a');
   chapterElements.forEach((e) => {
     const chapterTitle = e.textContent?.trim() || '';
     const chapterFullPath = e.getAttribute('href') || '';
-    const chapterPath = chapterFullPath.split('/').pop();
+    const chapterPath = chapterFullPath.split('/').filter(Boolean).pop();
     if (chapterTitle && chapterPath) {
       chapters.push({ title: chapterTitle, path: chapterPath, pages: [] });
     }

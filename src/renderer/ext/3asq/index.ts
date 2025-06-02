@@ -1,4 +1,5 @@
 import { Entry, Chapter, mangaDetails } from '../../types';
+import { Pinned, Latest } from './types';
 
 const baseURL = 'https://3asq.org/';
 const ext = '3asq';
@@ -8,10 +9,9 @@ const parseHTML = (html: string) => parser.parseFromString(html, 'text/html');
 export async function getEntries3asq(page = 1) {
   const res = await fetch(`${baseURL}page/${page}`);
   const doc = parseHTML(await res.text());
-  const entries: Entry[] = [];
+  const entries: Latest[] = [];
 
   const elements = doc.querySelectorAll('.page-item-detail.manga');
-
   elements.forEach((e) => {
     const title = e.querySelector('.item-thumb a')?.getAttribute('title') || '';
     const path =
@@ -22,14 +22,17 @@ export async function getEntries3asq(page = 1) {
         .at(-2) || '';
     const posterURLs =
       e.querySelector('.item-thumb img')?.getAttribute('srcset') || '';
-    const posterURL = posterURLs.split(', ').at(-1)?.split(' ').at(0);
-
-    if (title && path && posterURL) {
-      entries.push({ ext, title, path, posterURL });
+    const posterUrl = posterURLs.split(', ').at(-1)?.split(' ').at(0);
+    const latestChapter =
+      e.querySelector('.list-chapter .chapter-item a')?.textContent?.trim() ||
+      '';
+    if (title && path && posterUrl && latestChapter) {
+      entries.push({ ext, title, path, posterUrl, latestChapter });
     }
   });
   return entries;
 }
+
 export async function getDetails3asq(
   entryTitle: string,
 ): Promise<mangaDetails> {
@@ -187,4 +190,33 @@ export async function getResults(q: string, page = 1) {
     }
   });
   return entries;
+}
+
+export async function getPinnedEntries() {
+  const res = await fetch(`${baseURL}`);
+  const doc = parseHTML(await res.text());
+  const pinned: Pinned[] = [];
+
+  doc.querySelectorAll('.slider__item').forEach((e) => {
+    const title =
+      e
+        .querySelector('slider__content .slider__content_item .post-title a')
+        ?.getAttribute('title') || '';
+    const posterUrl =
+      e
+        .querySelector(
+          '.slider__thumb .slider__thumb_item a img.img-responsive',
+        )
+        ?.getAttribute('src') || '';
+    const href = e.querySelector('a')?.getAttribute('href') || '';
+    const path =
+      href
+        .split('/')
+        .filter((segment) => segment)
+        .pop() || '';
+    if (title && path && posterUrl) {
+      pinned.push({ title, path, posterUrl });
+    }
+  });
+  return pinned;
 }

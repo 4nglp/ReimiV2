@@ -195,23 +195,23 @@ export default function SideBar() {
             </div>
             {isMangaOpen && (
               <div className="mr-8 mt-1" dir="rtl">
-                <Link to="/entries/3asq">
+                <Link to="/3asq">
                   <div
-                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/entries/3asq') ? 'text-white font-semibold' : ''}`}
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/3asq') ? 'text-white font-semibold' : ''}`}
                   >
                     العاشق
                   </div>
                 </Link>
                 <Link to="/lekmanga">
                   <div
-                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/entries/lekmanga') ? 'text-white font-semibold' : ''}`}
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/lekmanga') ? 'text-white font-semibold' : ''}`}
                   >
                     ليك مانجا
                   </div>
                 </Link>
-                <Link to="/despair-manga">
+                <Link to="/despair">
                   <div
-                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/despair-manga') ? 'text-white font-semibold' : ''}`}
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/despair') ? 'text-white font-semibold' : ''}`}
                   >
                     ديسباير
                   </div>

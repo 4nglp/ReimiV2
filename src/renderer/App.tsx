@@ -20,7 +20,7 @@ import CategoryView from './pages/CategoryView';
 import LekManga from './pages/lekmanga/LekManga';
 import Manga from './pages/lekmanga/Manga';
 import Read from './pages/lekmanga/Read';
-import Home from './pages/Home';
+import Home from './pages/manga/Home';
 
 export default function App() {
   return (
@@ -42,11 +42,13 @@ export default function App() {
             <Route path="/animerco/seasons/:s" element={<Seasons />} />
             <Route path="/es/:t" element={<Mp4 />} />
             {/* lekmanga */}
-            <Route path="/lekmanga" element={<LekManga />} />
+            {/* <Route path="/lekmanga" element={<LekManga />} /> */}
             <Route path="lekmanga/manga/:m/" element={<Manga />} />
             <Route path="/lekmanga/read/:m/:n" element={<Read />} />
-            {/* old routes */}
-            <Route path="/despair-manga" element={<Home />} />
+            {/* manga  */}
+            <Route path="/:s" element={<Home />} />
+            <Route path="/:s/manga/:m/" element={<Manga />} />
+            <Route path="/:s/read/:m/:n" element={<Read />} />
             {/* old routes */}
             <Route path="/entries/:source" element={<EntryList />} />
             <Route
