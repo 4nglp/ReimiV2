@@ -43,7 +43,6 @@ export async function getDetailsLek(entryTitle: string): Promise<mangaDetails> {
 
   const res = await fetch(detailsURL);
   const doc = parseHTML(await res.text());
-  console.log(doc);
 
   const mangaTitle =
     doc.querySelector('.post-title h1')?.textContent?.trim() || '';
