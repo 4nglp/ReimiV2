@@ -27,7 +27,7 @@ export async function getEntries3asq(page = 1) {
       e.querySelector('.list-chapter .chapter-item a')?.textContent?.trim() ||
       '';
     if (title && path && posterUrl && latestChapter) {
-      entries.push({ ext, title, path, posterUrl, latestChapter });
+      entries.push({ title, path, posterUrl, latestChapter });
     }
   });
   return entries;
@@ -197,26 +197,35 @@ export async function getPinnedEntries() {
   const doc = parseHTML(await res.text());
   const pinned: Pinned[] = [];
 
-  doc.querySelectorAll('.slider__item').forEach((e) => {
+  doc.querySelectorAll('.slider__item .item__wrap').forEach((itemWrap) => {
     const title =
-      e
-        .querySelector('slider__content .slider__content_item .post-title a')
-        ?.getAttribute('title') || '';
-    const posterUrl =
-      e
-        .querySelector(
-          '.slider__thumb .slider__thumb_item a img.img-responsive',
-        )
-        ?.getAttribute('src') || '';
-    const href = e.querySelector('a')?.getAttribute('href') || '';
-    const path =
-      href
-        .split('/')
-        .filter((segment) => segment)
-        .pop() || '';
+      itemWrap.querySelector('.post-title a')?.textContent?.trim() || '';
+    const href =
+      itemWrap.querySelector('.post-title a')?.getAttribute('href') || '';
+    const path = href.split('/').filter(Boolean).pop() || '';
+    const imgEl = itemWrap.querySelector('.slider__thumb_item img');
+    let posterUrl = imgEl?.getAttribute('src') || '';
+    const srcset = imgEl?.getAttribute('srcset') || '';
+
+    if (srcset) {
+      const sources = srcset
+        .split(',')
+        .map((s) => s.trim().split(' '))
+        .filter((pair) => pair.length === 2)
+        .map(([url, size]) => ({
+          url,
+          width: parseInt(size.replace('w', ''), 10),
+        }))
+        .sort((a, b) => b.width - a.width);
+
+      if (sources.length > 0) {
+        posterUrl = sources[0].url;
+      }
+    }
     if (title && path && posterUrl) {
       pinned.push({ title, path, posterUrl });
     }
   });
+
   return pinned;
 }

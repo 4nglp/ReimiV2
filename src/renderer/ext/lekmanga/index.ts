@@ -1,5 +1,6 @@
 import { mangaDetails, Chapter } from '../../types';
 import { Latest } from '../manga/types';
+import pins from './pins.json';
 
 const baseURL = 'https://lekmanga.net/';
 const ext = 'lekmanga';
@@ -115,4 +116,12 @@ export async function getChapter(m: string, n: string) {
     path: n,
     pages,
   };
+}
+
+export function getPinnedEntries() {
+  return pins.map((pin) => ({
+    title: pin.title,
+    posterUrl: pin.posterUrl,
+    path: pin.path,
+  }));
 }
