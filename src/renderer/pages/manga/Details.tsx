@@ -13,6 +13,7 @@ function Details(): React.JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [reverseOrder, setReverseOrder] = useState<boolean>(false);
+  const [added, setAdded] = useState(false);
 
   async function fetchAniListData(searchTitle: string) {
     const query = `
@@ -61,6 +62,13 @@ function Details(): React.JSX.Element {
           const aniListData = await fetchAniListData(m);
           setEntryDetails(details);
           setBanner(aniListData.bannerImage);
+
+          const storageKey = 'all series';
+          const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+          const alreadyExists = existing.some(
+            (item: any) => item.title === details.title,
+          );
+          setAdded(alreadyExists);
         } else {
           setError('No details found');
         }
@@ -80,112 +88,283 @@ function Details(): React.JSX.Element {
     setReverseOrder(params.get('reverse') === 'true');
   }, [location.search]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-  if (!entryDetails) return <p>No details available</p>;
+  const addToLibrary = () => {
+    if (!entryDetails) return;
+    const storageKey = 'all series';
+    try {
+      const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const alreadyExists = existing.some(
+        (item: any) => item.title === entryDetails.title,
+      );
+      if (!alreadyExists) {
+        const updated = [
+          ...existing,
+          {
+            title: entryDetails.title,
+            posterURL: entryDetails.posterURL,
+            path: `/${s}/manga/${m}`,
+          },
+        ];
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+        setAdded(true);
+      }
+    } catch (e) {
+      console.error('Failed to add to library', e);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="font-cairo" dir="rtl">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-row gap-8 mt-6">
+            <div className="w-1/4">
+              <div className="mb-3">
+                <div className="w-full aspect-[2/3] rounded-lg bg-gray-800 animate-pulse" />
+              </div>
+              <div className="bg-gray-800/80 rounded-lg p-4 mb-3">
+                <div className="h-6 w-24 bg-gray-700 rounded animate-pulse mx-auto" />
+              </div>
+              <div className="bg-gray-800/80 rounded-lg p-4">
+                <div className="h-[30px] bg-gray-700 rounded-lg animate-pulse" />
+              </div>
+            </div>
+            <div className="md:w-3/4">
+              <div className="flex mb-3 mt-3">
+                <div className="container mx-auto">
+                  <div className="h-10 w-3/4 bg-gray-800 rounded animate-pulse" />
+                </div>
+              </div>
+              <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-3" />
+              <div className="bg-gray-800/80 rounded-lg p-6 mb-3">
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-700 rounded w-full animate-pulse" />
+                  <div className="h-4 bg-gray-700 rounded w-5/6 animate-pulse" />
+                  <div className="h-4 bg-gray-700 rounded w-4/6 animate-pulse" />
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="h-8 w-20 bg-gray-800 rounded-full animate-pulse"
+                  />
+                ))}
+              </div>
+              <div className="mt-6">
+                <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-3" />
+                <div className="bg-gray-800/80 rounded-xl shadow-lg overflow-y-auto max-h-96">
+                  <div className="divide-y divide-gray-700/50">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1">
+                            <div className="h-5 w-3/4 bg-gray-700 rounded animate-pulse mb-2" />
+                            <div className="h-6 w-8 bg-gray-700 rounded-full animate-pulse" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto h-screen flex items-center justify-center font-cairo">
+        <div className="text-center p-8 bg-gray-800 rounded-xl max-w-lg">
+          <h2 className="text-xl font-bold mb-2">حدث خطأ</h2>
+          <p className="text-gray-400">{error}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-6 px-4 py-2 bg-primary rounded-lg text-white hover:bg-primary/80 transition-colors"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!entryDetails) return null;
 
   const chapters = reverseOrder
     ? [...entryDetails.chapters].reverse()
     : entryDetails.chapters;
 
   return (
-    <>
-      <div className="relative w-full h-[400px] bg-cover bg-center">
-        {banner && (
-          <img
-            src={banner}
-            alt="Banner"
-            className="w-full h-[400px] object-cover opacity-85"
-          />
-        )}
-        <div className="absolute inset-0 flex items-center justify-between p-6 bg-gradient-to-t from-black to-transparent">
-          <div className="flex-1 ml-4 text-white text-right pr-5">
-            <h1 className="text-5xl font-bold">{entryDetails.title}</h1>
-            <p
-              className="text-lg mt-2"
-              style={{ fontFamily: 'Amiri' }}
-              dir="rtl"
-            >
-              {entryDetails.description || 'لا وصف متوفر'}
-            </p>
-            <h3
-              className="text-lg font-bold mt-1"
-              style={{ fontFamily: 'Amiri' }}
-            >
-              {entryDetails.author || 'لا كاتب متوفر'} |{' '}
-              {entryDetails.pubYear || 'سنة النشر غير متوفرة'}
-            </h3>
-            <div className="flex justify-end flex-wrap gap-2 pt-2">
+    <div className="font-cairo" dir="rtl">
+      <div className="container mx-auto px-6">
+        <div className="flex flex-row gap-8 mt-6">
+          <div className="w-1/4">
+            <div className="mb-3">
+              {entryDetails.posterURL && (
+                <img
+                  src={entryDetails.posterURL}
+                  alt={`${entryDetails.title} Poster`}
+                  className="w-full rounded-lg shadow-md"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+              )}
+            </div>
+            <div className="bg-gray-800/80 rounded-lg p-4 mb-3">
+              <div className="text-center">
+                <div className="flex items-center justify-center">
+                  <span className="text-white-400 text-md">
+                    مجموع الفصول: {entryDetails.chapters.length}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-800/80 rounded-lg p-4">
+              <div className="flex flex-wrap gap-2 justify-center">
+                <button
+                  type="button"
+                  onClick={addToLibrary}
+                  className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white transition-all h-[30px] ${
+                    added
+                      ? 'cursor-not-allowed'
+                      : 'bg-primary hover:bg-primary/80 hover:scale-105'
+                  }`}
+                  disabled={added}
+                >
+                  {added ? (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>مضاف للمكتبة</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <span>اضف للمكتبة</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="md:w-3/4">
+            <div className="flex mb-3 mt-3">
+              <div className="container mx-auto">
+                <h2 className="text-4xl">{entryDetails.title}</h2>
+              </div>
+            </div>
+            <h2 className="text-xl font-bold border-s-4 border-primary rounded-sm ps-3 mb-3">
+              التفاصيل
+            </h2>
+            <div className="bg-gray-800/80 rounded-lg p-6 mb-3">
+              <p className="text-gray-300 leading-relaxed text-justify">
+                {entryDetails.description || 'لا وصف متوفر'}
+              </p>
+              {entryDetails.author && (
+                <p className="text-gray-300 leading-relaxed text-justify mt-2">
+                  <strong>الكاتب:</strong> {entryDetails.author}
+                </p>
+              )}
+              {entryDetails.pubYear && (
+                <p className="text-gray-300 leading-relaxed text-justify mt-2">
+                  <strong>سنة النشر:</strong> {entryDetails.pubYear}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
               {entryDetails.genres.map((genre) => (
-                <div
+                <span
                   key={genre}
-                  className="bg-black bg-opacity-50 text-lg rounded-lg px-3"
-                  style={{ fontFamily: 'Amiri' }}
+                  className="px-4 py-2 bg-gray-700 rounded-full text-sm font-medium hover:bg-gray-600 transition-colors"
                 >
                   {genre}
-                </div>
+                </span>
               ))}
             </div>
-            <h3
-              className="text-lg text-white-200 font-bold mt-1"
-              style={{ fontFamily: 'Amiri' }}
-            >
-              مجموع الفصول: {entryDetails.chapters.length}
-            </h3>
-          </div>
-          <div className="w-[200px] h-[300px]">
-            {entryDetails.posterURL && (
-              <img
-                src={entryDetails.posterURL}
-                alt={`Cover for ${entryDetails.title}`}
-                className="w-full h-full object-cover rounded-md"
-              />
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="container mx-auto p-4">
-        <div className="mt-2">
-          <h2
-            className="text-2xl font-bold mb-4 flex items-center justify-end"
-            style={{ fontFamily: 'Amiri' }}
-          >
-            <Link
-              to={{
-                pathname: location.pathname,
-                search: `?reverse=${!reverseOrder}`,
-              }}
-            >
-              <LuArrowDownUp className="ml-2 text-xl mr-2" />
-            </Link>
-            الفصول
-          </h2>
-          <div dir="rtl">
-            {chapters.length > 0 ? (
-              <ul className="grid grid-cols-4 gap-4">
-                {chapters.map((chapter: Chapter) => (
-                  <li key={chapter.path} className="mb-2">
-                    <Link
-                      to={`/${s}/read/${m}/${chapter.path}`}
-                      className="flex items-center justify-between p-2 rounded-md group hover:bg-gray-800 transition w-full"
-                    >
-                      <span
-                        className="w-full text-right text-xl"
-                        style={{ fontFamily: 'Amiri' }}
+            <div className="mt-6">
+              <h2 className="text-xl font-bold border-s-4 border-primary rounded-sm ps-3 mb-3 flex items-center">
+                <Link
+                  to={{
+                    pathname: location.pathname,
+                    search: `?reverse=${!reverseOrder}`,
+                  }}
+                  className="ml-2"
+                >
+                  <LuArrowDownUp className="text-xl hover:text-primary transition-colors" />
+                </Link>
+                قائمة الفصول
+              </h2>
+              {chapters.length > 0 ? (
+                <div className="bg-gray-800/80 rounded-xl shadow-lg overflow-y-auto max-h-96">
+                  <div className="divide-y divide-gray-700/50">
+                    {chapters.map((chapter: Chapter, index: number) => (
+                      <Link
+                        to={`/${s}/read/${m}/${chapter.path}`}
+                        key={chapter.path}
+                        className="block hover:bg-gray-700 transition-all duration-200"
                       >
-                        {chapter.title}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>لا توجد فصول</p>
-            )}
+                        <div className="flex items-center gap-4 p-4">
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-lg font-medium">
+                                {chapter.title}
+                              </h3>
+                              <span className="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full text-xs font-bold">
+                                {reverseOrder
+                                  ? chapters.length - index
+                                  : index + 1}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-8 text-center bg-gray-800/80 rounded-xl">
+                  <h3 className="text-xl font-medium text-gray-400 mb-2">
+                    لا توجد فصول متاحة
+                  </h3>
+                  <p className="text-gray-500">سيتم إضافة الفصول قريباً</p>
+                </div>
+              )}
+            </div>
+            <div className="mb-10" />
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
