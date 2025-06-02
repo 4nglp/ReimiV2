@@ -97,10 +97,8 @@ export async function getDetails3asq(
   chapterElements.forEach((e) => {
     const chapterTitle = e.textContent?.trim() || '';
     const chapterFullPath = e.getAttribute('href') || '';
-    const chapterPath = new URL(chapterFullPath, baseURL).pathname.replace(
-      /^\/+/,
-      '',
-    );
+    const chapterPath = chapterFullPath.split('/').filter(Boolean).pop() || '';
+
     if (chapterTitle && chapterPath) {
       chapters.push({ title: chapterTitle, path: chapterPath, pages: [] });
     }
@@ -121,14 +119,13 @@ export async function getDetails3asq(
   return details;
 }
 
-export async function getChapter(chapterPath: string, mangaTitle: string) {
-  const res = await fetch(baseURL + chapterPath);
+export async function getChapter(m: string, n: string) {
+  const fullChapterPath = `${m}/${n}`;
+  const res = await fetch(`${baseURL}/manga/${fullChapterPath}`);
   const doc = parseHTML(await res.text());
 
   const titleElement = doc.querySelector('h1#chapter-heading');
-  const title = titleElement
-    ? titleElement.textContent?.trim()
-    : 'Untitled Chapter';
+  const title = titleElement?.textContent?.trim() || 'Untitled Chapter';
 
   const pages: string[] = [];
   doc.querySelectorAll('.page-break img').forEach((img) => {
@@ -139,26 +136,29 @@ export async function getChapter(chapterPath: string, mangaTitle: string) {
   });
 
   const extractChapterNumber = (path: string) => {
-    const match = path.match(/(\d+)$/);
+    const match = path.match(/(\d+)(?!.*\d)/);
     return match ? parseInt(match[0], 10) : null;
   };
 
-  const currentChapterNumber = extractChapterNumber(chapterPath);
+  const currentChapterNumber = extractChapterNumber(n);
 
   let nextChapterPath: string | null = null;
   let prevChapterPath: string | null = null;
 
-  if (currentChapterNumber) {
+  if (currentChapterNumber !== null) {
     const nextChapterNumber = currentChapterNumber + 1;
     const prevChapterNumber = currentChapterNumber - 1;
 
-    nextChapterPath = `/manga/${mangaTitle}/chapter/${nextChapterNumber}`;
-    prevChapterPath = `/manga/${mangaTitle}/chapter/${prevChapterNumber}`;
+    nextChapterPath = `/manga/${m}/${n.replace(/\d+(?!.*\d)/, nextChapterNumber.toString())}`;
+    prevChapterPath =
+      prevChapterNumber > 0
+        ? `/manga/${m}/${n.replace(/\d+(?!.*\d)/, prevChapterNumber.toString())}`
+        : null;
   }
 
   return {
     title,
-    path: chapterPath,
+    path: fullChapterPath,
     pages,
     nextChapterPath,
     prevChapterPath,

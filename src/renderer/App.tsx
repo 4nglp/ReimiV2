@@ -17,9 +17,9 @@ import Movies from './pages/animerco/Movies';
 import Seasons from './pages/animerco/Season';
 import Mp4 from './pages/animerco/Mp4';
 import CategoryView from './pages/CategoryView';
-import Read from './pages/lekmanga/Read';
 import Home from './pages/manga/Home';
 import Details from './pages/manga/Details';
+import Read from './pages/manga/Read';
 
 export default function App() {
   return (
@@ -42,7 +42,6 @@ export default function App() {
             <Route path="/es/:t" element={<Mp4 />} />
             {/* lekmanga */}
             {/* <Route path="/lekmanga" element={<LekManga />} /> */}
-            <Route path="/lekmanga/read/:m/:n" element={<Read />} />
             {/* manga  */}
             <Route path="/:s" element={<Home />} />
             <Route path="/:s/manga/:m/" element={<Details />} />
