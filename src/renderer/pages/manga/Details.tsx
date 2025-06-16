@@ -9,34 +9,10 @@ function Details(): React.JSX.Element {
   const { m, s } = useParams<{ m: string; s: string }>();
   const location = useLocation();
   const [entryDetails, setEntryDetails] = useState<mangaDetails | null>(null);
-  const [banner, setBanner] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [reverseOrder, setReverseOrder] = useState<boolean>(false);
   const [added, setAdded] = useState(false);
-
-  async function fetchAniListData(searchTitle: string) {
-    const query = `
-      query ($title: String) {
-        Media (search: $title, type: MANGA) {
-          bannerImage
-        }
-      }
-    `;
-    const variables = { title: searchTitle };
-    const res = await fetch('https://graphql.anilist.co', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({ query, variables }),
-    });
-    const data = await res.json();
-    return {
-      bannerImage: data.data.Media?.bannerImage || null,
-    };
-  }
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -59,10 +35,7 @@ function Details(): React.JSX.Element {
         }
 
         if (details) {
-          const aniListData = await fetchAniListData(m);
           setEntryDetails(details);
-          setBanner(aniListData.bannerImage);
-
           const storageKey = 'all series';
           const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
           const alreadyExists = existing.some(
@@ -193,7 +166,7 @@ function Details(): React.JSX.Element {
     );
   }
 
-  if (!entryDetails) return null;
+  if (!entryDetails) return <>a</>;
 
   const chapters = reverseOrder
     ? [...entryDetails.chapters].reverse()
@@ -313,21 +286,21 @@ function Details(): React.JSX.Element {
             </div>
             <div className="mt-6">
               <h2 className="text-xl font-bold border-s-4 border-primary rounded-sm ps-3 mb-3 flex items-center">
+                قائمة الفصول
                 <Link
                   to={{
                     pathname: location.pathname,
                     search: `?reverse=${!reverseOrder}`,
                   }}
-                  className="ml-2"
+                  className="ml-4"
                 >
                   <LuArrowDownUp className="text-xl hover:text-primary transition-colors" />
                 </Link>
-                قائمة الفصول
               </h2>
               {chapters.length > 0 ? (
                 <div className="bg-gray-800/80 rounded-xl shadow-lg overflow-y-auto max-h-96">
                   <div className="divide-y divide-gray-700/50">
-                    {chapters.map((chapter: Chapter, index: number) => (
+                    {chapters.map((chapter: Chapter) => (
                       <Link
                         to={`/${s}/read/${m}/${chapter.path}`}
                         key={chapter.path}
@@ -339,11 +312,6 @@ function Details(): React.JSX.Element {
                               <h3 className="text-lg font-medium">
                                 {chapter.title}
                               </h3>
-                              <span className="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full text-xs font-bold">
-                                {reverseOrder
-                                  ? chapters.length - index
-                                  : index + 1}
-                              </span>
                             </div>
                           </div>
                         </div>

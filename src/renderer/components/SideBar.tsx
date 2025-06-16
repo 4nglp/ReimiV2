@@ -113,8 +113,8 @@ export default function SideBar() {
     };
   }, [navigate]);
 
-  const isActive = (path: any) => {
-    return location.pathname === path;
+  const isActive = (path: string) => {
+    return location.pathname.startsWith(path);
   };
 
   const showModal = () => {
