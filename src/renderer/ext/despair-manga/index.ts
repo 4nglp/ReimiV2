@@ -1,8 +1,7 @@
 /* eslint-disable no-restricted-syntax */
-import { Pinned, Latest } from './types';
+import { Pinned, Latest, Chapter, Details } from './types';
 
 const baseURL = 'https://despair-manga.com/';
-const ext = 'despair';
 const parser = new DOMParser();
 const parseHTML = (html: string) => parser.parseFromString(html, 'text/html');
 
@@ -47,7 +46,68 @@ export async function getLatestUpdates(page = 1) {
       entries.push({ title, path, posterUrl, latestChapter });
     }
   });
-  console.log(entries);
-
   return entries;
+}
+
+export async function getDetailsDespair(m: string): Promise<Details> {
+  const d = `${baseURL}manga/${m}/`;
+  const res = await fetch(d);
+  const doc = parseHTML(await res.text());
+
+  const title = doc.querySelector('h1.entry-title')?.textContent?.trim() || '';
+  const posterURL =
+    doc.querySelector('img.wp-post-image')?.getAttribute('src') || '';
+  console.log(posterURL);
+  const description =
+    doc.querySelector('.entry-content-single p')?.textContent?.trim() || '';
+  const genres = Array.from(doc.querySelectorAll('.mgen a')).map(
+    (a) => a.textContent?.trim() || '',
+  );
+  const chapters: Chapter[] = [];
+  const chapterElements = doc.querySelectorAll('.eph-num a');
+  chapterElements.forEach((e) => {
+    const chapterTitle =
+      e.querySelector('span.chapternum')?.textContent?.trim() || '';
+    const chapterFullPath = e.getAttribute('href') || '';
+    const chapterPath = chapterFullPath.split('/').filter(Boolean).pop() || '';
+
+    if (chapterTitle && chapterPath) {
+      chapters.push({ title: chapterTitle, path: chapterPath });
+    }
+  });
+  chapters.shift();
+  // to remove the first element of the array unwanted data
+  const details: Details = {
+    title,
+    description,
+    posterURL,
+    chapters,
+    genres,
+  };
+  return details;
+}
+
+export async function getChapter(n: string) {
+  const res = await fetch(`${baseURL}/${n}`);
+  const html = await res.text();
+  const doc = parseHTML(html);
+  const title = doc.querySelector('h1.entry-title')?.textContent?.trim() || '';
+  const scriptTag = html.match(/ts_reader\.run\((\{.*?\})\);/s);
+  let pages: string[] = [];
+  if (scriptTag) {
+    try {
+      const jsonString = scriptTag[1];
+      const readerData = JSON.parse(jsonString);
+      const source = readerData.sources?.[0];
+      if (source && Array.isArray(source.images)) {
+        pages = source.images.map((img: string) => img.trim());
+      }
+    } catch (err) {
+      console.error('Error parsing ts_reader JSON:', err);
+    }
+  }
+  return {
+    title,
+    pages,
+  };
 }

@@ -10,3 +10,16 @@ export type Latest = {
   path: string;
   latestChapter: string;
 };
+
+export type Chapter = {
+  title: string;
+  path: string;
+};
+
+export type Details = {
+  title: string;
+  posterURL: string;
+  description: string;
+  genres: string[];
+  chapters: Chapter[];
+};

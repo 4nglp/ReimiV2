@@ -9,7 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Chapter } from '../../ext/lekmanga/types';
 import { getChapter as getChapterLek } from '../../ext/lekmanga';
 import { getChapter as getChapter3asq } from '../../ext/3asq';
-
+import { getChapter as getChapterDespair } from '../../ext/despair-manga';
 function Container({ children }: { children: ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ function Container({ children }: { children: ReactNode }) {
 }
 
 function Read(): React.JSX.Element {
-  const { s, m, n } = useParams(); // <-- get source `s` from route
+  const { s, m, n } = useParams();
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
@@ -143,6 +143,8 @@ function Read(): React.JSX.Element {
           chapterContent = await getChapterLek(m, n);
         } else if (s === '3asq') {
           chapterContent = await getChapter3asq(m, n);
+        } else if (s === 'despair') {
+          chapterContent = await getChapterDespair(n);
         } else {
           throw new Error('Unsupported source');
         }

@@ -3,6 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { LuArrowDownUp } from 'react-icons/lu';
 import { getDetails3asq } from '../../ext/3asq';
 import { getDetailsLek } from '../../ext/lekmanga';
+import { getDetailsDespair } from '../../ext/despair-manga';
 import { mangaDetails, Chapter } from '../../types';
 
 function Details(): React.JSX.Element {
@@ -28,6 +29,8 @@ function Details(): React.JSX.Element {
           details = await getDetailsLek(m);
         } else if (s === '3asq') {
           details = await getDetails3asq(m);
+        } else if (s === 'despair') {
+          details = await getDetailsDespair(m);
         } else {
           setError('Unsupported source');
           setLoading(false);

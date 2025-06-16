@@ -202,13 +202,13 @@ export default function SideBar() {
                     العاشق
                   </div>
                 </Link>
-                <Link to="/lekmanga">
+                {/* <Link to="/lekmanga">
                   <div
                     className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/lekmanga') ? 'text-white font-semibold' : ''}`}
                   >
                     ليك مانجا
                   </div>
-                </Link>
+                </Link> */}
                 <Link to="/despair">
                   <div
                     className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/despair') ? 'text-white font-semibold' : ''}`}
