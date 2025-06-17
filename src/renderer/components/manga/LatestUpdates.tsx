@@ -74,24 +74,6 @@ function LatestChapters(): React.JSX.Element {
     fetchEntries(currentPage);
   }, [currentPage, fetchEntries, s]);
 
-  if (loading && currentPage === 1) {
-    return (
-      <div className="min-h-scree py-8 px-4 font-cairo">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="relative">
-              <div className="w-12 h-12 border-2 border-slate-700 rounded-full animate-spin" />
-              <div className="absolute top-0 left-0 w-12 h-12 border-2 border-white rounded-full animate-spin border-t-transparent" />
-            </div>
-            <p className="mt-4 text-base text-slate-400 font-medium">
-              يتم التحميل
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="min-h-screen py-8 px-4 font-cairo">
@@ -145,6 +127,23 @@ function LatestChapters(): React.JSX.Element {
     );
   }
 
+  const skeletonCount = 12;
+
+  if (loading && currentPage === 1) {
+    return (
+      <div className="min-h-screen py-8 px-4 font-cairo">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+          {Array.from({ length: skeletonCount }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-lg bg-slate-700 animate-pulse aspect-[3/4]"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen px-4 font-cairo">
       <div className="max-w-7xl mx-auto">
@@ -161,7 +160,7 @@ function LatestChapters(): React.JSX.Element {
                     <img
                       src={item.posterUrl}
                       alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src =

@@ -1,5 +1,7 @@
 {
   "name": "Reimi",
+  "version": "0.0.1",
+  "author": "4nglp",
   "description": "A manga reading and anime watching app for arabic sources",
   "keywords": [
     "electron",
@@ -169,8 +171,8 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "Reimi",
+    "appId": "reimi.xxx",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -229,8 +231,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
+      "owner": "4nglp",
+      "repo": "https://github.com/4nglp/ReimiV2"
     }
   },
   "collective": {

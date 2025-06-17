@@ -113,9 +113,12 @@ export default function SideBar() {
     };
   }, [navigate]);
 
-  const isActive = (path: string) => {
+  function isActive(path: string) {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
     return location.pathname.startsWith(path);
-  };
+  }
 
   const showModal = () => {
     setIsModalOpen(true);
