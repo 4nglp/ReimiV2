@@ -63,38 +63,43 @@ const configuration: webpack.Configuration = {
   module: {
     rules: [
       {
-        test: /\.s?(c|a)ss$/,
-        use: [
-          'style-loader',
+        oneOf: [
           {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              sourceMap: true,
-              importLoaders: 1,
-            },
-          },
-          'sass-loader',
-        ],
-        include: /\.module\.s?(c|a)ss$/,
-      },
-      {
-        test: /\.s?css$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader',
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [require('tailwindcss'), require('autoprefixer')],
+            test: /\.module\.s[ac]ss$/,
+            use: [
+              'style-loader',
+              {
+                loader: 'css-loader',
+                options: {
+                  modules: true,
+                  sourceMap: true,
+                  importLoaders: 1,
+                },
               },
-            },
+              'sass-loader',
+            ],
+          },
+          {
+            test: /\.s[ac]ss$/,
+            exclude: /\.module\.s[ac]ss$/,
+            use: ['style-loader', 'css-loader', 'sass-loader'],
+          },
+          {
+            test: /\.css$/,
+            use: [
+              'style-loader',
+              'css-loader',
+              {
+                loader: 'postcss-loader',
+                options: {
+                  postcssOptions: {
+                    plugins: [require('tailwindcss'), require('autoprefixer')],
+                  },
+                },
+              },
+            ],
           },
         ],
-
-        exclude: /\.module\.s?(c|a)ss$/,
       },
       // Fonts
       {
