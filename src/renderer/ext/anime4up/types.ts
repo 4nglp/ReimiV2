@@ -20,14 +20,14 @@ export type LatestEpisode = {
 export type Episode = {
   title: string;
   path: string;
+  coverURL: string;
 };
 
-export type AnimesDetails = {
+export type AnimeDetails = {
   title: string;
   posterURL: string;
   genres: string[];
   description: string;
-  type: string;
   status: string;
   episodes: Episode[];
 };

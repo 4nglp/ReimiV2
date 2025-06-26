@@ -67,7 +67,7 @@ export default function LatestEpisodesA4U() {
     return (
       <div className="p-4 max-w-4xl mx-auto">
         <div className="grid grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
+          {Array.from({ length: 16 }).map((_, i) => (
             <EpisodeCardSkeleton key={i} />
           ))}
         </div>
