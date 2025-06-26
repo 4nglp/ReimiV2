@@ -32,6 +32,7 @@ function EpisodeCard({
             src={episode.coverURL}
             alt={episode.title}
             className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
           />
         </div>
       </div>

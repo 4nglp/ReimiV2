@@ -1,4 +1,4 @@
-export type pinnedAnime = {
+export type PinnedAnime = {
   ext: string;
   title: string;
   path: string;
@@ -6,14 +6,16 @@ export type pinnedAnime = {
   season: string;
   status: string;
 };
-export type Episode = {
+
+export type LatestEpisode = {
   ext: string;
   title: string;
   path: string;
   coverURL: string;
-  season: string;
+  status: string;
   episode: string;
 };
+
 export type EpisodeDetails = {
   type: string;
   post: string;

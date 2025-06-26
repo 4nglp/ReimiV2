@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { getLatestEpisodes } from '../../ext/animerco';
+// import { getLatestEpisodes } from '../../ext/animerco';
+import { getLatestEpisodes } from '../../ext/anime4up';
 import { Episode } from '../../ext/animerco/types';
 import EpisodeCard from './EpisodeCard';
 
