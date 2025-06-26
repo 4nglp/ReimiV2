@@ -245,6 +245,13 @@ export default function SideBar() {
                     انميركو
                   </div>
                 </Link>
+                <Link to="/anime4up">
+                  <div
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/anime4up') ? 'text-white font-semibold' : ''}`}
+                  >
+                    انمي فور اب
+                  </div>
+                </Link>
               </div>
             )}
           </div>

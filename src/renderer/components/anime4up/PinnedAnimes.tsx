@@ -4,17 +4,17 @@ import 'swiper/css';
 import 'swiper/css/free-mode';
 import { FreeMode, Autoplay } from 'swiper/modules';
 import { useState, useEffect } from 'react';
-import { getPinnedAnimes } from '../../ext/animerco';
-import { pinnedAnime } from '../../ext/animerco/types';
+import { getPinnedAnimes } from '../../ext/anime4up';
+import { PinnedAnime } from '../../ext/anime4up/types';
 
-export default function PinnedAnimes() {
-  const [pinnedAnimes, setPinnedAnimes] = useState<pinnedAnime[]>([]);
+export default function PinnedAnimesA4U() {
+  const [pinnedAnimes, setPinnedAnimes] = useState<PinnedAnime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const fetchPinnedAnimes = async () => {
       try {
-        const data: pinnedAnime[] = await getPinnedAnimes();
+        const data: PinnedAnime[] = await getPinnedAnimes();
         setPinnedAnimes(data);
       } catch (err) {
         console.error(err);
@@ -36,7 +36,7 @@ export default function PinnedAnimes() {
                   <div className="h-6 w-3/4 bg-gray-700 rounded animate-pulse mb-2" />
                   <div className="h-4 w-1/2 bg-gray-700 rounded animate-pulse" />
                 </div>
-                <div className="absolute top-2 left-2 h-6 w-16 bg-gray-700 rounded animate-pulse" />
+                <div className="absolute top-2 right-2 h-6 w-16 bg-gray-700 rounded animate-pulse" />
               </div>
             </div>
           ))}
@@ -57,7 +57,7 @@ export default function PinnedAnimes() {
       >
         {pinnedAnimes.map((anime) => (
           <SwiperSlide key={anime.path}>
-            <Link to={`/animerco/seasons/${anime.path}`}>
+            <Link to={`/anime4up/anime/${anime.path}`}>
               <div className="relative w-full h-80 overflow-hidden rounded-lg">
                 <img
                   src={anime.posterURL}
@@ -66,14 +66,14 @@ export default function PinnedAnimes() {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent">
-                  <h3 className="text-base font-bold text-white truncate text-right">
+                  <h3 className="text-base font-bold text-white truncate text-center">
                     {anime.title}
                   </h3>
                   <p className="text-sm opacity-75 text-white font-cairo text-right text-bold">
                     {anime.season}
                   </p>
                 </div>
-                <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-cairo">
+                <div className="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded font-cairo">
                   {anime.status}
                 </div>
               </div>

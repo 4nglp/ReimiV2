@@ -1,4 +1,4 @@
-import { PinnedAnime, LatestEpisode } from './types';
+import { PinnedAnime, LatestEpisode, AnimesDetails } from './types';
 
 const baseURL = 'https://anime4up.rest/';
 const ext = 'anime4up';
@@ -40,6 +40,8 @@ export async function getLatestEpisodes(page = 1) {
   doc.querySelectorAll('.anime-card-container').forEach((e) => {
     const title =
       e.querySelector('.anime-card-title h3 a')?.textContent?.trim() || '';
+    const type =
+      e.querySelector('.anime-card-type a')?.textContent?.trim() || '';
     const status =
       e.querySelector('.anime-card-status a')?.textContent?.trim() || '';
     const href =
@@ -55,9 +57,52 @@ export async function getLatestEpisodes(page = 1) {
       e.querySelector('.episodes-card-title h3 a')?.textContent?.trim() || '';
 
     if (title && path && coverURL) {
-      episodes.push({ ext, title, path, coverURL, status, episode });
+      episodes.push({ ext, title, path, coverURL, status, type, episode });
     }
   });
 
   return episodes;
+}
+
+export async function getAnimeDetails(s: string) {
+  const res = await fetch(`${baseURL}/anime/${s}`);
+  const doc = parseHTML(await res.text());
+
+  const p = doc.querySelector('.anime-info-container');
+  const title = p?.querySelector('.media-title h1')?.textContent || '';
+  const posterURL =
+    doc.querySelector('.anime-thumbnail img')?.getAttribute('src')?.trim() ||
+    '';
+  const genres = Array.from(doc.querySelectorAll('.genres a')).map(
+    (element) => element.textContent?.trim() || '',
+  );
+
+  const description =
+    doc.querySelector('.content p')?.textContent?.trim() || '';
+  const status =
+    doc.querySelector('a.btn.large.fluid')?.textContent?.trim() || 'Unknown';
+  const episodesList = Array.from(doc.querySelectorAll('.episodes-lists li'));
+  const eps: Ep[] = episodesList.map((epEl) => {
+    const posterAnchor = epEl.querySelector<HTMLAnchorElement>('a.image');
+
+    return {
+      title: posterAnchor?.getAttribute('title')?.trim() || '',
+      coverURL: posterAnchor?.getAttribute('data-src')?.trim() || '',
+      path:
+        (posterAnchor?.getAttribute('href') || '')
+          .split('/')
+          .filter((segment) => segment)
+          .pop() || '',
+    };
+  });
+
+  const animeDetails: AnimesDetails = {
+    title,
+    posterURL,
+    genres,
+    status,
+    description,
+  };
+
+  return animeDetails;
 }

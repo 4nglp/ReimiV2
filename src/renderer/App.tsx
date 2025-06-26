@@ -20,6 +20,7 @@ import CategoryView from './pages/CategoryView';
 import Home from './pages/manga/Home';
 import Details from './pages/manga/Details';
 import Read from './pages/manga/Read';
+import Anime4up from './pages/anime4up/Home';
 
 export default function App() {
   return (
@@ -46,6 +47,8 @@ export default function App() {
             <Route path="/:s" element={<Home />} />
             <Route path="/:s/manga/:m/" element={<Details />} />
             <Route path="/:s/read/:m/:n" element={<Read />} />
+            {/* anime4up*/}
+            <Route path="/anime4up" element={<Anime4up />} />
             {/* old routes */}
             <Route path="/entries/:source" element={<EntryList />} />
             <Route

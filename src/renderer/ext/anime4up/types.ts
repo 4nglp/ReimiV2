@@ -13,9 +13,24 @@ export type LatestEpisode = {
   path: string;
   coverURL: string;
   status: string;
+  type: string;
   episode: string;
 };
 
+export type Episode = {
+  title: string;
+  path: string;
+};
+
+export type AnimesDetails = {
+  title: string;
+  posterURL: string;
+  genres: string[];
+  description: string;
+  type: string;
+  status: string;
+  episodes: Episode[];
+};
 export type EpisodeDetails = {
   type: string;
   post: string;
@@ -50,23 +65,7 @@ export type EpisodeControls = {
   backToDetails: string;
   nextEp: string;
 };
-export type Season = {
-  title: string;
-  posterURL: string;
-  status: string;
-  path: string;
-};
-export type AnimesDetails = {
-  title: string;
-  posterURL: string;
-  bannerURL: string;
-  genres: string[];
-  description: string;
-  type: string;
-  seasons: Season[];
-  seasonsNumber: string;
-  eps: string;
-};
+
 export type Movie = {
   title: string;
   posterURL: string;

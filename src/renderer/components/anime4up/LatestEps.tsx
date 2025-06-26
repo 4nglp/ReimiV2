@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { getLatestEpisodes } from '../../ext/animerco';
-import { Episode } from '../../ext/animerco/types';
+import { getLatestEpisodes } from '../../ext/anime4up';
+import { LatestEpisode } from '../../ext/anime4up/types';
 import EpisodeCard from './EpisodeCard';
+import EpisodeCardSkeleton from './EpisodeCardSkeleton';
 
-export default function LatestEpisodes() {
-  const [episodes, setEpisodes] = useState<Episode[]>([]);
+export default function LatestEpisodesA4U() {
+  const [episodes, setEpisodes] = useState<LatestEpisode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,7 +17,7 @@ export default function LatestEpisodes() {
       if (page === 1) setLoading(true);
       else setIsFetchingMore(true);
 
-      const data: Episode[] = await getLatestEpisodes(page);
+      const data: LatestEpisode[] = await getLatestEpisodes(page);
 
       setEpisodes((prev) => {
         const uniqueEpisodes = [...prev, ...data].filter(
@@ -25,7 +26,7 @@ export default function LatestEpisodes() {
         return uniqueEpisodes;
       });
     } catch (err) {
-      // console.error('Fetch error:', err);
+      console.error('Fetch error:', err);
       setError('Failed to fetch episodes');
     } finally {
       setLoading(false);
@@ -65,28 +66,15 @@ export default function LatestEpisodes() {
   if (loading && currentPage === 1) {
     return (
       <div className="p-4 max-w-4xl mx-auto">
-        <div className="grid grid-cols-2 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="bg-gray-800 w-149 h-30 flex items-center rounded-lg p-3 mr-2 mb-2 space-x-3"
-            >
-              <div className="flex-1">
-                <div className="h-5 w-3/4 bg-gray-700 rounded animate-pulse mb-2" />
-                <div className="flex justify-end items-center space-x-2">
-                  <div className="h-6 w-16 bg-gray-700 rounded animate-pulse" />
-                  <div className="h-6 w-16 bg-gray-700 rounded animate-pulse" />
-                </div>
-              </div>
-              <div className="w-30 h-20 rounded-sm overflow-hidden">
-                <div className="w-full h-full bg-gray-700 animate-pulse" />
-              </div>
-            </div>
+        <div className="grid grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <EpisodeCardSkeleton key={i} />
           ))}
         </div>
       </div>
     );
   }
+
   if (error) return <p>{error}</p>;
 
   return (
@@ -94,7 +82,7 @@ export default function LatestEpisodes() {
       ref={contentRef}
       className="p-4 max-w-4xl mx-auto h-screen overflow-auto"
     >
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         {episodes.map((episode) => (
           <EpisodeCard key={episode.path} episode={episode} />
         ))}
