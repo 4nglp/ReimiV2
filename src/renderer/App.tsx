@@ -23,6 +23,7 @@ import Read from './pages/manga/Read';
 
 import Anime4up from './pages/anime4up/Home';
 import AnimeDetails from './pages/anime4up/AnimeDetails';
+import SearchPageA4U from './pages/anime4up/SearchResults';
 
 export default function App() {
   return (
@@ -52,6 +53,7 @@ export default function App() {
             {/* anime4up*/}
             <Route path="/anime4up" element={<Anime4up />} />
             <Route path="/anime4up/anime/:a" element={<AnimeDetails />} />
+            <Route path="/anime4up/search" element={<SearchPageA4U />} />
             {/* old routes */}
             <Route path="/entries/:source" element={<EntryList />} />
             <Route

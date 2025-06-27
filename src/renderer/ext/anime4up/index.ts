@@ -1,4 +1,10 @@
-import { PinnedAnime, LatestEpisode, AnimeDetails, Episode } from './types';
+import {
+  PinnedAnime,
+  LatestEpisode,
+  AnimeDetails,
+  Episode,
+  SearchResults,
+} from './types';
 
 const baseURL = 'https://anime4up.rest/';
 const ext = 'anime4up';
@@ -120,4 +126,30 @@ export async function getAnimeDetails(a: string) {
   };
 
   return animeDetails;
+}
+
+export async function getResults(s: string) {
+  const res = await fetch(`${baseURL}?search_param=animes&s=${s}`);
+  const doc = parseHTML(await res.text());
+  const results: SearchResults[] = [];
+  const elements = doc.querySelectorAll('.anime-card-container');
+  elements.forEach((e) => {
+    const title = e.querySelector('.anime-card-title h3 a')?.textContent || '';
+    const posterURL =
+      e.querySelector('img.img-responsive')?.getAttribute('src') || '';
+    const href =
+      e.querySelector('.anime-card-title h3 a')?.getAttribute('href') || '';
+    const path =
+      href
+        .split('/')
+        .filter((segment) => segment)
+        .pop() || '';
+    const type = e.querySelector('.anime-card-type a')?.textContent || '';
+    const status = e.querySelector('.anime-card-status a')?.textContent || '';
+    if (title && path && posterURL) {
+      results.push({ title, path, posterURL, status, type });
+    }
+  });
+  console.log(results);
+  return results;
 }
