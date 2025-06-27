@@ -36,7 +36,7 @@ export default function PinnedAnimes() {
                   <div className="h-6 w-3/4 bg-gray-700 rounded animate-pulse mb-2" />
                   <div className="h-4 w-1/2 bg-gray-700 rounded animate-pulse" />
                 </div>
-                <div className="absolute top-2 left-2 h-6 w-16 bg-gray-700 rounded animate-pulse" />
+                <div className="absolute top-2 right-2 h-6 w-16 bg-gray-700 rounded animate-pulse" />
               </div>
             </div>
           ))}
@@ -66,14 +66,14 @@ export default function PinnedAnimes() {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent">
-                  <h3 className="text-base font-bold text-white truncate text-right">
+                  <h3 className="text-base font-bold text-white truncate text-center">
                     {anime.title}
                   </h3>
-                  <p className="text-sm opacity-75 text-white font-cairo text-right text-bold">
+                  <p className="text-sm opacity-75 text-white font-cairo text-center text-bold">
                     {anime.season}
                   </p>
                 </div>
-                <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-cairo">
+                <div className="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded font-cairo">
                   {anime.status}
                 </div>
               </div>
