@@ -4,6 +4,7 @@ import {
   AnimeDetails,
   Episode,
   SearchResults,
+  EpisodeControls,
 } from './types';
 
 const baseURL = 'https://anime4up.rest/';
@@ -51,7 +52,7 @@ export async function getLatestEpisodes(page = 1) {
     const status =
       e.querySelector('.anime-card-status a')?.textContent?.trim() || '';
     const href =
-      e.querySelector('.anime-card-title h3 a')?.getAttribute('href') || '';
+      e.querySelector('.episodes-card-title h3 a')?.getAttribute('href') || '';
     const path =
       href
         .split('/')
@@ -151,7 +152,7 @@ export async function getResults(s: string) {
     }
   });
   console.log(results);
-  return results;
+  return results.slice(0, 24);
 }
 
 export async function getMp4UploadMp4(t: string): Promise<string> {
@@ -203,4 +204,25 @@ export async function getSendVidMp(slug: string): Promise<string> {
   if (!mp4Url) throw new Error('MP4 URL not found on embed page');
 
   return mp4Url;
+}
+
+export async function getEpisodeControls(t: string) {
+  const res = await fetch(`${baseURL}episode/${t}`);
+  const doc = parseHTML(await res.text());
+
+  const title = doc.querySelector('.container h3')?.textContent?.trim() || '';
+  const nextLink =
+    doc.querySelector('.next-episode a')?.getAttribute('href') || '';
+  const prevLink =
+    doc.querySelector('.previous-episode a')?.getAttribute('href') || '';
+  const backLink =
+    doc.querySelector('.anime-page-link a')?.getAttribute('href') || '';
+  const controls: EpisodeControls = {
+    title,
+    next: nextLink.split('/').filter(Boolean).pop() || '',
+    prev: prevLink.split('/').filter(Boolean).pop() || '',
+    back: backLink.split('/').filter(Boolean).pop() || '',
+  };
+  console.log(controls);
+  return controls;
 }

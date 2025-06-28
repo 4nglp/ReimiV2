@@ -39,3 +39,10 @@ export type SearchResults = {
   type: string;
   status: string;
 };
+
+export type EpisodeControls = {
+  title: string;
+  next: string;
+  prev: string;
+  back: string;
+};

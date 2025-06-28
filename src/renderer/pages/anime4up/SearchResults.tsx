@@ -35,7 +35,13 @@ export default function SearchPageA4U() {
     }
   }, [query]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-solid border-white border-t-transparent" />
+      </div>
+    );
+  }
   if (error) return <p>{error}</p>;
 
   return (
