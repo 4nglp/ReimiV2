@@ -238,18 +238,18 @@ export default function SideBar() {
             </div>
             {isAnimeOpen && (
               <div className="mr-8 mt-1" dir="rtl">
-                <Link to="/animerco">
-                  <div
-                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/animerco') ? 'text-white font-semibold' : ''}`}
-                  >
-                    انميركو
-                  </div>
-                </Link>
                 <Link to="/anime4up">
                   <div
                     className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/anime4up') ? 'text-white font-semibold' : ''}`}
                   >
                     انمي فور اب
+                  </div>
+                </Link>
+                <Link to="/animerco">
+                  <div
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/animerco') ? 'text-white font-semibold' : ''}`}
+                  >
+                    انميركو
                   </div>
                 </Link>
               </div>

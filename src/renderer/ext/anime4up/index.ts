@@ -153,3 +153,25 @@ export async function getResults(s: string) {
   console.log(results);
   return results;
 }
+
+export async function getMp4EmbedUrl(t: string): Promise<string> {
+  const res = await fetch(`${baseURL}episode/${t}`);
+  const doc = parseHTML(await res.text());
+
+  const uploadAnchor = [...doc.querySelectorAll('#episode-servers li a')].find(
+    (a) => a.textContent?.trim().toLowerCase() === 'mp4upload',
+  );
+
+  if (!uploadAnchor) {
+    throw new Error('Upload server not found');
+  }
+
+  const embedUrl = uploadAnchor.getAttribute('data-ep-url');
+
+  if (!embedUrl) {
+    throw new Error('Embed URL not found');
+  }
+
+  console.log('Found embed URL:', embedUrl);
+  return embedUrl;
+}

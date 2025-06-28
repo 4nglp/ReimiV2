@@ -66,7 +66,7 @@ export default function PinnedAnimesA4U() {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent">
-                  <h3 className="text-base font-bold text-white truncate text-center">
+                  <h3 className="text-base font-bold text-white text-center">
                     {anime.title}
                   </h3>
                   <p className="text-sm opacity-75 text-white font-cairo text-right text-bold">

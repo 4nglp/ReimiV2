@@ -90,7 +90,7 @@ export default function Pins() {
                 />
                 <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent">
                   <h3
-                    className="text-base font-bold text-white truncate text-center"
+                    className="text-base font-bold text-white text-center"
                     dir="ltr"
                   >
                     {pin.title}

@@ -262,7 +262,7 @@ export default function AnimeDetailsA4U() {
                   <div className="divide-y divide-gray-700/50">
                     {details.episodes.map((ep, index) => (
                       <Link
-                        to={`/es/${ep.path}`}
+                        to={`/anime4up/watch/${ep.path}`}
                         key={ep.title}
                         className="block hover:bg-gray-700 transition-all duration-200"
                       >
