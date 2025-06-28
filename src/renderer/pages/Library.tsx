@@ -392,12 +392,6 @@ export default function Library() {
 
   return (
     <div className="font-cairo container mx-auto px-6 py-8" dir="rtl">
-      <video
-        src="https://videos2.sendvid.com/e1/24/ruqyt5uo.mp4?validfrom=1751121299&validto=1751135699&rate=250k&ip=105.72.11.54&hash=z3U%2FPTkoUSxQNjCvz12aQz6%2FlTw%3D"
-        controls
-      >
-        <track kind="captions" srcLang="en" label="No captions available" />
-      </video>
       <h2 className="text-2xl font-bold mb-6">المكتبة</h2>
       <div className="grid md:grid-cols-5 lg:grid-cols-6 gap-6">
         {series.map((item, index) => (

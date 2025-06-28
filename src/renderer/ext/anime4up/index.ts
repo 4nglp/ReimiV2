@@ -154,7 +154,7 @@ export async function getResults(s: string) {
   return results;
 }
 
-export async function getMp4EmbedUrl(t: string): Promise<string> {
+export async function getMp4UploadMp4(t: string): Promise<string> {
   const res = await fetch(`${baseURL}episode/${t}`);
   const doc = parseHTML(await res.text());
 
@@ -174,4 +174,33 @@ export async function getMp4EmbedUrl(t: string): Promise<string> {
 
   console.log('Found embed URL:', embedUrl);
   return embedUrl;
+}
+
+export async function getSendVidMp(slug: string): Promise<string> {
+  const res = await fetch(`${baseURL}episode/${slug}`);
+  const doc = parseHTML(await res.text());
+
+  const sendvidAnchor = [
+    ...doc.querySelectorAll<HTMLAnchorElement>('#episode-servers li a'),
+  ].find((a) => a.textContent?.trim().toLowerCase() === 'sendvid');
+
+  if (!sendvidAnchor) throw new Error('Sendvid server not found');
+
+  const embedUrl = sendvidAnchor.getAttribute('data-ep-url');
+  if (!embedUrl) throw new Error('Embed URL missing');
+
+  const embedRes = await fetch(embedUrl);
+  const embedDoc = parseHTML(await embedRes.text());
+
+  const mp4Url =
+    embedDoc
+      .querySelector<HTMLMetaElement>('meta[property="og:video:secure_url"]')
+      ?.getAttribute('content') ??
+    embedDoc
+      .querySelector<HTMLMetaElement>('meta[property="og:video"]')
+      ?.getAttribute('content');
+
+  if (!mp4Url) throw new Error('MP4 URL not found on embed page');
+
+  return mp4Url;
 }
