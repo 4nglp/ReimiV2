@@ -142,17 +142,18 @@ export default function Mp4(): JSX.Element {
   const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
   const [showTitle, setShowTitle] = useState(false);
   const [showCtrl, setShowCtrl] = useState(false);
-  const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [dur, setDur] = useState(0);
   const [vol, setVol] = useState(1);
   const [showVol, setShowVol] = useState(false);
+  const [skipMsg, setSkipMsg] = useState<string | null>(null);
   const [hideCur, setHideCur] = useState(false);
 
   const box = useRef<HTMLDivElement>(null);
   const vid = useRef<HTMLVideoElement>(null);
   const volTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const curTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getUrl = async (s: Server) => {
     if (s === 'mp4upload') {
@@ -214,6 +215,16 @@ export default function Mp4(): JSX.Element {
     }
   };
 
+  const jump = (sec: number) => {
+    if (!vid.current) return;
+    const next = Math.max(0, Math.min(dur, vid.current.currentTime + sec));
+    vid.current.currentTime = next;
+    setTime(next);
+    setSkipMsg(`${sec > 0 ? '+' : ''}${sec}s`);
+    if (skipTimer.current) clearTimeout(skipTimer.current);
+    skipTimer.current = setTimeout(() => setSkipMsg(null), 600);
+  };
+
   const mouseMove = (e: React.MouseEvent) => {
     if (!box.current) return;
     const r = box.current.getBoundingClientRect();
@@ -246,6 +257,14 @@ export default function Mp4(): JSX.Element {
         e.preventDefault();
         togglePlay();
       }
+      if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        jump(5);
+      }
+      if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        jump(-5);
+      }
     };
     document.addEventListener('keydown', key);
     document.addEventListener('wheel', wheel, { passive: false });
@@ -254,8 +273,9 @@ export default function Mp4(): JSX.Element {
       document.removeEventListener('wheel', wheel);
       if (volTimer.current) clearTimeout(volTimer.current);
       if (curTimer.current) clearTimeout(curTimer.current);
+      if (skipTimer.current) clearTimeout(skipTimer.current);
     };
-  }, []);
+  }, [dur]);
 
   if (loading) {
     return (
@@ -288,7 +308,10 @@ export default function Mp4(): JSX.Element {
       >
         {showTitle && ep?.title && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-            <span className="bg-black/50 backdrop-blur-sm  text-white px-4 py-1 rounded-xl text-lg font-semibold whitespace-nowrap max-w-[90vw] overflow-hidden text-ellipsis font-cairo shadow-xl border border-white/20">
+            <span
+              className="bg-black/50 backdrop-blur-sm text-white px-4 py-1 rounded-xl text-lg font-semibold whitespace-nowrap max-w-[90vw] overflow-hidden text-ellipsis font-cairo shadow-xl border border-white/20"
+              dir="rtl"
+            >
               {ep.title}
             </span>
           </div>
@@ -296,12 +319,20 @@ export default function Mp4(): JSX.Element {
 
         {showVol && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-            <div className="bg-black/50 text-white px-6 py-4 rounded-lg text-center">
-              <div className="text-lg font-semibold mb-2">الصوت</div>
-              <div className="text-2xl font-bold">{Math.round(vol * 100)}%</div>
-            </div>
+            <span className="bg-black/60 text-white text-4xl px-8 py-4 rounded-lg font-bold">
+              {Math.round(vol * 100)}%
+            </span>
           </div>
         )}
+
+        {skipMsg && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
+            <span className="bg-black/60 text-white text-4xl px-8 py-4 rounded-lg font-bold">
+              {skipMsg}
+            </span>
+          </div>
+        )}
+
         {err ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-red-400">
             <p>{err}</p>
@@ -318,8 +349,6 @@ export default function Mp4(): JSX.Element {
             autoPlay
             preload="metadata"
             controls={false}
-            onPlay={() => setPlaying(true)}
-            onPause={() => setPlaying(false)}
             onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
             onDurationChange={(e) => setDur(e.currentTarget.duration)}
             onLoadedMetadata={(e) => {
@@ -328,6 +357,7 @@ export default function Mp4(): JSX.Element {
             }}
           />
         )}
+
         {showCtrl && dur > 0 && (
           <div className="absolute bottom-0 left-4 right-4 z-20">
             <div className="bg-black/50 backdrop-blur-sm rounded-t-lg p-3">
@@ -347,6 +377,7 @@ export default function Mp4(): JSX.Element {
             </div>
           </div>
         )}
+
         {ctx && (
           <ContextMenu
             x={ctx.x}
