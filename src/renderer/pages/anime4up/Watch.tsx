@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/media-has-caption */
-import React, { useEffect, useState, useRef, ReactNode } from 'react';
+import React, { useEffect, useRef, useState, ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   getMp4UploadMp4,
@@ -10,184 +10,117 @@ import { EpisodeControls } from '../../ext/anime4up/types';
 
 type Server = 'mp4upload' | 'sendvid';
 
-interface ContextMenuProps {
+function Container({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fs = () => !document.fullscreenElement && navigate(-1);
+    document.addEventListener('fullscreenchange', fs);
+    if (ref.current && !document.fullscreenElement) {
+      ref.current.requestFullscreen().catch(console.error);
+    }
+    return () => document.removeEventListener('fullscreenchange', fs);
+  }, [navigate]);
+  return (
+    <div
+      ref={ref}
+      className="h-screen w-full bg-black flex justify-center items-center overflow-hidden"
+    >
+      {children}
+    </div>
+  );
+}
+
+interface CtxProps {
   x: number;
   y: number;
   onClose: () => void;
-  onServerSelect: (server: Server) => void;
-  currentServer: Server;
+  onServer: (s: Server) => void;
+  cur: Server;
   servers: Server[];
-  episodeControls: EpisodeControls | null;
-  onNavigate: (path: string) => void;
+  ep: EpisodeControls | null;
+  nav: (p: string) => void;
 }
 
 function ContextMenu({
   x,
   y,
   onClose,
-  onServerSelect,
-  currentServer,
+  onServer,
+  cur,
   servers,
-  episodeControls,
-  onNavigate,
-}: ContextMenuProps) {
-  const menuRef = useRef<HTMLDivElement>(null);
-
+  ep,
+  nav,
+}: CtxProps) {
+  const r = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-
+    const c = (e: MouseEvent) =>
+      r.current && !r.current.contains(e.target as Node) && onClose();
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('mousedown', c);
+    document.addEventListener('keydown', k);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', c);
+      document.removeEventListener('keydown', k);
     };
   }, [onClose]);
-
-  const getServerDisplayName = (server: Server) => {
-    return server === 'mp4upload' ? 'MP4Upload' : 'SendVid';
-  };
-
-  const handleNavigation = (path: string) => {
-    onNavigate(path);
-    onClose();
-  };
-
+  const label = (s: Server) => (s === 'mp4upload' ? 'MP4Upload' : 'SendVid');
   return (
     <div
-      ref={menuRef}
-      className="fixed bg-black bg-opacity-95 border border-gray-600 rounded-lg shadow-2xl py-3 min-w-52 z-50 backdrop-blur-sm"
+      ref={r}
       style={{ left: x, top: y }}
+      className="fixed z-50 min-w-52 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl py-3"
     >
-      {/* Servers Section */}
-      <div className="px-4 py-3 text-sm font-medium text-white border-b border-gray-600 font-cairo text-center">
+      <div className="px-4 py-3 text-sm font-medium text-white border-b border-white/20 text-center font-cairo">
         قائمة السرفرات
       </div>
-      {servers.map((server) => (
+      {servers.map((s) => (
         <button
-          key={server}
-          type="button"
+          key={s}
           onClick={() => {
-            onServerSelect(server);
+            onServer(s);
             onClose();
           }}
-          className={`w-full px-4 py-3 text-sm transition-all duration-200 flex items-center justify-center font-cairo ${
-            currentServer === server
-              ? 'bg-[#1a1b1e] text-white font-medium'
-              : 'text-gray-300 hover:bg-[#1a1b1e] hover:text-white'
+          className={`w-full px-4 py-3 text-sm flex items-center justify-center font-cairo transition ${
+            cur === s
+              ? 'bg-white/10 text-white font-medium'
+              : 'text-gray-300 hover:bg-white/10 hover:text-white'
           }`}
         >
-          <span className="flex items-center gap-2">
-            {getServerDisplayName(server)}
-            {currentServer === server && <span className="text-xs">✓</span>}
-          </span>
+          {label(s)} {cur === s && <span className="text-xs ml-1"></span>}
         </button>
       ))}
-
-      {/* Navigation Section */}
-      {episodeControls &&
-        (episodeControls.prev ||
-          episodeControls.next ||
-          episodeControls.back) && (
-          <>
-            <div className="border-t border-gray-600 mt-2 pt-2">
-              <div className="px-4 py-3 text-sm font-medium text-white border-b border-gray-600 font-cairo text-center">
-                التنقل
-              </div>
-
-              {episodeControls.prev && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleNavigation(`/anime4up/watch/${episodeControls.prev}`)
-                  }
-                  className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-[#1a1b1e] hover:text-white transition-all duration-200 flex items-center justify-center font-cairo"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>←</span>
-                    الحلقة السابقة
-                  </span>
-                </button>
-              )}
-
-              {episodeControls.next && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleNavigation(`/anime4up/watch/${episodeControls.next}`)
-                  }
-                  className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-[#1a1b1e] hover:text-white transition-all duration-200 flex items-center justify-center font-cairo"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>→</span>
-                    الحلقة التالية
-                  </span>
-                </button>
-              )}
-
-              {episodeControls.back && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleNavigation(`/anime4up/anime/${episodeControls.back}`)
-                  }
-                  className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-[#1a1b1e] hover:text-white transition-all duration-200 flex items-center justify-center font-cairo"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>↩</span>
-                    العودة للتفاصيل
-                  </span>
-                </button>
-              )}
-            </div>
-          </>
-        )}
-    </div>
-  );
-}
-
-function Container({ children }: { children: ReactNode }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleFsChange = () => {
-      if (!document.fullscreenElement) {
-        navigate(-1);
-      }
-    };
-
-    document.addEventListener('fullscreenchange', handleFsChange);
-
-    const el = containerRef.current;
-    if (el && !document.fullscreenElement && el.isConnected) {
-      el.requestFullscreen().catch((err) => {
-        console.error('Failed to enter fullscreen:', err);
-      });
-    }
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFsChange);
-    };
-  }, [navigate]);
-
-  return (
-    <div
-      ref={containerRef}
-      className="h-screen w-full bg-black flex flex-col justify-center items-center overflow-hidden"
-    >
-      {children}
+      {ep && (ep.prev || ep.next || ep.back) && (
+        <div className="border-t border-white/20 mt-2 pt-2 font-cairo">
+          <div className="px-4 py-3 text-sm font-medium text-white border-b border-white/20 text-center font-cairo">
+            التنقل
+          </div>
+          {ep.prev && (
+            <button
+              onClick={() => nav(`/anime4up/watch/${ep.prev}`)}
+              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-center fonte-cairo"
+            >
+              ← الحلقة السابقة
+            </button>
+          )}
+          {ep.next && (
+            <button
+              onClick={() => nav(`/anime4up/watch/${ep.next}`)}
+              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-center"
+            >
+              → الحلقة التالية
+            </button>
+          )}
+          {ep.back && (
+            <button
+              onClick={() => nav(`/anime4up/anime/${ep.back}`)}
+              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-center"
+            >
+              ↩ العودة للتفاصيل
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -195,162 +128,128 @@ function Container({ children }: { children: ReactNode }) {
 export default function Mp4(): React.JSX.Element {
   const { t } = useParams();
   const navigate = useNavigate();
-  const [fileUrl, setFileUrl] = useState<string>('');
-  const [error, setError] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [currentServer, setCurrentServer] = useState<Server>('mp4upload');
-  const [availableServers] = useState<Server[]>(['mp4upload', 'sendvid']);
-  const [episodeControls, setEpisodeControls] =
-    useState<EpisodeControls | null>(null);
-  const [contextMenu, setContextMenu] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
+  const [fileUrl, setFileUrl] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [cur, setCur] = useState<Server>('mp4upload');
+  const servers: Server[] = ['mp4upload', 'sendvid'];
+  const [ep, setEp] = useState<EpisodeControls | null>(null);
+  const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
+  const [showTitle, setShowTitle] = useState(false);
+  const [showControls, setShowControls] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
 
-  const fetchVideoUrl = async (server: Server) => {
-    switch (server) {
-      case 'mp4upload':
-        const embedUrl = await getMp4UploadMp4(t);
-        const pageRes = await fetch(embedUrl);
-        const html = await pageRes.text();
-        const pos = html.indexOf('src:') + 6;
-        return html.slice(pos, html.indexOf('"', pos));
-      case 'sendvid':
-        return await getSendVidMp(t);
-      default:
-        throw new Error(`Unknown server: ${server}`);
+  const fetchUrl = async (s: Server) => {
+    if (s === 'mp4upload') {
+      const embed = await getMp4UploadMp4(t);
+      const html = await (await fetch(embed)).text();
+      const pos = html.indexOf('src:') + 6;
+      return html.slice(pos, html.indexOf('"', pos));
     }
+    return await getSendVidMp(t);
   };
 
-  const loadVideoSource = async (server: Server) => {
+  const load = async (s: Server) => {
     if (!t) {
-      setError('Episode ID is missing.');
-      setIsLoading(false);
+      setError('Episode ID missing');
+      setLoading(false);
       return;
     }
-
-    setIsLoading(true);
+    setLoading(true);
     setError('');
-
     try {
-      const url = await fetchVideoUrl(server);
-      setFileUrl(url);
-    } catch (e) {
-      console.error(e);
-      setError(`Failed to extract video URL from ${server} server.`);
+      setFileUrl(await fetchUrl(s));
+    } catch {
+      setError(`Failed to load from ${s}`);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const loadEpisodeControls = async () => {
+  const loadEp = async () => {
     if (!t) return;
-
     try {
-      const controls = await getEpisodeControls(t);
-      setEpisodeControls(controls);
-    } catch (e) {
-      console.error('Failed to load episode controls:', e);
+      setEp(await getEpisodeControls(t));
+    } catch (err) {
+      console.error(err);
     }
   };
 
   useEffect(() => {
-    loadVideoSource(currentServer);
-    loadEpisodeControls();
-  }, [t, currentServer]);
+    load(cur);
+    loadEp();
+  }, [t, cur]);
 
-  const handleServerChange = (server: Server) => {
-    if (server !== currentServer) {
-      setCurrentServer(server);
-    }
+  const mouseMove = (e: React.MouseEvent) => {
+    if (!box.current) return;
+    const r = box.current.getBoundingClientRect();
+    const y = e.clientY - r.top;
+    const h = r.height;
+    setShowTitle(y <= h * 0.1);
+    setShowControls(y >= h * 0.85);
   };
 
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault();
-    setContextMenu({
-      x: event.clientX,
-      y: event.clientY,
-    });
-  };
-
-  const closeContextMenu = () => {
-    setContextMenu(null);
-  };
-
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <Container>
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-solid border-white border-t-transparent" />
-        </div>
-      </Container>
+      <div className="flex items-center justify-center h-screen bg-black">
+        <div className="animate-spin h-10 w-10 rounded-full border-4 border-white border-t-transparent" />
+      </div>
     );
-  }
-
-  if (error) {
-    console.log(error);
   }
 
   return (
     <Container>
-      {/* Episode Title */}
-      {episodeControls?.title && (
-        <div className="w-full max-w-6xl px-4 mb-4">
-          <h1 className="text-white text-xl font-semibold text-center font-cairo">
-            {episodeControls.title}
-          </h1>
-        </div>
-      )}
-
-      {/* Video Player Container */}
       <div
-        className="aspect-video w-full max-w-6xl rounded-xl overflow-hidden bg-black relative"
-        onContextMenu={handleContextMenu}
+        ref={box}
+        className="aspect-video w-full rounded-xl overflow-hidden bg-black relative"
+        onContextMenu={(e) => {
+          e.preventDefault();
+          setCtx({ x: e.clientX, y: e.clientY });
+        }}
+        onMouseMove={mouseMove}
+        onMouseLeave={() => {
+          setShowTitle(false);
+          setShowControls(false);
+        }}
       >
-        {/* Server Indicator */}
-        <div className="absolute top-4 left-4 z-10">
-          <div className="bg-black bg-opacity-70 text-white px-3 py-1 rounded-md text-sm font-medium">
-            {currentServer === 'mp4upload' ? 'MP4Upload' : 'SendVid'}
-          </div>
-        </div>
-
-        {error && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-red-400 text-center">
-              <p className="text-lg mb-2">{error}</p>
-              <p className="text-sm opacity-70">
-                Right-click to switch servers
-              </p>
-            </div>
+        {showTitle && ep?.title && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none transition-opacity duration-200 opacity-100">
+            <span className="bg-black/70 text-white px-4 py-1 rounded-md text-lg font-semibold font-cairo whitespace-nowrap max-w-[90vw] overflow-hidden text-ellipsis">
+              {ep.title}
+            </span>
           </div>
         )}
-
-        {!error && fileUrl && (
+        {error ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-red-400">
+            <p>{error}</p>
+            <p className="text-sm opacity-70 mt-2">
+              Right‑click للتحويل للسرفر الآخر
+            </p>
+          </div>
+        ) : (
           <video
-            key={`${currentServer}-${fileUrl}`}
-            controls
-            preload="metadata"
+            key={`${cur}-${fileUrl}`}
+            src={fileUrl}
             className="w-full h-full bg-black"
             autoPlay
-            src={fileUrl}
-            onContextMenu={handleContextMenu}
+            preload="metadata"
+            controls={showControls}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              setCtx({ x: e.clientX, y: e.clientY });
+            }}
           />
         )}
-
-        {contextMenu && (
+        {ctx && (
           <ContextMenu
-            x={contextMenu.x}
-            y={contextMenu.y}
-            onClose={closeContextMenu}
-            onServerSelect={handleServerChange}
-            currentServer={currentServer}
-            servers={availableServers}
-            episodeControls={episodeControls}
-            onNavigate={handleNavigation}
+            x={ctx.x}
+            y={ctx.y}
+            onClose={() => setCtx(null)}
+            onServer={(s) => s !== cur && setCur(s)}
+            cur={cur}
+            servers={servers}
+            ep={ep}
+            nav={navigate}
           />
         )}
       </div>
