@@ -166,25 +166,37 @@ function ContextMenu({
           {ep.prev && (
             <button
               onClick={() => nav(`/anime4up/watch/${ep.prev}`)}
-              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-center"
+              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-between items-center"
+              dir="rtl"
             >
-              ← الحلقة السابقة
+              <span>الحلقة السابقة</span>
+              <span className="bg-white/20 px-2 py-1 rounded text-xs font-mono">
+                V
+              </span>
             </button>
           )}
           {ep.next && (
             <button
               onClick={() => nav(`/anime4up/watch/${ep.next}`)}
-              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-center"
+              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-between items-center"
+              dir="rtl"
             >
-              → الحلقة التالية
+              <span>الحلقة التالية</span>
+              <span className="bg-white/20 px-2 py-1 rounded text-xs font-mono">
+                N
+              </span>
             </button>
           )}
           {ep.back && (
             <button
               onClick={() => nav(`/anime4up/anime/${ep.back}`)}
-              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-center"
+              className="w-full px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white flex justify-between items-center"
+              dir="rtl"
             >
-              ↩ العودة للتفاصيل
+              <span>العودة للتفاصيل</span>
+              <span className="bg-white/20 px-2 py-1 rounded text-xs font-mono">
+                B
+              </span>
             </button>
           )}
         </div>
@@ -221,6 +233,44 @@ function ContextMenu({
           </div>
         </div>
       </div>
+
+      <div className="border-t border-white/20 mt-2 pt-2" dir="rtl">
+        <div className="px-4 py-3 text-sm font-medium text-white border-b border-white/20 text-center">
+          اختصارات لوحة المفاتيح
+        </div>
+        <div className="px-4 py-2 text-xs text-gray-300 space-y-1">
+          <div className="flex justify-between">
+            <span>تشغيل/إيقاف</span>
+            <span className="bg-white/20 px-2 py-1 rounded font-mono">
+              SPACE
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>تقديم 5 ثواني</span>
+            <span className="bg-white/20 px-2 py-1 rounded font-mono">
+              D / →
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>تراجع 5 ثواني</span>
+            <span className="bg-white/20 px-2 py-1 rounded font-mono">
+              A / ←
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>رفع الصوت</span>
+            <span className="bg-white/20 px-2 py-1 rounded font-mono">
+              W / ↑
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>خفض الصوت</span>
+            <span className="bg-white/20 px-2 py-1 rounded font-mono">
+              S / ↓
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -249,6 +299,121 @@ function SkipIcon({ direction }: { direction: 'forward' | 'backward' }) {
         <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
       )}
     </svg>
+  );
+}
+
+interface ProgressBarProps {
+  time: number;
+  duration: number;
+  onSeek: (time: number) => void;
+}
+
+function ProgressBar({ time, duration, onSeek }: ProgressBarProps) {
+  const progressRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [previewTime, setPreviewTime] = useState<number | null>(null);
+  const [previewPosition, setPreviewPosition] = useState<number>(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    handleSeek(e);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!progressRef.current) return;
+
+    const rect = progressRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = Math.max(0, Math.min(1, x / rect.width));
+    const timeAtPosition = percentage * duration;
+
+    setPreviewTime(timeAtPosition);
+    setPreviewPosition(x);
+
+    if (isDragging) {
+      onSeek(timeAtPosition);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setPreviewTime(null);
+    if (isDragging) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleSeek = (e: React.MouseEvent) => {
+    if (!progressRef.current) return;
+
+    const rect = progressRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = Math.max(0, Math.min(1, x / rect.width));
+    const newTime = percentage * duration;
+
+    onSeek(newTime);
+  };
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (isDragging && progressRef.current) {
+        const rect = progressRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percentage = Math.max(0, Math.min(1, x / rect.width));
+        const newTime = percentage * duration;
+        onSeek(newTime);
+      }
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, duration, onSeek]);
+
+  const progressPercentage = duration > 0 ? (time / duration) * 100 : 0;
+
+  return (
+    <div className="relative">
+      {previewTime !== null && (
+        <div
+          className="absolute bottom-6 bg-black/80 text-white px-2 py-1 rounded text-lg font-mono pointer-events-none z-10 transform -translate-x-1/2"
+          style={{ left: previewPosition }}
+        >
+          {fmt(previewTime)}
+        </div>
+      )}
+      <div
+        ref={progressRef}
+        className="w-full h-2 bg-white/30 rounded-full cursor-pointer relative overflow-hidden"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div
+          className="h-full bg-white rounded-full transition-all duration-200 ease-out"
+          style={{
+            width: `${progressPercentage}%`,
+            transitionProperty: isDragging ? 'none' : 'width',
+          }}
+        />
+        <div
+          className="absolute top-1/2 w-4 h-4 bg-white rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2 transition-all duration-200 ease-out opacity-0 hover:opacity-100 pointer-events-none"
+          style={{
+            left: `${progressPercentage}%`,
+            opacity: isDragging ? 1 : undefined,
+          }}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -363,6 +528,13 @@ export default function Mp4(): JSX.Element {
     skipTimer.current = setTimeout(() => setSkipMsg(null), 600);
   };
 
+  const adjustVolume = (delta: number) => {
+    if (!vid.current) return;
+    const next = Math.max(0, Math.min(1, vid.current.volume + delta));
+    vid.current.volume = next;
+    volOverlay(next);
+  };
+
   const mouseMove = (e: React.MouseEvent) => {
     if (!box.current) return;
     const r = box.current.getBoundingClientRect();
@@ -375,13 +547,10 @@ export default function Mp4(): JSX.Element {
     curTimer.current = setTimeout(() => setHideCur(true), 1000);
   };
 
-  const seek = (e: React.MouseEvent<HTMLDivElement>) => {
+  const seek = (newTime: number) => {
     if (!vid.current) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - r.left;
-    const pos = (x / r.width) * dur;
-    vid.current.currentTime = pos;
-    setTime(pos);
+    vid.current.currentTime = newTime;
+    setTime(newTime);
   };
 
   useEffect(() => {
@@ -391,19 +560,59 @@ export default function Mp4(): JSX.Element {
 
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
+      // Prevent default for all our custom keys
+      if (
+        [
+          'Space',
+          'ArrowRight',
+          'ArrowLeft',
+          'ArrowUp',
+          'ArrowDown',
+          'KeyW',
+          'KeyS',
+          'KeyA',
+          'KeyD',
+          'KeyN',
+          'KeyV',
+          'KeyB',
+        ].includes(e.code)
+      ) {
         e.preventDefault();
+      }
+
+      // Play/Pause
+      if (e.code === 'Space') {
         togglePlay();
       }
-      if (e.code === 'ArrowRight') {
-        e.preventDefault();
+
+      // Seek controls
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') {
         jump(5);
       }
-      if (e.code === 'ArrowLeft') {
-        e.preventDefault();
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
         jump(-5);
       }
+
+      // Volume controls
+      if (e.code === 'ArrowUp' || e.code === 'KeyW') {
+        adjustVolume(0.1);
+      }
+      if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        adjustVolume(-0.1);
+      }
+
+      // Navigation controls
+      if (e.code === 'KeyN' && ep?.next) {
+        navigate(`/anime4up/watch/${ep.next}`);
+      }
+      if (e.code === 'KeyV' && ep?.prev) {
+        navigate(`/anime4up/watch/${ep.prev}`);
+      }
+      if (e.code === 'KeyB' && ep?.back) {
+        navigate(`/anime4up/anime/${ep.back}`);
+      }
     };
+
     document.addEventListener('keydown', key);
     document.addEventListener('wheel', wheel, { passive: false });
     return () => {
@@ -413,7 +622,7 @@ export default function Mp4(): JSX.Element {
       if (curTimer.current) clearTimeout(curTimer.current);
       if (skipTimer.current) clearTimeout(skipTimer.current);
     };
-  }, [dur]);
+  }, [dur, ep, navigate]);
 
   if (loading) {
     return (
@@ -502,14 +711,8 @@ export default function Mp4(): JSX.Element {
         {showCtrl && dur > 0 && (
           <div className="absolute bottom-0 left-4 right-4 z-20">
             <div className="bg-black/50 backdrop-blur-sm rounded-t-lg p-3">
-              <div
-                className="w-full h-2 bg-white/30 rounded-full cursor-pointer mb-3"
-                onClick={seek}
-              >
-                <div
-                  className="h-full bg-white rounded-full"
-                  style={{ width: `${(time / dur) * 100}%` }}
-                />
+              <div className="mb-3">
+                <ProgressBar time={time} duration={dur} onSeek={seek} />
               </div>
               <div className="flex justify-between items-center text-white">
                 <span className="text-lg">{fmt(time)}</span>
