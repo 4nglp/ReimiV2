@@ -1,7 +1,13 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/media-has-caption */
-import React, { useEffect, useRef, useState, ReactNode } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  ReactNode,
+  useLayoutEffect,
+} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   getMp4UploadMp4,
@@ -60,6 +66,37 @@ function ContextMenu({
   onSpeed,
 }: CtxProps) {
   const r = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: -1000, y: -1000 });
+
+  useLayoutEffect(() => {
+    if (r.current) {
+      const rect = r.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      let adjustedX = x;
+      let adjustedY = y;
+
+      if (x + rect.width > viewportWidth) {
+        adjustedX = x - rect.width;
+      }
+
+      if (y + rect.height > viewportHeight) {
+        adjustedY = y - rect.height;
+      }
+
+      if (adjustedX < 0) {
+        adjustedX = 10;
+      }
+
+      if (adjustedY < 0) {
+        adjustedY = 10;
+      }
+
+      setPosition({ x: adjustedX, y: adjustedY });
+    }
+  }, [x, y]);
+
   useEffect(() => {
     const c = (e: MouseEvent) =>
       r.current && !r.current.contains(e.target as Node) && onClose();
@@ -71,6 +108,24 @@ function ContextMenu({
       document.removeEventListener('keydown', k);
     };
   }, [onClose]);
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+    };
+
+    const menu = r.current;
+    if (menu) {
+      menu.addEventListener('wheel', handleWheel);
+    }
+
+    return () => {
+      if (menu) {
+        menu.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, []);
+
   const label = (s: Server) =>
     s === 'mp4upload'
       ? 'MP4Upload'
@@ -81,8 +136,8 @@ function ContextMenu({
   return (
     <div
       ref={r}
-      style={{ left: x, top: y }}
-      className="fixed z-50 min-w-52 bg-black/50 backdrop-blur-sm border border-white/20 rounded-xl shadow-xl py-3 font-cairo"
+      style={{ left: position.x, top: position.y }}
+      className="fixed z-50 min-w-[30vh] max-h-[50vh] bg-black/50 backdrop-blur-sm border border-white/20 rounded-xl shadow-xl py-3 font-cairo overflow-y-auto"
     >
       <div className="px-4 py-3 text-sm font-medium text-white border-b border-white/20 text-center">
         قائمة السرفرات
@@ -173,7 +228,6 @@ function ContextMenu({
 const fmt = (s: number) =>
   new Date(s * 1000).toISOString().substring(s >= 3600 ? 11 : 14, 19);
 
-// Play/Pause Icon Component
 function PlayPauseIcon({ isPlaying }: { isPlaying: boolean }) {
   return (
     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -186,7 +240,6 @@ function PlayPauseIcon({ isPlaying }: { isPlaying: boolean }) {
   );
 }
 
-// Skip Icon Component
 function SkipIcon({ direction }: { direction: 'forward' | 'backward' }) {
   return (
     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
