@@ -5,12 +5,13 @@ import React, { useEffect, useRef, useState, ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   getMp4UploadMp4,
+  getMp4UploadMp4FHD,
   getSendVidMp,
   getEpisodeControls,
 } from '../../ext/anime4up';
 import { EpisodeControls } from '../../ext/anime4up/types';
 
-type Server = 'mp4upload' | 'sendvid';
+type Server = 'mp4upload-fhd' | 'mp4upload' | 'sendvid';
 
 function Container({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -66,7 +67,13 @@ function ContextMenu({
       document.removeEventListener('keydown', k);
     };
   }, [onClose]);
-  const label = (s: Server) => (s === 'mp4upload' ? 'MP4Upload' : 'SendVid');
+  const label = (s: Server) =>
+    s === 'mp4upload'
+      ? 'MP4Upload'
+      : s === 'mp4upload-fhd'
+        ? 'MP4Upload FHD'
+        : 'SendVid';
+
   return (
     <div
       ref={r}
@@ -133,11 +140,11 @@ const fmt = (s: number) =>
 export default function Mp4(): JSX.Element {
   const { t } = useParams();
   const navigate = useNavigate();
-  const servers: Server[] = ['mp4upload', 'sendvid'];
+  const servers: Server[] = ['mp4upload-fhd', 'mp4upload', 'sendvid'];
   const [url, setUrl] = useState('');
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(true);
-  const [cur, setCur] = useState<Server>('mp4upload');
+  const [cur, setCur] = useState<Server>('mp4upload-fhd');
   const [ep, setEp] = useState<EpisodeControls | null>(null);
   const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
   const [showTitle, setShowTitle] = useState(false);
@@ -156,8 +163,15 @@ export default function Mp4(): JSX.Element {
   const skipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getUrl = async (s: Server) => {
+    if (!t) throw new Error('Episode ID missing');
     if (s === 'mp4upload') {
       const embed = await getMp4UploadMp4(t);
+      const html = await (await fetch(embed)).text();
+      const pos = html.indexOf('src:') + 6;
+      return html.slice(pos, html.indexOf('"', pos));
+    }
+    if (s === 'mp4upload-fhd') {
+      const embed = await getMp4UploadMp4FHD(t);
       const html = await (await fetch(embed)).text();
       const pos = html.indexOf('src:') + 6;
       return html.slice(pos, html.indexOf('"', pos));
