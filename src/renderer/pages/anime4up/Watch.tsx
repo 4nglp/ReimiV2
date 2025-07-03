@@ -43,6 +43,8 @@ interface CtxProps {
   servers: Server[];
   ep: EpisodeControls | null;
   nav: (p: string) => void;
+  speed: number;
+  onSpeed: (s: number) => void;
 }
 
 function ContextMenu({
@@ -54,6 +56,8 @@ function ContextMenu({
   servers,
   ep,
   nav,
+  speed,
+  onSpeed,
 }: CtxProps) {
   const r = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -130,12 +134,70 @@ function ContextMenu({
           )}
         </div>
       )}
+
+      <div className="border-t border-white/20 mt-2 pt-2">
+        <div className="px-4 py-3 text-sm font-medium text-white border-b border-white/20 text-center">
+          سرعة التشغيل
+        </div>
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <span className="text-base text-gray-300">0.5x</span>
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.5"
+              value={speed}
+              onChange={(e) => onSpeed(parseFloat(e.target.value))}
+              className="flex-1 h-2 rounded-lg appearance-none cursor-pointer slider accent-white"
+              style={{
+                background: `linear-gradient(to right,
+      white 0%,
+      white ${((speed - 0.5) / 1.5) * 100}%,
+      rgba(255,255,255,0.3) ${((speed - 0.5) / 1.5) * 100}%,
+      rgba(255,255,255,0.3) 100%)`,
+              }}
+            />
+
+            <span className="text-base text-gray-300">2x</span>
+          </div>
+          <div className="text-center text-white text-base font-medium">
+            {speed}x
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 const fmt = (s: number) =>
   new Date(s * 1000).toISOString().substring(s >= 3600 ? 11 : 14, 19);
+
+// Play/Pause Icon Component
+function PlayPauseIcon({ isPlaying }: { isPlaying: boolean }) {
+  return (
+    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+      {isPlaying ? (
+        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+      ) : (
+        <path d="M8 5v14l11-7z" />
+      )}
+    </svg>
+  );
+}
+
+// Skip Icon Component
+function SkipIcon({ direction }: { direction: 'forward' | 'backward' }) {
+  return (
+    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+      {direction === 'forward' ? (
+        <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" />
+      ) : (
+        <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+      )}
+    </svg>
+  );
+}
 
 export default function Mp4(): JSX.Element {
   const { t } = useParams();
@@ -155,6 +217,8 @@ export default function Mp4(): JSX.Element {
   const [showVol, setShowVol] = useState(false);
   const [skipMsg, setSkipMsg] = useState<string | null>(null);
   const [hideCur, setHideCur] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
 
   const box = useRef<HTMLDivElement>(null);
   const vid = useRef<HTMLVideoElement>(null);
@@ -226,6 +290,13 @@ export default function Mp4(): JSX.Element {
       vid.current.play();
     } else {
       vid.current.pause();
+    }
+  };
+
+  const setPlaybackSpeed = (newSpeed: number) => {
+    setSpeed(newSpeed);
+    if (vid.current) {
+      vid.current.playbackRate = newSpeed;
     }
   };
 
@@ -368,7 +439,10 @@ export default function Mp4(): JSX.Element {
             onLoadedMetadata={(e) => {
               setDur(e.currentTarget.duration);
               setVol(e.currentTarget.volume);
+              e.currentTarget.playbackRate = speed;
             }}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
           />
         )}
 
@@ -376,7 +450,7 @@ export default function Mp4(): JSX.Element {
           <div className="absolute bottom-0 left-4 right-4 z-20">
             <div className="bg-black/50 backdrop-blur-sm rounded-t-lg p-3">
               <div
-                className="w-full h-2 bg-white/30 rounded-full cursor-pointer mb-2"
+                className="w-full h-2 bg-white/30 rounded-full cursor-pointer mb-3"
                 onClick={seek}
               >
                 <div
@@ -384,9 +458,32 @@ export default function Mp4(): JSX.Element {
                   style={{ width: `${(time / dur) * 100}%` }}
                 />
               </div>
-              <div className="flex justify-between text-white text-xl">
-                <span>{fmt(time)}</span>
-                <span>{fmt(dur)}</span>
+              <div className="flex justify-between items-center text-white">
+                <span className="text-lg">{fmt(time)}</span>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => jump(-5)}
+                    className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                    title="Skip back 5 seconds"
+                  >
+                    <SkipIcon direction="backward" />
+                  </button>
+                  <button
+                    onClick={togglePlay}
+                    className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                    title={isPlaying ? 'Pause' : 'Play'}
+                  >
+                    <PlayPauseIcon isPlaying={isPlaying} />
+                  </button>
+                  <button
+                    onClick={() => jump(5)}
+                    className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                    title="Skip forward 5 seconds"
+                  >
+                    <SkipIcon direction="forward" />
+                  </button>
+                </div>
+                <span className="text-lg">{fmt(dur)}</span>
               </div>
             </div>
           </div>
@@ -402,6 +499,8 @@ export default function Mp4(): JSX.Element {
             servers={servers}
             ep={ep}
             nav={navigate}
+            speed={speed}
+            onSpeed={setPlaybackSpeed}
           />
         )}
       </div>
