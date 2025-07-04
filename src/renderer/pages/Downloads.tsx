@@ -1,4 +1,4 @@
 function Downloads() {
-  return <div>Downloads</div>;
+  return <h1>التحميلات</h1>;
 }
 export default Downloads;

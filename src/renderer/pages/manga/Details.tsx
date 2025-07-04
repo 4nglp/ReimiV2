@@ -5,6 +5,7 @@ import { getDetails3asq } from '../../ext/3asq';
 import { getDetailsLek } from '../../ext/lekmanga';
 import { getDetailsDespair } from '../../ext/despair-manga';
 import { mangaDetails, Chapter } from '../../types';
+import SearchBar from '../../components/manga/SearchBar';
 
 function Details(): React.JSX.Element {
   const { m, s } = useParams<{ m: string; s: string }>();
@@ -91,63 +92,69 @@ function Details(): React.JSX.Element {
 
   if (loading) {
     return (
-      <div className="font-cairo" dir="rtl">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-row gap-8 mt-6">
-            <div className="w-1/4">
-              <div className="mb-3">
-                <div className="w-full aspect-[2/3] rounded-lg bg-gray-800 animate-pulse" />
-              </div>
-              <div className="bg-gray-800/80 rounded-lg p-4 mb-3">
-                <div className="h-6 w-24 bg-gray-700 rounded animate-pulse mx-auto" />
-              </div>
-              <div className="bg-gray-800/80 rounded-lg p-4">
-                <div className="h-[30px] bg-gray-700 rounded-lg animate-pulse" />
-              </div>
+      <>
+        {' '}
+        <div className="font-cairo" dir="rtl">
+          <div className="container mx-auto px-6">
+            <div className="mt-6 mb-4" dir="ltr">
+              <SearchBar />
             </div>
-            <div className="md:w-3/4">
-              <div className="flex mb-3 mt-3">
-                <div className="container mx-auto">
-                  <div className="h-10 w-3/4 bg-gray-800 rounded animate-pulse" />
+            <div className="flex flex-row gap-8 mt-6">
+              <div className="w-1/4">
+                <div className="mb-3">
+                  <div className="w-full aspect-[2/3] rounded-lg bg-gray-800 animate-pulse" />
+                </div>
+                <div className="bg-gray-800/80 rounded-lg p-4 mb-3">
+                  <div className="h-6 w-24 bg-gray-700 rounded animate-pulse mx-auto" />
+                </div>
+                <div className="bg-gray-800/80 rounded-lg p-4">
+                  <div className="h-[30px] bg-gray-700 rounded-lg animate-pulse" />
                 </div>
               </div>
-              <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-3" />
-              <div className="bg-gray-800/80 rounded-lg p-6 mb-3">
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-700 rounded w-full animate-pulse" />
-                  <div className="h-4 bg-gray-700 rounded w-5/6 animate-pulse" />
-                  <div className="h-4 bg-gray-700 rounded w-4/6 animate-pulse" />
+              <div className="md:w-3/4">
+                <div className="flex mb-3 mt-3">
+                  <div className="container mx-auto">
+                    <div className="h-10 w-3/4 bg-gray-800 rounded animate-pulse" />
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="h-8 w-20 bg-gray-800 rounded-full animate-pulse"
-                  />
-                ))}
-              </div>
-              <div className="mt-6">
                 <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-3" />
-                <div className="bg-gray-800/80 rounded-xl shadow-lg overflow-y-auto max-h-96">
-                  <div className="divide-y divide-gray-700/50">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="p-4">
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1">
-                            <div className="h-5 w-3/4 bg-gray-700 rounded animate-pulse mb-2" />
-                            <div className="h-6 w-8 bg-gray-700 rounded-full animate-pulse" />
+                <div className="bg-gray-800/80 rounded-lg p-6 mb-3">
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-700 rounded w-full animate-pulse" />
+                    <div className="h-4 bg-gray-700 rounded w-5/6 animate-pulse" />
+                    <div className="h-4 bg-gray-700 rounded w-4/6 animate-pulse" />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="h-8 w-20 bg-gray-800 rounded-full animate-pulse"
+                    />
+                  ))}
+                </div>
+                <div className="mt-6">
+                  <div className="h-6 w-32 bg-gray-800 rounded animate-pulse mb-3" />
+                  <div className="bg-gray-800/80 rounded-xl shadow-lg overflow-y-auto max-h-96">
+                    <div className="divide-y divide-gray-700/50">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="p-4">
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1">
+                              <div className="h-5 w-3/4 bg-gray-700 rounded animate-pulse mb-2" />
+                              <div className="h-6 w-8 bg-gray-700 rounded-full animate-pulse" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -178,6 +185,9 @@ function Details(): React.JSX.Element {
   return (
     <div className="font-cairo" dir="rtl">
       <div className="container mx-auto px-6">
+        <div className="mt-6 mb-4" dir="ltr">
+          <SearchBar />
+        </div>
         <div className="flex flex-row gap-8 mt-6">
           <div className="w-1/4">
             <div className="mb-3">

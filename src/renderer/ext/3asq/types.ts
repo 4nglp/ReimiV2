@@ -10,3 +10,9 @@ export type Latest = {
   path: string;
   latestChapter: string;
 };
+
+export type Results = {
+  title: string;
+  posterUrl: string;
+  path: string;
+};

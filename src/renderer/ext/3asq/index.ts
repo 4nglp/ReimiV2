@@ -1,5 +1,5 @@
 import { Entry, Chapter, mangaDetails } from '../../types';
-import { Pinned, Latest } from './types';
+import { Pinned, Latest, Results } from './types';
 
 const baseURL = 'https://3asq.org/';
 const ext = '3asq';
@@ -164,37 +164,142 @@ export async function getChapter(m: string, n: string) {
     prevChapterPath,
   };
 }
-
-export async function getResults(q: string, page = 1) {
-  const res = await fetch(`${baseURL}page/${page}?s=${q}&post_type=wp-manga`);
-  const doc = parseHTML(await res.text());
-  const entries: Entry[] = [];
-
-  const elements = doc.querySelectorAll('.row .c-tabs-item__content');
-
-  elements.forEach((e) => {
-    const title =
-      e.querySelector('.tab-thumb .c-image-hover a')?.getAttribute('title') ||
-      '';
-    const path =
-      e
-        .querySelector('.tab-thumb .c-image-hover a')
-        ?.getAttribute('href')
-        ?.split('/')
-        .at(-2) || '';
-    const posterURLs =
-      e
-        .querySelector('.tab-thumb .c-image-hover  img')
-        ?.getAttribute('srcset') || '';
-    const posterURL = posterURLs.split(', ').at(-1)?.split(' ').at(0);
-
-    if (title && path && posterURL) {
-      entries.push({ ext, title, path, posterURL });
+export async function getResults(query: string) {
+  try {
+    const url = `${baseURL}/?s=${query}&post_type=wp-manga`;
+    const res = await fetch(url);
+    const htmlText = await res.text();
+    const doc = parseHTML(htmlText);
+    console.log('=== DEBUGGING SEARCH RESULTS ===');
+    const mainContent =
+      doc.querySelector('.main-content') ||
+      doc.querySelector('.site-content') ||
+      doc.querySelector('.content');
+    let mangaItems = doc.querySelectorAll('.row.c-tabs-item__content');
+    if (mangaItems.length === 0) {
+      mangaItems = doc.querySelectorAll('.tab-thumb');
+      if (mangaItems.length === 0) {
+        mangaItems = doc.querySelectorAll('.post-title');
+      }
     }
-  });
-  return entries;
-}
+    console.log(`Found ${mangaItems.length} manga items`);
+    const results: Results[] = [];
+    if (mangaItems.length > 0) {
+      mangaItems.forEach((item, index) => {
+        try {
+          let titleElement =
+            item.querySelector('.post-title h3 a') ||
+            item.querySelector('.post-title a') ||
+            item.querySelector('h3 a');
+          let imageElement =
+            item.querySelector('.tab-thumb img') || item.querySelector('img');
+          if (!titleElement || !imageElement) {
+            const parentRow = item.closest('.row') || item.parentElement;
+            if (parentRow) {
+              titleElement =
+                titleElement ||
+                parentRow.querySelector('.post-title h3 a') ||
+                parentRow.querySelector('.post-title a') ||
+                parentRow.querySelector('h3 a');
+              imageElement =
+                imageElement ||
+                parentRow.querySelector('.tab-thumb img') ||
+                parentRow.querySelector('img');
+            }
+          }
+          if (titleElement && imageElement) {
+            const title = titleElement.textContent?.trim() || '';
+            const href = titleElement.getAttribute('href') || '';
+            const imageUrl = imageElement.getAttribute('src') || '';
+            const pathMatch = href.match(/\/manga\/([^\/]+)\/?$/);
+            const path = pathMatch ? pathMatch[1] : '';
 
+            if (title && path && imageUrl) {
+              results.push({
+                title,
+                path,
+                posterUrl: imageUrl,
+              });
+
+              console.log(`Result ${index}:`, {
+                title,
+                path,
+                posterUrl: imageUrl,
+              });
+            }
+          }
+        } catch (err) {
+          console.error(`Error processing item ${index}:`, err);
+        }
+      });
+    }
+    if (results.length === 0) {
+      console.log('No results found with main method, trying alternative...');
+      const mangaLinks = doc.querySelectorAll('a[href*="/manga/"]');
+      console.log(`Found ${mangaLinks.length} manga links`);
+      const seenPaths = new Set<string>();
+      mangaLinks.forEach((link, index) => {
+        try {
+          const href = link.getAttribute('href') || '';
+          const title =
+            link.getAttribute('title') || link.textContent?.trim() || '';
+          const pathMatch = href.match(/\/manga\/([^\/]+)\/?$/);
+          const path = pathMatch ? pathMatch[1] : '';
+          if (path && title && !seenPaths.has(path)) {
+            seenPaths.add(path);
+            let imageUrl = '';
+            const container =
+              link.closest('.row') ||
+              link.closest('.tab-thumb') ||
+              link.closest('.post');
+            if (container) {
+              const img = container.querySelector('img');
+              if (img) {
+                imageUrl = img.getAttribute('src') || '';
+              }
+            }
+            if (!imageUrl) {
+              const { parentElement } = link;
+              if (parentElement) {
+                const nearbyImg =
+                  parentElement.querySelector('img') ||
+                  parentElement.previousElementSibling?.querySelector('img') ||
+                  parentElement.nextElementSibling?.querySelector('img');
+                if (nearbyImg) {
+                  imageUrl = nearbyImg.getAttribute('src') || '';
+                }
+              }
+            }
+
+            if (imageUrl) {
+              results.push({
+                title,
+                path,
+                posterUrl: imageUrl,
+              });
+
+              console.log(`Alternative result ${index}:`, {
+                title,
+                path,
+                posterUrl: imageUrl,
+              });
+            }
+          }
+        } catch (err) {
+          console.error(`Error processing link ${index}:`, err);
+        }
+      });
+    }
+
+    console.log(`Total results found: ${results.length}`);
+    console.log('Results:', results);
+
+    return results;
+  } catch (error) {
+    console.error('Error in getResults:', error);
+    throw error;
+  }
+}
 export async function getPinnedEntries() {
   const res = await fetch(`${baseURL}`);
   const doc = parseHTML(await res.text());

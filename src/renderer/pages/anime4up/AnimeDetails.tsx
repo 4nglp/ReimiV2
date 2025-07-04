@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getAnimeDetails } from '../../ext/anime4up';
 import { AnimeDetails } from '../../ext/anime4up/types';
+import SearchBarA4U from '../../components/anime4up/SearchBar';
 
 export default function AnimeDetailsA4U() {
   const { a } = useParams();
@@ -63,6 +64,9 @@ export default function AnimeDetailsA4U() {
     return (
       <div className="font-cairo" dir="rtl">
         <div className="container mx-auto px-6">
+          <div className="mt-6 mb-4" dir="ltr">
+            <SearchBarA4U />
+          </div>
           <div className="flex flex-row gap-8 mt-6">
             <div className="w-1/4">
               <div className="mb-3">
@@ -145,6 +149,9 @@ export default function AnimeDetailsA4U() {
   return (
     <div className="font-cairo" dir="rtl">
       <div className="container mx-auto px-6">
+        <div className="mt-6 mb-4" dir="ltr">
+          <SearchBarA4U />
+        </div>
         <div className="flex flex-row gap-8 mt-6">
           <div className="w-1/4">
             <div className="mb-3">

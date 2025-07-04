@@ -385,7 +385,7 @@ function ProgressBar({ time, duration, onSeek }: ProgressBarProps) {
     <div className="relative">
       {previewTime !== null && (
         <div
-          className="absolute bottom-6 bg-black/80 text-white px-2 py-1 rounded text-lg font-mono pointer-events-none z-10 transform -translate-x-1/2"
+          className="absolute bottom-6 bg-black/80 text-white px-2 py-1 rounded text-lg pointer-events-none z-10 transform -translate-x-1/2 font-cairo"
           style={{ left: previewPosition }}
         >
           {fmt(previewTime)}
