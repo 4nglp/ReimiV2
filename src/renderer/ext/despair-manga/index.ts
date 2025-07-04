@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { Pinned, Latest, Chapter, Details } from './types';
+import { Results } from '../3asq/types';
 
 const baseURL = 'https://despair-manga.com/';
 const parser = new DOMParser();
@@ -110,4 +111,24 @@ export async function getChapter(n: string) {
     title,
     pages,
   };
+}
+
+export async function getSearchResults(query: string) {
+  const res = await fetch(`${baseURL}?s=${query}`);
+  const doc = parseHTML(await res.text());
+  const results: Results[] = [];
+  doc.querySelectorAll('.bsx').forEach((e) => {
+    const title = e.querySelector('a')?.getAttribute('title') || '';
+    const posterUrl = e.querySelector('img')?.getAttribute('src') || '';
+    const href = e.querySelector('a')?.getAttribute('href') || '';
+    const path =
+      href
+        .split('/')
+        .filter((segment) => segment)
+        .pop() || '';
+    if (title && path && posterUrl) {
+      results.push({ title, path, posterUrl });
+    }
+  });
+  return results;
 }
