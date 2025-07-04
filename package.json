@@ -1,8 +1,8 @@
 {
   "name": "Reimi",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "4nglp",
-  "description": "A manga reading and anime watching app for arabic sources",
+  "description": "An arabic anime streaming and manga reading app",
   "keywords": [
     "electron",
     "boilerplate",
@@ -12,7 +12,16 @@
     "sass",
     "webpack",
     "hot",
-    "reload"
+    "reload",
+    "arabic",
+    "anime",
+    "manga",
+    "streaming",
+    "reading",
+    "animerco",
+    "anime4up",
+    "3asq",
+    "despair"
   ],
   "repository": {
     "type": "git",

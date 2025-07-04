@@ -1,8 +1,8 @@
 {
   "author": "4nglp",
   "name": "Reimi",
-  "version": "0.0.1",
-  "description": "A manga reading and anime streaming app arabic sources",
+  "version": "0.0.2",
+  "description": "An arabic anime streaming and manga reading app",
   "license": "MIT",
   "main": "./dist/main/main.js",
   "scripts": {
