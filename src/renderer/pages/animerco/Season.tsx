@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getSeason } from '../../ext/animerco/index';
 import { SeasonDetails } from '../../ext/animerco/types';
+import SearchBar from '../../components/animerco/Sb';
 
 export default function Seasons() {
   const { s } = useParams();
@@ -63,6 +64,9 @@ export default function Seasons() {
     return (
       <div className="font-cairo" dir="rtl">
         <div className="container mx-auto px-6">
+          <div className="mt-6 mb-4">
+            <SearchBar />
+          </div>
           <div className="flex flex-row gap-8 mt-6">
             <div className="w-1/4">
               <div className="mb-3">
@@ -145,6 +149,9 @@ export default function Seasons() {
   return (
     <div className="font-cairo" dir="rtl">
       <div className="container mx-auto px-6">
+        <div className="mt-6 mb-4">
+          <SearchBar />
+        </div>
         <div className="flex flex-row gap-8 mt-6">
           <div className="w-1/4">
             <div className="mb-3">

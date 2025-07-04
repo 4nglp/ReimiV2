@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getAnimes } from '../../ext/animerco/index';
 import { AnimesDetails } from '../../ext/animerco/types';
+import SearchBar from '../../components/animerco/Sb';
 
 export default function Animes() {
   const { a } = useParams();
@@ -57,6 +58,9 @@ export default function Animes() {
   return (
     <div className="font-cairo" dir="rtl">
       <div className="container mx-auto px-6">
+        <div className="mt-6 mb-4">
+          <SearchBar />
+        </div>
         <div className="flex flex-row gap-8 mt-6">
           <div className="w-1/4">
             <div className="mb-3">
