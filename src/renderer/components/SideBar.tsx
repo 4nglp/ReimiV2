@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { RiBookShelfLine } from 'react-icons/ri';
 import { LuMonitorPlay } from 'react-icons/lu';
-import { IoBookOutline } from 'react-icons/io5';
+import { GiWhiteBook } from 'react-icons/gi';
 import {
   DownloadOutlined,
   PlusOutlined,
@@ -189,7 +189,7 @@ export default function SideBar() {
               dir="rtl"
             >
               <div className="flex items-center">
-                <IoBookOutline className="ml-2" />
+                <GiWhiteBook className="ml-2" />
                 <span className="mr-1 font-semibold font-cairo">مانجا</span>
                 <div className="mr-[120px]">
                   {isMangaOpen ? <CaretDownOutlined /> : <CaretLeftOutlined />}
@@ -256,7 +256,7 @@ export default function SideBar() {
             )}
           </div>
         </div>
-        <div
+        {/* <div
           className={`flex items-center p-2 rounded cursor-pointer mb-2 ${isActive('/downloads') ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
           dir="rtl"
         >
@@ -279,7 +279,7 @@ export default function SideBar() {
           >
             الإعدادات
           </Link>
-        </div>
+        </div> */}
       </div>
       <CustomModal
         isOpen={isModalOpen}
