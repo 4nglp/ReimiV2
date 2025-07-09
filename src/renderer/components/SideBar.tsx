@@ -205,13 +205,6 @@ export default function SideBar() {
                     العاشق
                   </div>
                 </Link>
-                {/* <Link to="/lekmanga">
-                  <div
-                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/lekmanga') ? 'text-white font-semibold' : ''}`}
-                  >
-                    ليك مانجا
-                  </div>
-                </Link> */}
                 <Link to="/despair">
                   <div
                     className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/despair') ? 'text-white font-semibold' : ''}`}
@@ -221,7 +214,7 @@ export default function SideBar() {
                 </Link>
                 <Link to="/comick">
                   <div
-                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/despair') ? 'text-white font-semibold' : ''}`}
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/comick') ? 'text-white font-semibold' : ''}`}
                   >
                     Comick
                   </div>

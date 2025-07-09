@@ -140,7 +140,26 @@ function LatestChapters(): React.JSX.Element {
     );
   }
 
-  const skeletonCount = 12;
+  const skeletonCount = 24;
+
+  if (loading && currentPage === 1) {
+    return (
+      <div className="min-h-screen p-4 font-cairo">
+        <div className="grid grid-cols-4 gap-4">
+          {Array.from({ length: skeletonCount }).map((_, i) => (
+            <div
+              key={i}
+              className="relative w-full aspect-[3/4] rounded-lg overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-slate-700 animate-pulse" />
+              <div className="absolute top-2 right-2 h-5 w-12 rounded bg-slate-600 animate-pulse" />
+              <div className="absolute bottom-0 inset-x-0 h-8 bg-slate-800/80 animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (loading && currentPage === 1) {
     return (
@@ -158,76 +177,78 @@ function LatestChapters(): React.JSX.Element {
   }
 
   return (
-    <div className="min-h-screen px-4 font-cairo">
-      <div className="max-w-7xl mx-auto">
-        {entries.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-            {entries.map((item, index) => (
-              <Link
-                key={`${item.path}-${index}`}
-                to={`/${s}/manga/${item.path}`}
-                className="group cursor-pointer"
-              >
-                <div className="relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-slate-800 border border-slate-700">
-                  <div className="aspect-[3/4] relative overflow-hidden">
-                    <img
-                      src={item.posterUrl}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src =
-                          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDMwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMjEyNzM3Ii8+CjxwYXRoIGQ9Ik0xNTAgMjAwQzE2NC4yNTkgMjAwIDE3NSAyMTAuNzQxIDE3NSAyMjVTMTY0LjI1OSAyNTAgMTUwIDI1MFMxMjUgMjM5LjI1OSAxMjUgMjI1UzEzNS43NDEgMjAwIDE1MCAyMDBaIiBmaWxsPSIjNEU1ODY1Ii8+Cjwvc3ZnPg==';
-                      }}
-                    />
-                    <div className="absolute top-2 right-2 bg-slate-900 text-white text-xs font-medium px-2 py-1 rounded-md shadow-md">
-                      {item.latestChapter}
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-slate-900/80">
-                      <h3 className="text-white text-sm font-bold text-center leading-tight line-clamp-2">
-                        {item.title}
-                      </h3>
-                    </div>
-                  </div>
+    <div className="min-h-screen p-4 font-cairo">
+      {entries.length > 0 ? (
+        <div className="grid grid-cols-4 gap-4">
+          {entries.map((item, index) => (
+            <Link
+              key={`${item.path}-${index}`}
+              to={`/${s}/manga/${item.path}`}
+              className="group cursor-pointer"
+            >
+              <div className="relative w-full h-full rounded-lg overflow-hidden bg-gray-900 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                <div className="w-full h-full overflow-hidden">
+                  <img
+                    src={item.posterUrl}
+                    alt={item.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src =
+                        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDMwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMjEyNzM3Ii8+CjxwYXRoIGQ9Ik0xNTAgMjAwQzE2NC4yNTkgMjAwIDE3NSAyMTAuNzQxIDE3NSAyMjVTMTY0LjI1OSAyNTAgMTUwIDI1MFMxMjUgMjM5LjI1OSAxMjUgMjI1UzEzNS43NDEgMjAwIDE1MCAyMDBaIiBmaWxsPSIjNEU1ODY1Ii8+Cjwvc3ZnPg==';
+                    }}
+                  />
                 </div>
-              </Link>
-            ))}
+                <div className="absolute top-3 right-3">
+                  <span className="text-white font-bold text-sm bg-black bg-opacity-80 px-2 py-1 rounded backdrop-blur-sm">
+                    {item.latestChapter}
+                  </span>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4">
+                  <h2 className="text-white font-bold text-lg text-center leading-tight mb-2">
+                    {item.title}
+                  </h2>
+                </div>
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16">
+          <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2" dir="rtl">
-              لا فصول متوفرة
-            </h3>
+          <h3 className="text-lg font-semibold text-white mb-2" dir="rtl">
+            لا فصول متوفرة
+          </h3>
+        </div>
+      )}
+      {isFetchingMore && (
+        <div className="flex justify-center items-center mt-8 py-6">
+          <div className="relative">
+            <div className="w-8 h-8 border-2 border-slate-700 rounded-full animate-spin"></div>
+            <div className="absolute top-0 left-0 w-8 h-8 border-2 border-white rounded-full animate-spin border-t-transparent"></div>
           </div>
-        )}
-        {isFetchingMore && (
-          <div className="flex justify-center items-center mt-8 py-6">
-            <div className="relative">
-              <div className="w-8 h-8 border-2 border-slate-700 rounded-full animate-spin"></div>
-              <div className="absolute top-0 left-0 w-8 h-8 border-2 border-white rounded-full animate-spin border-t-transparent"></div>
-            </div>
-            <p className="ml-3 text-slate-400 font-medium" dir="rtl">
-              يتم تحميل االمزيد من الفصول...
-            </p>
-          </div>
-        )}
-        <div ref={loadMoreRef} className="h-4" />
-      </div>
+          <p className="ml-3 text-slate-400 font-medium" dir="rtl">
+            يتم تحميل االمزيد من الفصول...
+          </p>
+        </div>
+      )}
+      <div ref={loadMoreRef} className="h-4" />
     </div>
   );
 }
