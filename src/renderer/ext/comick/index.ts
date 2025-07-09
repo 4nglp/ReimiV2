@@ -3,7 +3,6 @@ export const getPinned = async () => {
   const req = await fetch('https://api.comick.io/top');
   if (!req.ok) throw new Error(`HTTP error! status: ${req.status}`);
   const res = await req.json();
-  console.log('API response:', res);
   return res;
 };
 
@@ -13,7 +12,6 @@ export const getLatestUpdates = async (page = 1) => {
   );
   if (!req.ok) throw new Error(`HTTP error! status: ${req.status}`);
   const res = await req.json();
-  console.log('API response:', res);
   return res;
 };
 
@@ -80,4 +78,15 @@ export async function getSearchComick(q: string): Promise<ComickResult[]> {
       ? `https://meo.comick.pictures/${item.md_covers[0].b2key}`
       : '',
   }));
+}
+
+export async function getChapterContent(n: string) {
+  const req = await fetch(`https://api.comick.fun/chapter/${n}?tachiyomi=true`);
+  const res = await req.json();
+  if (!req.ok) throw new Error(`HTTP error! status: ${req.status}`);
+  const title = res.chapTitle || '';
+  const pages = res?.chapter?.images?.map((i) => i.url) || [];
+  const next = res?.next?.hid || '';
+  const prev = res?.prev?.hid || '';
+  return { title, pages, next, prev };
 }

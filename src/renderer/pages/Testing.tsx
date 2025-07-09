@@ -4,7 +4,7 @@ function Testing() {
   useEffect(() => {
     const d = async () => {
       const req = await fetch(
-        'https://api.comick.io/v1.0/search?q=chainsaw+man&limit=49&page=1',
+        'https://api.comick.fun/chapter/hbF_vkeo?tachiyomi=true',
       );
       const res = await req.json();
       console.log('API response:', res);

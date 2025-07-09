@@ -10,6 +10,7 @@ import { Chapter } from '../../ext/lekmanga/types';
 import { getChapter as getChapterLek } from '../../ext/lekmanga';
 import { getChapter as getChapter3asq } from '../../ext/3asq';
 import { getChapter as getChapterDespair } from '../../ext/despair-manga';
+import { getChapterContent } from '../../ext/comick';
 function Container({ children }: { children: ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -139,8 +140,8 @@ function Read(): React.JSX.Element {
       try {
         let chapterContent: Chapter | null = null;
 
-        if (s === 'lekmanga') {
-          chapterContent = await getChapterLek(m, n);
+        if (s === 'comick') {
+          chapterContent = await getChapterContent(n);
         } else if (s === '3asq') {
           chapterContent = await getChapter3asq(m, n);
         } else if (s === 'despair') {
@@ -181,8 +182,24 @@ function Read(): React.JSX.Element {
   }, [handleKeyNavigation, handleZoom]);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-  if (!chapter) return <p>No chapter content available</p>;
+  if (error)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="font-cairo text-center text-2xl max-w-xl">
+          Wait a lil more and the chapter will be released on Comick, therefore
+          it will be available.
+        </p>
+      </div>
+    );
+  if (!chapter)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="font-cairo text-center text-2xl max-w-xl">
+          Wait a lil more and the chapter will be released on Comick, therefore
+          it will be available. Yes.
+        </p>
+      </div>
+    );
 
   const { pages, title } = chapter;
 
