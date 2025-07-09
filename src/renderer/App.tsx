@@ -20,7 +20,7 @@ import CategoryView from './pages/CategoryView';
 import Home from './pages/manga/Home';
 import Details from './pages/manga/Details';
 import Read from './pages/manga/Read';
-
+import Testing from './pages/Testing';
 import Anime4up from './pages/anime4up/Home';
 import AnimeDetails from './pages/anime4up/AnimeDetails';
 import SearchPageA4U from './pages/anime4up/SearchResults';
@@ -37,7 +37,8 @@ export default function App() {
             <Route path="/" element={<Library />} />
             <Route path="/category/:categoryName" element={<CategoryView />} />
             <Route path="/downloads" element={<Downloads />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/testing" element={<Testing />} />
+
             {/* animerco */}
             <Route path="/animerco" element={<AnimeRco />} />
             <Route path="/animerco/search" element={<SearchPage />} />

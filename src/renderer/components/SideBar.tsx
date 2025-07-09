@@ -219,6 +219,13 @@ export default function SideBar() {
                     ديسباير
                   </div>
                 </Link>
+                <Link to="/comick">
+                  <div
+                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/despair') ? 'text-white font-semibold' : ''}`}
+                  >
+                    Comick
+                  </div>
+                </Link>
               </div>
             )}
           </div>
@@ -256,7 +263,7 @@ export default function SideBar() {
             )}
           </div>
         </div>
-        {/* <div
+        <div
           className={`flex items-center p-2 rounded cursor-pointer mb-2 ${isActive('/downloads') ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
           dir="rtl"
         >
@@ -269,17 +276,17 @@ export default function SideBar() {
           </Link>
         </div>
         <div
-          className={`flex items-center p-2 rounded cursor-pointer mb-2 ${isActive('/settings') ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+          className={`flex items-center p-2 rounded cursor-pointer mb-2 ${isActive('/testing') ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
           dir="rtl"
         >
           <SettingOutlined className="ml-2" />
           <Link
-            to="/settings"
+            to="/testing"
             className="text-white no-underline flex-grow font-cairo font-semibold"
           >
-            الإعدادات
+            يتم التجربة
           </Link>
-        </div> */}
+        </div>
       </div>
       <CustomModal
         isOpen={isModalOpen}

@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { getPinnedEntries as get3asqPinned } from '../../ext/3asq';
 import { getPinnedEntries as getLekMangaPinned } from '../../ext/lekmanga';
 import { getPinnedEntries as getDespairPinned } from '../../ext/despair-manga';
+import { getPinned } from '../../ext/comick';
 import { Pinned } from '../../ext/despair-manga/types';
 
 export default function Pins() {
@@ -20,6 +21,7 @@ export default function Pins() {
     const fetchPins = async () => {
       try {
         let data: Pinned[] = [];
+
         switch (s) {
           case '3asq':
             data = await get3asqPinned();
@@ -30,6 +32,18 @@ export default function Pins() {
           case 'despair':
             data = await getDespairPinned();
             break;
+          case 'comick':
+            const res = await getPinned();
+            const comics = res?.comicsByCurrentSeason?.data ?? [];
+            data = comics.map((comic: any) => ({
+              path: comic.slug,
+              title: comic.title,
+              posterUrl: comic.md_covers?.[0]?.b2key
+                ? `https://meo.comick.pictures/${comic.md_covers[0].b2key}`
+                : '',
+            }));
+            break;
+
           default:
             throw new Error('Unknown source');
         }

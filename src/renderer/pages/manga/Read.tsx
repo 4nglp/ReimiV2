@@ -197,7 +197,7 @@ function Read(): React.JSX.Element {
           transition: 'transform 0.1s ease-out',
         }}
       >
-        {currentPage === 0 && <h1>{title}</h1>}
+        {currentPage === 0 && <h1 className="text-2xl font-cairo">{title}</h1>}
         {pages.map((page, index) => {
           const adjustedIndex = index + 1;
           return (
@@ -213,7 +213,7 @@ function Read(): React.JSX.Element {
         })}
       </div>
       {currentPage > 0 && (
-        <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded">
+        <div className="fixed bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded font-cairo">
           <p>{`${currentPage} / ${pages.length}`}</p>
         </div>
       )}

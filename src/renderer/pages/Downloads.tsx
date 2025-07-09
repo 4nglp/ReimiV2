@@ -1,4 +1,5 @@
+import Settings from './Settings';
 function Downloads() {
-  return <h1>التحميلات</h1>;
+  return <Settings url="https://comick.app/manga/9sboOh8t-chapter-10-en" />;
 }
 export default Downloads;

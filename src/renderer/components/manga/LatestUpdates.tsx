@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getEntriesLekManga } from '../../ext/lekmanga';
-import { getLatestUpdates } from '../../ext/despair-manga';
+import { getLatestUpdates as getLatestUpdatesDespair } from '../../ext/despair-manga';
+import { getLatestUpdates as getLatestUpdatesComick } from '../../ext/comick';
 import { getEntries3asq } from '../../ext/3asq';
-import { Latest } from '../../ext/manga/types';
+import { Latest } from '../../ext/despair-manga/types';
 
 function LatestChapters(): React.JSX.Element {
   const [entries, setEntries] = useState<Latest[]>([]);
@@ -32,13 +33,24 @@ function LatestChapters(): React.JSX.Element {
         } else if (s === '3asq') {
           data = await getEntries3asq(page);
         } else if (s === 'despair') {
-          data = await getLatestUpdates(page);
+          data = await getLatestUpdatesDespair(page);
+        } else if (s === 'comick') {
+          const res = await getLatestUpdatesComick(page);
+          data = res.map((item: any) => ({
+            path: item.md_comics.slug,
+            title: item.md_comics.title,
+            posterUrl: item.md_comics.md_covers?.[0]?.b2key
+              ? `https://meo.comick.pictures/${item.md_comics.md_covers[0].b2key}`
+              : '',
+            latestChapter: item.chap ? `${item.chap}` : 'N/A',
+          }));
         } else {
           throw new Error('Unknown source');
         }
 
         setEntries((prev) => [...prev, ...data]);
       } catch (err) {
+        console.error('Error fetching entries:', err);
         setError('Failed to fetch entries');
       } finally {
         setLoading(false);
@@ -101,6 +113,7 @@ function LatestChapters(): React.JSX.Element {
             <button
               type="button"
               onClick={() => {
+                setError(null);
                 setCurrentPage(1);
                 fetchEntries(1);
               }}
@@ -149,9 +162,9 @@ function LatestChapters(): React.JSX.Element {
       <div className="max-w-7xl mx-auto">
         {entries.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-            {entries.map((item) => (
+            {entries.map((item, index) => (
               <Link
-                key={`${item.path}`}
+                key={`${item.path}-${index}`}
                 to={`/${s}/manga/${item.path}`}
                 className="group cursor-pointer"
               >
@@ -160,7 +173,7 @@ function LatestChapters(): React.JSX.Element {
                     <img
                       src={item.posterUrl}
                       alt={item.title}
-                      className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src =

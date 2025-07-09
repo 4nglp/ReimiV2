@@ -124,9 +124,7 @@ export async function getChapter(m: string, n: string) {
   const res = await fetch(`${baseURL}/manga/${fullChapterPath}`);
   const doc = parseHTML(await res.text());
 
-  const titleElement = doc.querySelector('h1#chapter-heading');
-  const title = titleElement?.textContent?.trim() || 'Untitled Chapter';
-
+  const title = doc.querySelector('li.active')?.textContent?.trim() || '';
   const pages: string[] = [];
   doc.querySelectorAll('.page-break img').forEach((img) => {
     const pageURL = img.getAttribute('src');
