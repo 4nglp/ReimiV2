@@ -53,3 +53,31 @@ export const getDetailsComick = async (slug: string) => {
     throw err;
   }
 };
+
+export interface ComickSearchItem {
+  hid: string;
+  slug: string;
+  title: string;
+  desc: string;
+  md_covers?: { b2key: string }[];
+}
+
+export interface ComickResult {
+  path: string;
+  title: string;
+  posterUrl: string;
+}
+
+export async function getSearchComick(q: string): Promise<ComickResult[]> {
+  const url = `https://api.comick.io/v1.0/search?q=${encodeURIComponent(q)}&limit=49&page=1`;
+  const req = await fetch(url);
+  if (!req.ok) throw new Error(`HTTP error! status: ${req.status}`);
+  const list: ComickSearchItem[] = await req.json();
+  return list.map((item) => ({
+    path: item.slug,
+    title: item.title,
+    posterUrl: item.md_covers?.[0]
+      ? `https://meo.comick.pictures/${item.md_covers[0].b2key}`
+      : '',
+  }));
+}
