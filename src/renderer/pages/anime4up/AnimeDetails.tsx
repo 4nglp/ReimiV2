@@ -4,6 +4,13 @@ import { Link, useParams } from 'react-router-dom';
 import { getAnimeDetails } from '../../ext/anime4up';
 import { AnimeDetails } from '../../ext/anime4up/types';
 import SearchBarA4U from '../../components/anime4up/SearchBar';
+import { ElectronHandler } from '../../../main/preload';
+
+declare global {
+  interface Window {
+    electron: ElectronHandler;
+  }
+}
 
 export default function AnimeDetailsA4U() {
   const { a } = useParams();
@@ -11,6 +18,24 @@ export default function AnimeDetailsA4U() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    if (window.electron && window.electron.discord) {
+      if (details) {
+        window.electron.discord.setDetailsChecking({
+          title: details.title,
+          posterURL: details.posterURL,
+        });
+      } else {
+        window.electron.discord.setBrowse();
+      }
+    }
+    return () => {
+      if (window.electron && window.electron.discord) {
+        console.log('hh');
+      }
+    };
+  }, [details]);
 
   useEffect(() => {
     const getDetails = async () => {

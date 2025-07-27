@@ -2,6 +2,13 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { ElectronHandler } from '../../main/preload';
+
+declare global {
+  interface Window {
+    electron: ElectronHandler;
+  }
+}
 
 interface SeriesItem {
   title: string;
@@ -110,6 +117,20 @@ export default function Library() {
       isOpen: false,
       itemIndex: -1,
     });
+
+  useEffect(() => {
+    if (window.electron) {
+      window.electron.discord.setBrowse();
+    } else {
+      console.log('error hh');
+    }
+
+    return () => {
+      if (window.electron && window.electron.discord) {
+        console.log('hh');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const storageKey = 'all series';
@@ -392,7 +413,7 @@ export default function Library() {
 
   return (
     <div className="font-cairo container mx-auto px-6 py-8" dir="rtl">
-      <h2 className="text-2xl font-bold mb-6">المكتبة</h2>
+      <h2 className="text-2xl font-bold mt-12 mb-6">المكتبة</h2>
       <div className="grid md:grid-cols-5 lg:grid-cols-6 gap-6">
         {series.map((item, index) => (
           <div

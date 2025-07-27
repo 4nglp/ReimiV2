@@ -18,6 +18,13 @@ import {
 } from '../../ext/comick';
 import { mangaDetails, Chapter } from '../../types';
 import SearchBar from '../../components/manga/SearchBar';
+import { ElectronHandler } from '../../../main/preload';
+
+declare global {
+  interface Window {
+    electron: ElectronHandler;
+  }
+}
 
 interface ComickDetailsResponse {
   comic: {
@@ -78,6 +85,24 @@ function Details(): React.JSX.Element {
 
   const isComick = s === 'comick';
   const contentDirection = isComick ? 'ltr' : 'rtl';
+
+  useEffect(() => {
+    if (window.electron && window.electron.discord) {
+      if (entryDetails) {
+        window.electron.discord.setDetailsChecking({
+          title: entryDetails.title,
+          posterURL: entryDetails.posterURL,
+        });
+      } else {
+        window.electron.discord.setBrowse();
+      }
+    }
+    return () => {
+      if (window.electron && window.electron.discord) {
+        console.log('hh');
+      }
+    };
+  }, [entryDetails]);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -249,7 +274,10 @@ function Details(): React.JSX.Element {
       `Bulk download completed: ${totalSuccessful}/${chaptersToDownload.length} chapters successful (${totalPages} total pages)`,
     );
   };
-
+  const data = {
+    mangaTitle: entryDetails?.title,
+    mangaPosterURL: entryDetails?.posterURL,
+  };
   if (loading) {
     return (
       <div className="font-cairo" dir="rtl">
@@ -687,6 +715,7 @@ function Details(): React.JSX.Element {
                 >
                   <Link
                     to={`/${s}/read/${m}/${chapter.path}`}
+                    state={{ data, chapterTitle: chapter.title }}
                     className="text-lg"
                   >
                     {chapter.title}

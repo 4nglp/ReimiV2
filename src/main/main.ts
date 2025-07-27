@@ -1,3 +1,5 @@
+// Add to your main.ts file - Updated version with Discord integration
+
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -15,10 +17,13 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import DiscordActivity from '../../discord-activity';
 
 const fs = require('fs');
 const https = require('https');
 const http = require('http');
+
+let discordActivity: DiscordActivity | null = null;
 
 ipcMain.handle(
   'download-chapter',
@@ -140,6 +145,50 @@ ipcMain.handle(
   },
 );
 
+ipcMain.handle('discord-set-browse', async () => {
+  if (discordActivity) {
+    await discordActivity.setBrowseActivity();
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle('discord-set-details-checking', async (_, mangaData) => {
+  if (discordActivity) {
+    await discordActivity.setCheckingDetailsActivity(mangaData);
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle('discord-set-reading', async (_, mangaData) => {
+  if (discordActivity) {
+    await discordActivity.setReadingActivity(mangaData);
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle('discord-update-page', async (_, updates) => {
+  if (discordActivity) {
+    await discordActivity.updateCurrentActivity(updates);
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle('discord-clear', async () => {
+  if (discordActivity) {
+    await discordActivity.clearActivity();
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle('discord-status', async () => {
+  return discordActivity ? discordActivity.getConnectionStatus() : false;
+});
+
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -230,32 +279,38 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
 
-  // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
 };
 
-/**
- * Add event listeners...
- */
-
 app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
+  if (discordActivity) {
+    discordActivity.disconnect();
+  }
+
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
+app.on('before-quit', () => {
+  if (discordActivity) {
+    console.log('🧹 Cleaning up Discord integration...');
+    discordActivity.disconnect();
+  }
+});
+
 app
   .whenReady()
-  .then(() => {
+  .then(async () => {
+    discordActivity = new DiscordActivity('1361093911057273052');
+    await discordActivity.connect();
+
     session.defaultSession.webRequest.onBeforeSendHeaders(
       {
         urls: [
@@ -267,12 +322,10 @@ app
       (details, callback) => {
         const url = new URL(details.url);
 
-        // Handle mp4upload.com
         if (url.hostname.includes('mp4upload.com')) {
           details.requestHeaders['Referer'] = 'https://www.mp4upload.com/';
         }
 
-        // Handle comick.io and api.comick.io
         if (url.hostname.includes('comick.io')) {
           details.requestHeaders['User-Agent'] =
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
