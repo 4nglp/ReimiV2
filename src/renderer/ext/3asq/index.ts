@@ -70,9 +70,6 @@ export async function getDetails3asq(
       ?.textContent?.trim() || 'Not specified';
 
   const chapters: Chapter[] = [];
-  const a = `${baseURL}manga/${formattedTitle}/ajax/chapters/?t=1`;
-  console.log(a);
-  console.log('a');
 
   const chaptersRes = await fetch(
     `${baseURL}manga/${formattedTitle}/ajax/chapters/?t=1`,

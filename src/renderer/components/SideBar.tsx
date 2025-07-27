@@ -269,6 +269,18 @@ export default function SideBar() {
           </Link>
         </div>
         <div
+          className={`flex items-center p-2 rounded cursor-pointer mb-2 ${isActive('/settings') ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+          dir="rtl"
+        >
+          <SettingOutlined className="ml-2" />
+          <Link
+            to="/settings"
+            className="text-white no-underline flex-grow font-cairo font-semibold"
+          >
+            الاعدادات
+          </Link>
+        </div>
+        <div
           className={`flex items-center p-2 rounded cursor-pointer mb-2 ${isActive('/testing') ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
           dir="rtl"
         >

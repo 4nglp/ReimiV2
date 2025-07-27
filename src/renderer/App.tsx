@@ -49,6 +49,7 @@ function AppRoutes() {
           <Route path="/" element={<Library />} />
           <Route path="/category/:categoryName" element={<CategoryView />} />
           <Route path="/downloads" element={<Downloads />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/testing" element={<Testing />} />
           {/* Animerco */}
           <Route path="/animerco" element={<AnimeRco />} />

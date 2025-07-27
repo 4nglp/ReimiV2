@@ -103,7 +103,6 @@
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
     "lucide-react": "^0.488.0",
-    "puppeteer": "^24.8.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",

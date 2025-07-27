@@ -3,6 +3,10 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 export type Channels = 'ipc-example' | 'get-data'; // Example of additional channels
 
+contextBridge.exposeInMainWorld('electronAPI', {
+  downloadChapter: (data) => ipcRenderer.invoke('download-chapter', data),
+});
+
 const electronHandler = {
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {

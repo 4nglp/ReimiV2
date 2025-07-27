@@ -1,5 +1,4 @@
-import Settings from './Settings';
 function Downloads() {
-  return <Settings url="https://comick.app/manga/9sboOh8t-chapter-10-en" />;
+  return <h1 className="font-cairo">التحميلات</h1>;
 }
 export default Downloads;

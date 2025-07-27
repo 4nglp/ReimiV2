@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { LuArrowDownUp } from 'react-icons/lu';
-import { getDetails3asq } from '../../ext/3asq';
-import { getDetailsDespair } from '../../ext/despair-manga';
-import { getDetailsComick } from '../../ext/comick';
+import {
+  LuArrowDownUp,
+  LuSettings,
+  LuDownload,
+  LuTrash2,
+  LuX,
+} from 'react-icons/lu';
+import { getDetails3asq, getChapter as getChapter3asq } from '../../ext/3asq';
+import {
+  getDetailsDespair,
+  getChapter as getChapterDespair,
+} from '../../ext/despair-manga';
+import {
+  getDetailsComick,
+  getChapterContent as getChapterComick,
+} from '../../ext/comick';
 import { mangaDetails, Chapter } from '../../types';
 import SearchBar from '../../components/manga/SearchBar';
 
@@ -56,6 +68,13 @@ function Details(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [reverseOrder, setReverseOrder] = useState<boolean>(false);
   const [added, setAdded] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloadRange, setDownloadRange] = useState({ from: 1, to: 1 });
+  const [downloadOption, setDownloadOption] = useState<
+    'all' | 'next' | 'range'
+  >('all');
+  const [nextChaptersCount, setNextChaptersCount] = useState(5);
 
   const isComick = s === 'comick';
   const contentDirection = isComick ? 'ltr' : 'rtl';
@@ -141,6 +160,94 @@ function Details(): React.JSX.Element {
     } catch (e) {
       console.error('Failed to add to library', e);
     }
+  };
+
+  const removeFromLibrary = () => {
+    if (!entryDetails) return;
+    const storageKey = 'all series';
+    try {
+      const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const filtered = existing.filter(
+        (item: any) => item.title !== entryDetails.title,
+      );
+      localStorage.setItem(storageKey, JSON.stringify(filtered));
+      setAdded(false);
+      setShowSettings(false);
+    } catch (e) {
+      console.error('Failed to remove from library', e);
+    }
+  };
+
+  const handleBulkDownload = async () => {
+    if (!entryDetails) return;
+
+    let chaptersToDownload: Chapter[] = [];
+    const chronologicalChapters = reverseOrder
+      ? chapters
+      : [...chapters].reverse();
+    switch (downloadOption) {
+      case 'all':
+        chaptersToDownload = chronologicalChapters;
+        break;
+      case 'next':
+        chaptersToDownload = chronologicalChapters.slice(0, nextChaptersCount);
+        break;
+      case 'range':
+        const fromIndex = downloadRange.from - 1;
+        const toIndex = downloadRange.to;
+        chaptersToDownload = chronologicalChapters.slice(fromIndex, toIndex);
+        break;
+    }
+    if (chaptersToDownload.length === 0) {
+      console.warn('No chapters selected for download.');
+      return;
+    }
+    setShowDownloadModal(false);
+    console.log(
+      `Starting bulk download of ${chaptersToDownload.length} chapters...`,
+    );
+    let totalSuccessful = 0;
+    let totalFailed = 0;
+    let totalPages = 0;
+    for (const chapter of chaptersToDownload) {
+      try {
+        let chapterData;
+        if (s === '3asq') {
+          chapterData = await getChapter3asq(m!, chapter.path);
+        } else if (s === 'despair') {
+          chapterData = await getChapterDespair(chapter.path);
+        } else if (s === 'comick') {
+          chapterData = await getChapterComick(chapter.path);
+        }
+        if (chapterData && chapterData.pages?.length) {
+          const result = await window.electronAPI.downloadChapter({
+            mangaTitle: entryDetails.title,
+            chapterTitle: chapterData.title || chapter.title,
+            pages: chapterData.pages,
+          });
+          if (result.success) {
+            totalSuccessful++;
+            totalPages += result.totalPages;
+            console.log(
+              `✓ ${chapter.title}: ${result.successCount}/${result.totalPages} pages`,
+            );
+          } else {
+            totalFailed++;
+            console.error(`✗ ${chapter.title}: ${result.error}`);
+          }
+        } else {
+          totalFailed++;
+          console.warn(`✗ ${chapter.title}: No pages found`);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (e) {
+        totalFailed++;
+        console.error(`✗ ${chapter.title}:`, e);
+      }
+    }
+    console.log(
+      `Bulk download completed: ${totalSuccessful}/${chaptersToDownload.length} chapters successful (${totalPages} total pages)`,
+    );
   };
 
   if (loading) {
@@ -317,10 +424,179 @@ function Details(): React.JSX.Element {
     </div>
   );
 
+  const renderDownloadModal = () => {
+    if (!showDownloadModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div
+          className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4"
+          dir={contentDirection}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold">
+              {isComick ? 'Download Options' : 'خيارات التحميل'}
+            </h3>
+            <button
+              onClick={() => setShowDownloadModal(false)}
+              className="text-gray-400 hover:text-white"
+            >
+              <LuX className="text-xl" />
+            </button>
+          </div>
+          <div className="space-y-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="downloadOption"
+                value="all"
+                checked={downloadOption === 'all'}
+                onChange={(e) => setDownloadOption(e.target.value as 'all')}
+                className="w-4 h-4"
+              />
+              <span>
+                {isComick ? 'Download All Chapters' : 'تحميل جميع الفصول'} (
+                {chapters.length})
+              </span>
+            </label>
+            <div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name="downloadOption"
+                  value="next"
+                  checked={downloadOption === 'next'}
+                  onChange={(e) => setDownloadOption(e.target.value as 'next')}
+                  className="w-4 h-4"
+                />
+                <span>{isComick ? 'Download Next' : 'تحميل التالي'}</span>
+              </label>
+              {downloadOption === 'next' && (
+                <div className="mt-2 ml-7">
+                  <input
+                    type="number"
+                    min="1"
+                    max={chapters.length}
+                    value={nextChaptersCount}
+                    onChange={(e) =>
+                      setNextChaptersCount(parseInt(e.target.value) || 1)
+                    }
+                    className="w-20 px-2 py-1 bg-gray-700 rounded border border-gray-600"
+                  />
+                  <span className="ml-2">{isComick ? 'chapters' : 'فصل'}</span>
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name="downloadOption"
+                  value="range"
+                  checked={downloadOption === 'range'}
+                  onChange={(e) => setDownloadOption(e.target.value as 'range')}
+                  className="w-4 h-4"
+                />
+                <span>{isComick ? 'Download Range' : 'تحميل نطاق محدد'}</span>
+              </label>
+              {downloadOption === 'range' && (
+                <div className="mt-2 ml-7 flex items-center gap-2">
+                  <span>{isComick ? 'From' : 'من'}:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max={chapters.length}
+                    value={downloadRange.from}
+                    onChange={(e) =>
+                      setDownloadRange((prev) => ({
+                        ...prev,
+                        from: parseInt(e.target.value) || 1,
+                      }))
+                    }
+                    className="w-16 px-2 py-1 bg-gray-700 rounded border border-gray-600"
+                  />
+                  <span>{isComick ? 'To' : 'إلى'}:</span>
+                  <input
+                    type="number"
+                    min={downloadRange.from}
+                    max={chapters.length}
+                    value={downloadRange.to}
+                    onChange={(e) =>
+                      setDownloadRange((prev) => ({
+                        ...prev,
+                        to: parseInt(e.target.value) || prev.from,
+                      }))
+                    }
+                    className="w-16 px-2 py-1 bg-gray-700 rounded border border-gray-600"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={handleBulkDownload}
+              className="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors"
+            >
+              {isComick ? 'Start Download' : 'بدء التحميل'}
+            </button>
+            <button
+              onClick={() => setShowDownloadModal(false)}
+              className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              {isComick ? 'Cancel' : 'إلغاء'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderDetailsSection = () => (
     <div className="md:w-3/4" dir={contentDirection}>
-      <div className="flex mb-3 mt-3 justify-start">
+      <div className="flex mb-3 mt-3 justify-between items-center">
         <h2 className="text-4xl">{entryDetails.title}</h2>
+        <div className="relative settings-dropdown">
+          <button
+            type="button"
+            onClick={() => setShowSettings(!showSettings)}
+            className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+          >
+            <LuSettings className="text-lg" />
+            <span>{isComick ? 'Settings' : 'الاعدادات'}</span>
+          </button>
+
+          {showSettings && (
+            <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10">
+              <div className="py-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDownloadModal(true);
+                    setShowSettings(false);
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-2 hover:bg-gray-700 transition-colors"
+                >
+                  <LuDownload className="text-lg" />
+                  <span>{isComick ? 'Bulk Download' : 'تحميل مجمع'}</span>
+                </button>
+
+                {added && (
+                  <button
+                    type="button"
+                    onClick={removeFromLibrary}
+                    className="flex items-center gap-3 w-full px-4 py-2 hover:bg-gray-700 transition-colors text-red-400"
+                  >
+                    <LuTrash2 className="text-lg" />
+                    <span>
+                      {isComick ? 'Remove from Library' : 'حذف من المكتبة'}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       <h2
         className="text-xl font-bold border-s-4 border-primary rounded-sm ps-3 mb-3"
@@ -405,17 +681,17 @@ function Details(): React.JSX.Element {
           <div className="bg-gray-800/80 rounded-xl shadow-lg overflow-y-auto max-h-96">
             <div className="divide-y divide-gray-700/50">
               {chapters.map((chapter: Chapter) => (
-                <Link
-                  to={`/${s}/read/${m}/${chapter.path}`}
+                <div
                   key={chapter.path}
-                  className="block hover:bg-gray-700 transition-all duration-200"
+                  className="flex justify-between items-center p-4 hover:bg-gray-700 transition-all"
                 >
-                  <div className="flex items-center gap-4 p-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-medium">{chapter.title}</h3>
-                    </div>
-                  </div>
-                </Link>
+                  <Link
+                    to={`/${s}/read/${m}/${chapter.path}`}
+                    className="text-lg"
+                  >
+                    {chapter.title}
+                  </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -452,6 +728,7 @@ function Details(): React.JSX.Element {
           {renderDetailsSection()}
         </div>
       </div>
+      {renderDownloadModal()}
     </div>
   );
 }

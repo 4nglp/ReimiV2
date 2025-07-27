@@ -8,12 +8,137 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+
+const fs = require('fs');
+const https = require('https');
+const http = require('http');
+
+ipcMain.handle(
+  'download-chapter',
+  async (_, { mangaTitle, chapterTitle, pages }) => {
+    try {
+      const sanitizeName = (name) =>
+        name
+          .replace(/[<>:"/\\|?*]/g, '_')
+          .replace(/\s+/g, ' ')
+          .trim();
+      const downloadFolder = path.join(
+        app.getPath('downloads'),
+        'Reimi downloads',
+        sanitizeName(mangaTitle),
+        sanitizeName(chapterTitle),
+      );
+      await fs.promises.mkdir(downloadFolder, { recursive: true });
+      const downloadImage = async (url, filepath) => {
+        return new Promise((resolve, reject) => {
+          const protocol = url.startsWith('https') ? https : http;
+          const timeout = setTimeout(() => {
+            reject(new Error('Download timeout'));
+          }, 30000);
+
+          protocol
+            .get(url, (res) => {
+              if (
+                res.statusCode >= 300 &&
+                res.statusCode < 400 &&
+                res.headers.location
+              ) {
+                clearTimeout(timeout);
+                return downloadImage(res.headers.location, filepath)
+                  .then(resolve)
+                  .catch(reject);
+              }
+              if (res.statusCode !== 200) {
+                clearTimeout(timeout);
+                return reject(new Error(`HTTP ${res.statusCode}`));
+              }
+              const fileStream = fs.createWriteStream(filepath);
+              res.pipe(fileStream);
+              fileStream.on('finish', () => {
+                clearTimeout(timeout);
+                fileStream.close(resolve);
+              });
+              fileStream.on('error', (err) => {
+                clearTimeout(timeout);
+                reject(err);
+              });
+            })
+            .on('error', (err) => {
+              clearTimeout(timeout);
+              reject(err);
+            });
+        });
+      };
+      let successCount = 0;
+      let failedCount = 0;
+      const failedPages = [];
+      const concurrentLimit = 3;
+      for (let i = 0; i < pages.length; i += concurrentLimit) {
+        const batch = pages.slice(i, i + concurrentLimit);
+        const promises = batch.map(async (pageUrl, batchIndex) => {
+          const pageIndex = i + batchIndex;
+          try {
+            let ext = path.extname(new URL(pageUrl).pathname);
+            if (!ext || ext.length > 5) {
+              ext = '.jpg';
+            }
+            const filename = `${String(pageIndex + 1).padStart(3, '0')}${ext}`;
+            const filepath = path.join(downloadFolder, filename);
+            if (fs.existsSync(filepath) && fs.statSync(filepath).size > 0) {
+              successCount++;
+              return;
+            }
+            await downloadImage(pageUrl, filepath);
+            successCount++;
+          } catch (error) {
+            failedCount++;
+            failedPages.push({
+              index: pageIndex + 1,
+              url: pageUrl,
+              error: error.message,
+            });
+            console.error(`Failed to download page ${pageIndex + 1}:`, error);
+          }
+        });
+        await Promise.allSettled(promises);
+        if (i + concurrentLimit < pages.length) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+      }
+      const result = {
+        success: true,
+        totalPages: pages.length,
+        successCount,
+        failedCount,
+        downloadPath: downloadFolder,
+        failedPages: failedPages.length > 0 ? failedPages : undefined,
+      };
+      console.log(
+        `Download completed for "${chapterTitle}": ${successCount}/${pages.length} pages successful`,
+      );
+      if (failedCount > 0) {
+        console.warn(`${failedCount} pages failed to download`);
+      }
+      return result;
+    } catch (error) {
+      console.error('Download error:', error);
+      return {
+        success: false,
+        error: error.message,
+        totalPages: pages?.length || 0,
+        successCount: 0,
+        failedCount: pages?.length || 0,
+      };
+    }
+  },
+);
 
 class AppUpdater {
   constructor() {
