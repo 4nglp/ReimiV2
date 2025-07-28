@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/media-has-caption */
 import React, {
   useEffect,
   useRef,
@@ -450,6 +447,7 @@ export default function Mp4(): JSX.Element {
   const [vol, setVol] = useState(1);
   const [showVol, setShowVol] = useState(false);
   const [skipMsg, setSkipMsg] = useState<string | null>(null);
+  const [showPlayPauseMsg, setShowPlayPauseMsg] = useState<boolean>(false);
   const [hideCur, setHideCur] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -464,6 +462,7 @@ export default function Mp4(): JSX.Element {
   const volTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const curTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const playPauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getUrl = async (s: Server) => {
     if (!t) throw new Error('Episode ID missing');
@@ -512,7 +511,20 @@ export default function Mp4(): JSX.Element {
     setVol(next);
     setShowVol(true);
     if (volTimer.current) clearTimeout(volTimer.current);
-    volTimer.current = setTimeout(() => setShowVol(false), 1500);
+    volTimer.current = setTimeout(() => setShowVol(false), 1000);
+  };
+
+  const skipOverlay = (msg: string) => {
+    setSkipMsg(msg);
+    if (skipTimer.current) clearTimeout(skipTimer.current);
+    skipTimer.current = setTimeout(() => setSkipMsg(null), 1000);
+  };
+
+  const playPauseOverlay = (playing: boolean) => {
+    setIsPlaying(playing);
+    setShowPlayPauseMsg(true);
+    if (playPauseTimer.current) clearTimeout(playPauseTimer.current);
+    playPauseTimer.current = setTimeout(() => setShowPlayPauseMsg(false), 1000);
   };
 
   const wheel = (e: WheelEvent) => {
@@ -546,9 +558,7 @@ export default function Mp4(): JSX.Element {
     const next = Math.max(0, Math.min(dur, vid.current.currentTime + sec));
     vid.current.currentTime = next;
     setTime(next);
-    setSkipMsg(`${sec > 0 ? '+' : ''}${sec}s`);
-    if (skipTimer.current) clearTimeout(skipTimer.current);
-    skipTimer.current = setTimeout(() => setSkipMsg(null), 600);
+    skipOverlay(`${sec > 0 ? '+' : ''}${sec}s`);
   };
 
   const adjustVolume = (delta: number) => {
@@ -589,19 +599,16 @@ export default function Mp4(): JSX.Element {
 
     const { discord } = window.electron;
 
-    if (animeTitle && epTitle && dur > 0) {
+    if (animeTitle && epTitle && !loading) {
       discord.setWatching({
         animeTitle,
         episodeTitle: epTitle,
         posterURL,
+        currentTime: time,
+        totalDuration: dur,
+        isPlaying: isPlaying,
       });
-    } else if (animeTitle && epTitle && dur === 0 && !loading) {
-      discord.setWatching({
-        animeTitle,
-        episodeTitle: epTitle,
-        posterURL,
-      });
-    } else if (!animeTitle || !epTitle) {
+    } else {
       discord.clear();
     }
 
@@ -610,7 +617,7 @@ export default function Mp4(): JSX.Element {
         discord.clear();
       }
     };
-  }, [animeTitle, epTitle, posterURL, time, dur, isPlaying, loading, t]);
+  }, [animeTitle, epTitle, posterURL, time, dur, isPlaying, loading]);
 
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
@@ -676,24 +683,29 @@ export default function Mp4(): JSX.Element {
 
     document.addEventListener('keydown', key);
     document.addEventListener('wheel', wheel, { passive: false });
+
     return () => {
       document.removeEventListener('keydown', key);
       document.removeEventListener('wheel', wheel);
-      if (volTimer.current) clearTimeout(volTimer.current);
-      if (curTimer.current) clearTimeout(curTimer.current);
-      if (skipTimer.current) clearTimeout(skipTimer.current);
+      // Clear all timers on cleanup
+      if (volTimer.current) {
+        clearTimeout(volTimer.current);
+        volTimer.current = null;
+      }
+      if (curTimer.current) {
+        clearTimeout(curTimer.current);
+        curTimer.current = null;
+      }
+      if (skipTimer.current) {
+        clearTimeout(skipTimer.current);
+        skipTimer.current = null;
+      }
+      if (playPauseTimer.current) {
+        clearTimeout(playPauseTimer.current);
+        playPauseTimer.current = null;
+      }
     };
-  }, [
-    dur,
-    ep,
-    navigate,
-    animeTitle,
-    posterURL,
-    epTitle,
-    togglePlay,
-    jump,
-    adjustVolume,
-  ]);
+  }, [dur, ep, navigate, animeTitle, posterURL, epTitle]);
 
   if (loading) {
     return (
@@ -719,10 +731,17 @@ export default function Mp4(): JSX.Element {
         }}
         onContextMenu={(e) => {
           e.preventDefault();
-          setCtx({ x: e.clientX, y: e.clientY });
+          setCtx((prevCtx) =>
+            prevCtx ? null : { x: e.clientX, y: e.clientY },
+          ); // Toggle context menu
         }}
         onClick={(e) => {
-          if (e.target === vid.current) togglePlay();
+          if (ctx) {
+            // If context menu is open, close it on click
+            setCtx(null);
+            return;
+          }
+          if (vid.current && !loading) togglePlay();
         }}
       >
         {showTitle && ep?.title && (
@@ -736,22 +755,29 @@ export default function Mp4(): JSX.Element {
           </div>
         )}
 
-        {showVol && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-            <span className="bg-black/60 text-white text-4xl px-8 py-4 rounded-lg font-bold">
-              {Math.round(vol * 100)}%
-            </span>
-          </div>
-        )}
+        <div
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none transition-opacity duration-300 ${showVol ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <span className="bg-black/60 text-white text-4xl px-8 py-4 rounded-lg font-bold">
+            {Math.round(vol * 100)}%
+          </span>
+        </div>
 
-        {skipMsg && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-            <span className="bg-black/60 text-white text-4xl px-8 py-4 rounded-lg font-bold">
-              {skipMsg}
-            </span>
-          </div>
-        )}
+        <div
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none transition-opacity duration-300 ${skipMsg ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <span className="bg-black/60 text-white text-4xl px-8 py-4 rounded-lg font-bold">
+            {skipMsg}
+          </span>
+        </div>
 
+        <div
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none transition-opacity duration-300 ${showPlayPauseMsg ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <span className="bg-black/60 text-white text-4xl px-8 py-4 rounded-lg font-bold">
+            {isPlaying ? 'Play' : 'Paused'}
+          </span>
+        </div>
         {err ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-red-400">
             <p>{err}</p>
@@ -775,8 +801,8 @@ export default function Mp4(): JSX.Element {
               setVol(e.currentTarget.volume);
               e.currentTarget.playbackRate = speed;
             }}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
+            onPlay={() => playPauseOverlay(true)}
+            onPause={() => playPauseOverlay(false)}
           />
         )}
 
