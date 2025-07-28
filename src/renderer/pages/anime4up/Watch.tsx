@@ -8,7 +8,7 @@ import React, {
   ReactNode,
   useLayoutEffect,
 } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   getMp4UploadMp4,
   getMp4UploadMp4FHD,
@@ -16,6 +16,14 @@ import {
   getEpisodeControls,
 } from '../../ext/anime4up';
 import { EpisodeControls } from '../../ext/anime4up/types';
+
+import { ElectronHandler } from '../../../main/preload';
+
+declare global {
+  interface Window {
+    electron: ElectronHandler;
+  }
+}
 
 type Server = 'mp4upload-fhd' | 'mp4upload' | 'sendvid';
 
@@ -417,6 +425,14 @@ function ProgressBar({ time, duration, onSeek }: ProgressBarProps) {
   );
 }
 
+interface WatchLocationState {
+  data: {
+    title: string;
+    posterURL?: string;
+  };
+  epTitle: string;
+}
+
 export default function Mp4(): JSX.Element {
   const { t } = useParams();
   const navigate = useNavigate();
@@ -437,6 +453,11 @@ export default function Mp4(): JSX.Element {
   const [hideCur, setHideCur] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
+  const location = useLocation();
+
+  const { data, epTitle } = (location.state || {}) as WatchLocationState;
+  const animeTitle = data?.title;
+  const posterURL = data?.posterURL;
 
   const box = useRef<HTMLDivElement>(null);
   const vid = useRef<HTMLVideoElement>(null);
@@ -482,7 +503,9 @@ export default function Mp4(): JSX.Element {
     if (!t) return;
     try {
       setEp(await getEpisodeControls(t));
-    } catch {}
+    } catch (e) {
+      console.error('Failed to load episode controls:', e);
+    }
   };
 
   const volOverlay = (next: number) => {
@@ -559,8 +582,38 @@ export default function Mp4(): JSX.Element {
   }, [t, cur]);
 
   useEffect(() => {
+    if (!window.electron || !window.electron.discord) {
+      console.warn('Electron API for Discord activity not available.');
+      return;
+    }
+
+    const { discord } = window.electron;
+
+    if (animeTitle && epTitle && dur > 0) {
+      discord.setWatching({
+        animeTitle,
+        episodeTitle: epTitle,
+        posterURL,
+      });
+    } else if (animeTitle && epTitle && dur === 0 && !loading) {
+      discord.setWatching({
+        animeTitle,
+        episodeTitle: epTitle,
+        posterURL,
+      });
+    } else if (!animeTitle || !epTitle) {
+      discord.clear();
+    }
+
+    return () => {
+      if (discord) {
+        discord.clear();
+      }
+    };
+  }, [animeTitle, epTitle, posterURL, time, dur, isPlaying, loading, t]);
+
+  useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      // Prevent default for all our custom keys
       if (
         [
           'Space',
@@ -580,12 +633,10 @@ export default function Mp4(): JSX.Element {
         e.preventDefault();
       }
 
-      // Play/Pause
       if (e.code === 'Space') {
         togglePlay();
       }
 
-      // Seek controls
       if (e.code === 'ArrowRight' || e.code === 'KeyD') {
         jump(5);
       }
@@ -593,7 +644,6 @@ export default function Mp4(): JSX.Element {
         jump(-5);
       }
 
-      // Volume controls
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
         adjustVolume(0.1);
       }
@@ -601,15 +651,26 @@ export default function Mp4(): JSX.Element {
         adjustVolume(-0.1);
       }
 
-      // Navigation controls
       if (e.code === 'KeyN' && ep?.next) {
-        navigate(`/anime4up/watch/${ep.next}`);
+        navigate(`/anime4up/watch/${ep.next}`, {
+          state: {
+            data: { title: animeTitle, posterURL },
+            epTitle: ep.nextTitle || 'Next Episode',
+          },
+        });
       }
       if (e.code === 'KeyV' && ep?.prev) {
-        navigate(`/anime4up/watch/${ep.prev}`);
+        navigate(`/anime4up/watch/${ep.prev}`, {
+          state: {
+            data: { title: animeTitle, posterURL },
+            epTitle: ep.prevTitle || 'Previous Episode',
+          },
+        });
       }
       if (e.code === 'KeyB' && ep?.back) {
-        navigate(`/anime4up/anime/${ep.back}`);
+        navigate(`/anime4up/anime/${ep.back}`, {
+          state: { data: { title: animeTitle, posterURL } },
+        });
       }
     };
 
@@ -622,7 +683,17 @@ export default function Mp4(): JSX.Element {
       if (curTimer.current) clearTimeout(curTimer.current);
       if (skipTimer.current) clearTimeout(skipTimer.current);
     };
-  }, [dur, ep, navigate]);
+  }, [
+    dur,
+    ep,
+    navigate,
+    animeTitle,
+    posterURL,
+    epTitle,
+    togglePlay,
+    jump,
+    adjustVolume,
+  ]);
 
   if (loading) {
     return (
@@ -631,6 +702,7 @@ export default function Mp4(): JSX.Element {
       </div>
     );
   }
+  if (ep) console.log(ep.back);
 
   return (
     <Container>

@@ -85,6 +85,11 @@ export default function AnimeDetailsA4U() {
     }
   };
 
+  const data = {
+    title: details?.title,
+    posterURL: details?.posterURL,
+  };
+
   if (loading) {
     return (
       <div className="font-cairo" dir="rtl">
@@ -295,6 +300,7 @@ export default function AnimeDetailsA4U() {
                     {details.episodes.map((ep, index) => (
                       <Link
                         to={`/anime4up/watch/${ep.path}`}
+                        state={{ data, epTitle: ep.title }}
                         key={ep.title}
                         className="block hover:bg-gray-700 transition-all duration-200"
                       >

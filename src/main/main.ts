@@ -169,6 +169,14 @@ ipcMain.handle('discord-set-reading', async (_, mangaData) => {
   return false;
 });
 
+ipcMain.handle('discord-set-watching', async (_, videoData) => {
+  if (discordActivity) {
+    await discordActivity.setWatchingActivity(videoData);
+    return true;
+  }
+  return false;
+});
+
 ipcMain.handle('discord-update-page', async (_, updates) => {
   if (discordActivity) {
     await discordActivity.updateCurrentActivity(updates);

@@ -7,14 +7,11 @@ import React, {
 } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Chapter } from '../../ext/lekmanga/types';
-import { getChapter as getChapterLek } from '../../ext/lekmanga';
 import { getChapter as getChapter3asq } from '../../ext/3asq';
 import { getChapter as getChapterDespair } from '../../ext/despair-manga';
 import { getChapterContent } from '../../ext/comick';
 
-// Import the ElectronHandler type
 import { ElectronHandler } from '../../../main/preload';
-// Declare the global window object to include your electron handler
 declare global {
   interface Window {
     electron: ElectronHandler;
@@ -46,18 +43,14 @@ function Container({ children }: { children: ReactNode }) {
   );
 }
 
-// Define the type for the data passed in location.state
 interface LocationStateData {
   mangaTitle: string;
   mangaPosterURL?: string;
-  // Add any other data you might pass from MangaDetails here
-  // e.g., mangaChapterTitle?: string;
 }
 
 function Read(): React.JSX.Element {
   const { s, m, n } = useParams();
   const location = useLocation();
-  // Destructure the 'data' from location.state
   const { data } = (location.state || {}) as { data?: LocationStateData };
   const { chapterTitle } = (location.state || {}) as {
     chapterTitle?: LocationStateData;
@@ -195,7 +188,6 @@ function Read(): React.JSX.Element {
     fetchChapter();
   }, [m, n, s]);
 
-  // --- Discord Rich Presence Effect ---
   useEffect(() => {
     const { discord } = window.electron;
 
@@ -204,24 +196,20 @@ function Read(): React.JSX.Element {
       return;
     }
 
-    // Only update Discord if chapter data is loaded AND we have the data from location.state
     if (chapter && data && chapterTitle) {
       const mangaTitleForRPC = data.mangaTitle || 'Untitled Manga';
-      // Use chapter.title from fetched data as the chapter's specific title
       const chapterTitleForRPC = chapterTitle || 'Untitled Chapter';
       const mangaPosterURLForRPC = data.mangaPosterURL;
 
       discord.setReading({
-        title: mangaTitleForRPC, // The main manga title
-        chapter: chapterTitleForRPC, // The chapter title
-        posterURL: mangaPosterURLForRPC, // The poster URL
+        title: mangaTitleForRPC,
+        chapter: chapterTitleForRPC,
+        posterURL: mangaPosterURLForRPC,
       });
       console.log(
         `[Reader] Discord activity updated: Reading ${mangaTitleForRPC}, Chapter ${chapterTitleForRPC}`,
       );
     } else if (!chapter && data) {
-      // If data is available but chapter is not loaded yet (initial load state)
-      // You could set a 'Loading chapter...' status
       discord.setReading({
         title: data.mangaTitle || 'Loading Manga',
         chapter: 'Loading Chapter...',
@@ -231,15 +219,13 @@ function Read(): React.JSX.Element {
         `[Reader] Discord activity: Loading chapter for ${data.mangaTitle}`,
       );
     }
-
-    // Cleanup: Clear Discord activity when component unmounts
     return () => {
       if (discord) {
         discord.clear();
         console.log('[Reader] Discord activity cleared on component unmount.');
       }
     };
-  }, [chapter, data]); // Depend on 'chapter' and 'data' from location.state
+  }, [chapter, data]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyNavigation);

@@ -8,10 +8,62 @@ export type Channels =
   | 'discord-set-reading'
   | 'discord-update-page'
   | 'discord-set-details-checking'
-  | 'discord-clear';
+  | 'discord-set-watching'
+  | 'discord-clear'
+  | 'discord-status'
+  | 'download-chapter';
+
+declare global {
+  interface Window {
+    electronAPI: {
+      downloadChapter: (data: {
+        mangaTitle: string;
+        chapterTitle: string;
+        pages: string[];
+      }) => Promise<any>;
+    };
+    electron: {
+      ipcRenderer: {
+        sendMessage(channel: Channels, ...args: unknown[]): void;
+        on(channel: Channels, func: (...args: unknown[]) => void): () => void;
+        once(channel: Channels, func: (...args: unknown[]) => void): () => void;
+        invoke(channel: Channels, ...args: unknown[]): Promise<unknown>;
+      };
+      discord: {
+        setBrowse: () => Promise<boolean>;
+        setReading: (mangaData: {
+          title: string;
+          chapter: string;
+          page?: number;
+        }) => Promise<boolean>;
+        updatePage: (updates: { page?: number }) => Promise<boolean>;
+        setDetailsChecking: (mangaData: {
+          title: string;
+          posterURL?: string;
+        }) => Promise<boolean>;
+        setWatching: (videoData: {
+          animeTitle: string;
+          episodeTitle: string;
+          posterURL?: string;
+        }) => Promise<boolean>;
+        clear: () => Promise<boolean>;
+        getStatus: () => Promise<boolean>;
+      };
+      downloadChapter: (data: {
+        mangaTitle: string;
+        chapterTitle: string;
+        pages: string[];
+      }) => Promise<any>;
+    };
+  }
+}
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  downloadChapter: (data) => ipcRenderer.invoke('download-chapter', data),
+  downloadChapter: (data: {
+    mangaTitle: string;
+    chapterTitle: string;
+    pages: string[];
+  }) => ipcRenderer.invoke('download-chapter', data),
 });
 
 const electronHandler = {
@@ -53,6 +105,11 @@ const electronHandler = {
       ipcRenderer.invoke('discord-update-page', updates),
     setDetailsChecking: (mangaData: { title: string; posterURL?: string }) =>
       ipcRenderer.invoke('discord-set-details-checking', mangaData),
+    setWatching: (videoData: {
+      animeTitle: string;
+      episodeTitle: string;
+      posterURL?: string;
+    }) => ipcRenderer.invoke('discord-set-watching', videoData),
     clear: () => ipcRenderer.invoke('discord-clear'),
     getStatus: () => ipcRenderer.invoke('discord-status'),
   },

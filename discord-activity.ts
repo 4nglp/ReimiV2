@@ -1,12 +1,11 @@
+// discord-activity.ts
+
 import { Client } from 'discord-rpc';
 
 export default class DiscordActivity {
   private clientId: string;
-
   private rpc: any;
-
   private isConnected: boolean = false;
-
   private startTime: number = Date.now();
 
   constructor(clientId: string) {
@@ -18,10 +17,12 @@ export default class DiscordActivity {
   private setupEvents() {
     this.rpc.on('ready', () => {
       this.isConnected = true;
+      console.log('🔗 Discord RPC connected!'); // Added for clarity
     });
 
     this.rpc.on('disconnected', () => {
       this.isConnected = false;
+      console.log('🔌 Discord RPC disconnected.'); // Added for clarity
     });
   }
 
@@ -44,7 +45,7 @@ export default class DiscordActivity {
       startTimestamp: this.startTime,
       largeImageKey: 'reimi_icon',
       largeImageText: 'Reimi',
-      smallImageKey: 'Browse_icon',
+      smallImageKey: 'browse_icon',
       smallImageText: 'Browse',
     };
 
@@ -69,14 +70,38 @@ export default class DiscordActivity {
       startTimestamp: this.startTime,
       largeImageKey: mangaData.posterURL || 'manga_icon',
       largeImageText: mangaData.title,
-      smallImageKey: 'reading_icon',
-      smallImageText: `${mangaData.chapter}`,
+      smallImageKey: 'app_logo',
+      smallImageText: 'Reading',
     };
 
     try {
       await this.rpc.setActivity(activity);
     } catch (error) {
       console.error('Failed to set reading activity:', error);
+    }
+  }
+
+  async setWatchingActivity(videoData: {
+    animeTitle: string;
+    episodeTitle: string;
+    posterURL?: string;
+  }): Promise<void> {
+    if (!this.isConnected) return;
+    const { animeTitle, episodeTitle, posterURL } = videoData;
+
+    const activity = {
+      details: `${animeTitle}`,
+      state: `${episodeTitle}`,
+      largeImageKey: posterURL || 'anime_icon',
+      largeImageText: animeTitle,
+      smallImageKey: 'app_logo',
+      smallImageText: 'Watching',
+    };
+
+    try {
+      await this.rpc.setActivity(activity);
+    } catch (error) {
+      console.error('Failed to set watching activity:', error);
     }
   }
 
@@ -92,8 +117,8 @@ export default class DiscordActivity {
       startTimestamp: this.startTime,
       largeImageKey: data.posterURL || 'entry_icon',
       largeImageText: data.title,
-      smallImageKey: 'details_icon',
-      smallImageText: 'Details',
+      smallImageKey: 'app_logo',
+      smallImageText: 'Viewing Details',
     };
 
     try {
@@ -101,11 +126,6 @@ export default class DiscordActivity {
     } catch (error) {
       console.error('Failed to set checking details activity:', error);
     }
-  }
-
-  async updateCurrentActivity(updates: { page?: number }): Promise<void> {
-    if (!this.isConnected) return;
-    console.log('📄 Discord: Page updated to', updates.page);
   }
 
   async clearActivity(): Promise<void> {
