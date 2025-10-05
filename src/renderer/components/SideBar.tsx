@@ -238,13 +238,6 @@ export default function SideBar() {
                     انمي فور اب
                   </div>
                 </Link>
-                <Link to="/animerco">
-                  <div
-                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/animerco') ? 'text-white font-semibold' : ''}`}
-                  >
-                    انميركو
-                  </div>
-                </Link>
               </div>
             )}
           </div>

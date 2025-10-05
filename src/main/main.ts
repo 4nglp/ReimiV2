@@ -258,11 +258,7 @@ app
   .then(() => {
     session.defaultSession.webRequest.onBeforeSendHeaders(
       {
-        urls: [
-          '*://*.mp4upload.com/*',
-          '*://*.comick.io/*',
-          '*://api.comick.io/*',
-        ],
+        urls: ['*://*.mp4upload.com/*'],
       },
       (details, callback) => {
         const url = new URL(details.url);
@@ -270,23 +266,6 @@ app
         // Handle mp4upload.com
         if (url.hostname.includes('mp4upload.com')) {
           details.requestHeaders['Referer'] = 'https://www.mp4upload.com/';
-        }
-
-        // Handle comick.io and api.comick.io
-        if (url.hostname.includes('comick.io')) {
-          details.requestHeaders['User-Agent'] =
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-          details.requestHeaders['Accept'] =
-            'application/json, text/plain, */*';
-          details.requestHeaders['Accept-Language'] = 'en-US,en;q=0.9';
-          details.requestHeaders['Accept-Encoding'] = 'gzip, deflate, br';
-          details.requestHeaders['Referer'] = 'https://comick.io/';
-          details.requestHeaders['Origin'] = 'https://comick.io';
-          details.requestHeaders['Sec-Fetch-Dest'] = 'empty';
-          details.requestHeaders['Sec-Fetch-Mode'] = 'cors';
-          details.requestHeaders['Sec-Fetch-Site'] = 'same-site';
-          details.requestHeaders['Cache-Control'] = 'no-cache';
-          details.requestHeaders['Pragma'] = 'no-cache';
         }
 
         callback({ cancel: false, requestHeaders: details.requestHeaders });

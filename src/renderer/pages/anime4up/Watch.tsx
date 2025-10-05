@@ -13,11 +13,13 @@ import {
   getMp4UploadMp4,
   getMp4UploadMp4FHD,
   getSendVidMp,
+  getLarhu,
   getEpisodeControls,
+  getAvailableServers,
 } from '../../ext/anime4up';
 import { EpisodeControls } from '../../ext/anime4up/types';
 
-type Server = 'mp4upload-fhd' | 'mp4upload' | 'sendvid';
+type Server = 'mp4upload-fhd' | 'mp4upload' | 'sendvid' | 'larhu';
 
 function Container({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -131,7 +133,9 @@ function ContextMenu({
       ? 'MP4Upload'
       : s === 'mp4upload-fhd'
         ? 'MP4Upload FHD'
-        : 'SendVid';
+        : s === 'sendvid'
+          ? 'SendVid'
+          : 'Larhu';
 
   return (
     <div
@@ -420,11 +424,11 @@ function ProgressBar({ time, duration, onSeek }: ProgressBarProps) {
 export default function Mp4(): JSX.Element {
   const { t } = useParams();
   const navigate = useNavigate();
-  const servers: Server[] = ['mp4upload-fhd', 'mp4upload', 'sendvid'];
+  const [servers, setServers] = useState<Server[]>([]);
   const [url, setUrl] = useState('');
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(true);
-  const [cur, setCur] = useState<Server>('mp4upload-fhd');
+  const [cur, setCur] = useState<Server | null>(null);
   const [ep, setEp] = useState<EpisodeControls | null>(null);
   const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
   const [showTitle, setShowTitle] = useState(false);
@@ -446,6 +450,9 @@ export default function Mp4(): JSX.Element {
 
   const getUrl = async (s: Server) => {
     if (!t) throw new Error('Episode ID missing');
+    if (s === 'larhu') {
+      return await getLarhu(t);
+    }
     if (s === 'mp4upload') {
       const embed = await getMp4UploadMp4(t);
       const html = await (await fetch(embed)).text();
@@ -471,7 +478,8 @@ export default function Mp4(): JSX.Element {
     setErr('');
     try {
       setUrl(await getUrl(s));
-    } catch {
+    } catch (error) {
+      console.error('Error loading from', s, error);
       setErr(`Failed to load from ${s}`);
     } finally {
       setLoading(false);
@@ -483,6 +491,27 @@ export default function Mp4(): JSX.Element {
     try {
       setEp(await getEpisodeControls(t));
     } catch {}
+  };
+
+  const loadServers = async () => {
+    if (!t) return;
+    try {
+      const availableServers = await getAvailableServers(t);
+      setServers(availableServers);
+      if (availableServers.length > 0 && !cur) {
+        setCur(availableServers[0]);
+      }
+    } catch (error) {
+      console.error('Error loading servers:', error);
+      const fallback: Server[] = [
+        'larhu',
+        'mp4upload-fhd',
+        'mp4upload',
+        'sendvid',
+      ];
+      setServers(fallback);
+      if (!cur) setCur(fallback[0]);
+    }
   };
 
   const volOverlay = (next: number) => {
@@ -554,13 +583,18 @@ export default function Mp4(): JSX.Element {
   };
 
   useEffect(() => {
-    load(cur);
+    loadServers();
     loadEp();
-  }, [t, cur]);
+  }, [t]);
+
+  useEffect(() => {
+    if (cur) {
+      load(cur);
+    }
+  }, [cur]);
 
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      // Prevent default for all our custom keys
       if (
         [
           'Space',
@@ -580,12 +614,10 @@ export default function Mp4(): JSX.Element {
         e.preventDefault();
       }
 
-      // Play/Pause
       if (e.code === 'Space') {
         togglePlay();
       }
 
-      // Seek controls
       if (e.code === 'ArrowRight' || e.code === 'KeyD') {
         jump(5);
       }
@@ -593,7 +625,6 @@ export default function Mp4(): JSX.Element {
         jump(-5);
       }
 
-      // Volume controls
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
         adjustVolume(0.1);
       }
@@ -601,7 +632,6 @@ export default function Mp4(): JSX.Element {
         adjustVolume(-0.1);
       }
 
-      // Navigation controls
       if (e.code === 'KeyN' && ep?.next) {
         navigate(`/anime4up/watch/${ep.next}`);
       }
@@ -624,7 +654,7 @@ export default function Mp4(): JSX.Element {
     };
   }, [dur, ep, navigate]);
 
-  if (loading) {
+  if (loading || servers.length === 0 || !cur) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
         <div className="animate-spin h-10 w-10 rounded-full border-4 border-white border-t-transparent" />

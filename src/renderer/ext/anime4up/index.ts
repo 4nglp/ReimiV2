@@ -228,6 +228,35 @@ export async function getSendVidMp(slug: string): Promise<string> {
   return mp4Url;
 }
 
+export async function getLarhu(t: string): Promise<string> {
+  const res = await fetch(`${baseURL}episode/${t}`);
+  const doc = parseHTML(await res.text());
+  const uploadAnchor = [...doc.querySelectorAll('#episode-servers li a')].find(
+    (a) => a.textContent?.trim().toLowerCase() === 'larhu',
+  );
+  if (!uploadAnchor) {
+    throw new Error('Upload server not found');
+  }
+  const embedUrl = uploadAnchor.getAttribute('data-ep-url');
+  if (!embedUrl) {
+    throw new Error('Embed URL not found');
+  }
+  console.log('Found embed URL:', embedUrl);
+  const embedRes = await fetch(embedUrl);
+  const embedHtml = await embedRes.text();
+  const sourcesMatch = embedHtml.match(/const sources = (\[[\s\S]*?\]);/);
+  if (!sourcesMatch) {
+    throw new Error('Sources array not found in embed page');
+  }
+  const sourcesJson = sourcesMatch[1].replace(/\\\//g, '/');
+  const sources = JSON.parse(sourcesJson);
+  const source1080p = sources.find((s: any) => s.label === '1080p');
+  if (!source1080p) {
+    throw new Error('1080p source not found');
+  }
+  return source1080p.file;
+}
+
 export async function getEpisodeControls(t: string) {
   const res = await fetch(`${baseURL}episode/${t}`);
   const doc = parseHTML(await res.text());
@@ -247,4 +276,24 @@ export async function getEpisodeControls(t: string) {
   };
   console.log(controls);
   return controls;
+}
+
+export async function getAvailableServers(t: string): Promise<Server[]> {
+  const res = await fetch(`${baseURL}episode/${t}`);
+  const doc = parseHTML(await res.text());
+  const serverAnchors = [...doc.querySelectorAll('#episode-servers li a')];
+  const availableServers = [];
+  for (const anchor of serverAnchors) {
+    const serverName = anchor.textContent?.trim().toLowerCase() || '';
+    if (serverName === 'larhu') {
+      availableServers.push('larhu');
+    } else if (serverName === 'mp4upload - fhd') {
+      availableServers.push('mp4upload-fhd');
+    } else if (serverName === 'mp4upload') {
+      availableServers.push('mp4upload');
+    } else if (serverName === 'sendvid') {
+      availableServers.push('sendvid');
+    }
+  }
+  return availableServers;
 }
