@@ -212,13 +212,6 @@ export default function SideBar() {
                     ديسباير
                   </div>
                 </Link>
-                <Link to="/comick">
-                  <div
-                    className={`p-1 rounded text-gray-300 hover:text-white hover:font-semibold mb-1 text-sm ${isActive('/comick') ? 'text-white font-semibold' : ''}`}
-                  >
-                    Comick
-                  </div>
-                </Link>
               </div>
             )}
           </div>

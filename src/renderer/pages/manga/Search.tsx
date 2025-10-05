@@ -4,7 +4,6 @@ import SearchBar from '../../components/manga/SearchBar';
 import SearchCardManga from '../../components/manga/SearchCard';
 import { getResults } from '../../ext/3asq';
 import { getSearchResults } from '../../ext/despair-manga';
-import { getSearchComick } from '../../ext/comick';
 import { Results } from '../../ext/3asq/types';
 
 export default function SearchPageManga() {
@@ -26,8 +25,6 @@ export default function SearchPageManga() {
           data = await getResults(query);
         } else if (s === 'despair') {
           data = await getSearchResults(query);
-        } else if (s === 'comick') {
-          data = await getSearchComick(query);
         } else {
           throw new Error(`Unsupported source: ${s}`);
         }
